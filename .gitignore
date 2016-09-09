@@ -10,3 +10,19 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+#CodeIgniter raamistik
+
+Veebirakendus/application/cache/*
+!Veebirakendus/application/cache/index.html
+!Veebirakendus/application/cache/.htaccess
+
+Veebirakendus/application/logs/*
+!Veebirakendus/application/logs/index.html
+!Veebirakendus/application/logs/.htaccess
+
+Veebirakendus/user_guide_src/build/*
+Veebirakendus/user_guide_src/cilexer/build/*
+Veebirakendus/user_guide_src/cilexer/dist/*
+Veebirakendus/user_guide_src/cilexer/pycilexer.egg-info/*
+Veebirakendus/vendor/
