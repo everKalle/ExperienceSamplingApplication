@@ -11,10 +11,10 @@
     <title>Experience Sampling Application Back-End</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="<?php echo base_url(); ?>/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles -->
-    <link href="<?php echo base_url(); ?>/public/css/navbar.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>public/css/style.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -40,13 +40,13 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Minu uuringud</a></li>
-              <li><a href="#">Minuga jagatud uuringud</a></li>
+              <li class="active"><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
+              <li><a href="<?php echo base_url(); ?>index.php/study/create/">Minuga jagatud uuringud</a></li>
               <li><a href="#">Uus uuring</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="../navbar-static-top/">Konto seaded</a></li>
-              <li><a href="../navbar-fixed-top/">Logi välja</a></li>
+              <li><a href="#">Konto seaded</a></li>
+              <li><a href="#">Logi välja</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
