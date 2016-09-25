@@ -19,7 +19,9 @@ class VerifyLogin extends CI_Controller {
    if($this->form_validation->run() == FALSE)
    {
     //Field validation failed.  User redirected to login page
+     $this->load->view('templates/header.php');
      $this->load->view('login_view');
+     $this->load->view('templates/footer.php');
    }
    else
    {
@@ -44,7 +46,9 @@ class VerifyLogin extends CI_Controller {
      {
        $sess_array = array(
          'id' => $row->id,
-         'username' => $row->username
+         'username' => $row->username,
+	 'acc_activated' => $row->acc_activated,
+	 'superuser' => $row->superuser
        );
        $this->session->set_userdata('logged_in', $sess_array);
      }
