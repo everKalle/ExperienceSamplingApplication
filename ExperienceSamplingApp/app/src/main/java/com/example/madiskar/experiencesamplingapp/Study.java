@@ -15,7 +15,7 @@ public class Study {
     private int notificationsPerDay;
     private int notificationInterval;
     private int postponeTime;
-    private boolean postponable;
+    private boolean postponable; 
 
     public Study(String name, ArrayList<Question> questions, Time beginDate, Time endDate, Time studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable){
         this.name = name;
