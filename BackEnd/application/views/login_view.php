@@ -6,7 +6,7 @@
  <body>
    <h1>Test</h1>
    <?php echo validation_errors(); ?>
-   <?php echo form_open('verifylogin'); ?>
+   <?php echo form_open('VerifyLogin'); ?>
      <label for="username">Username:</label>
      <input type="text" size="20" id="username" name="username"/>
      <br/>
