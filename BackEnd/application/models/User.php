@@ -5,7 +5,7 @@ class User extends CI_Model {
 		$this->db->select('id, username, password, acc_activated, superuser');
 		$this->db->from('users');
 		$this->db->where('username', $username);
-		$this->db->where('password', md5($password));
+		$this->db->where('password', sha2($password));
 		$this->db->limit(1);
 
 		$query = $this->db->get();
