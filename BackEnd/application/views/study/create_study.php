@@ -1,7 +1,7 @@
 <br>
 <?php echo validation_errors(); ?>
 
-<?php echo form_open('crafts/add')?>
+<?php echo form_open('study/create')?>
 <div class="panel panel-info">
   <div class="panel-heading">
     <h3 class="panel-title">Uuringu seaded</h3>
@@ -36,7 +36,7 @@
       <div class="form-group">
         <label class="control-label col-sm-3" for="no-target">&nbsp;</label>
         <div class="col-sm-7 form-inline">
-          <input class="form-control input-sm" type="number" id="study-duration-time" name="study-duration-time" size="5" min="1" required/>
+          <input class="form-control input-sm" type="number" id="study-duration-time" name="study-duration-time" size="5" min="1"/>
           <label for="study-duration-time">Nädalat</label>
         </div>
       </div><hr>
@@ -68,14 +68,14 @@
       <div class="form-group">
         <label class="control-label col-sm-3" for="study-postpone-time">Vastamist lükatakse edasi</label>
         <div class="col-sm-7 form-inline">
-          <input class="form-control input-sm" type="number" type="text" id="study-postpone-time" name="study-postpone-time" size="5" min="1" value="15" required/> minutit
+          <input class="form-control input-sm" type="number" id="study-postpone-time" name="study-postpone-time" size="5" min="1" value="15"/> minutit
         </div>
       </div><hr>
       <div class="form-group">
         <label class="control-label col-sm-3" for="study-language">Uuringu keel: </label>
         <div class="col-sm-7 form-inline">
           <select class="form-control input-sm" name="study-language">
-            <option value="est">Eesti</option>
+            <option value="est" selected>Eesti</option>
             <option value="eng">Inglise</option>
             <option value="rus">Vene</option>
             <option value="ger">Saksa</option>
@@ -87,13 +87,13 @@
         <label class="control-label col-sm-3" for="study-is-public">Uuringule ligipääs</label>
         <div class="col-sm-7 form-inline">
           <input type="radio" name="study-is-public" value="1" checked> Avatud - igaüks saab osaleda<br>
-          <input type="radio" name="study-is-public" value="0" checked> Privaatne - administraator lisab osalejad
+          <input type="radio" name="study-is-public" value="0"> Privaatne - administraator lisab osalejad
         </div>
       </div>
     </div>
   </div>
 </div>
 
-</form>
+
 
           
