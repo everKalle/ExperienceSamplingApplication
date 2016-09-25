@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class Study {
     private ArrayList<Question> questions;
     private String name;
-    private Time beginDate;
+    private Time beginDate; 
     private Time endDate;
     private Time studyLength;
     private int notificationsPerDay;
