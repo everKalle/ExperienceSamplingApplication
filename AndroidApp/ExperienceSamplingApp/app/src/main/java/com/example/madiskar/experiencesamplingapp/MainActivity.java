@@ -11,12 +11,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Realiseerida süsteem, mis kasutab uuringu andmeid ning kontrollib nende põhjal (piiksude intervalle kasutades) kas peaks nüüd teate saatma
+    // Vajutades OK -> kutsuda välja mingi QuestionnaireActivity
+    // Vajutades Postponne -> võtta uuringu andmetest postpone'i kestus ja kutsuda aja möödudes välja QuestionnaireActivity
+    // Vajutades Refuse -> eemaldada notifikatsioon
 
     private static String TAG = MainActivity.class.getSimpleName();
 
