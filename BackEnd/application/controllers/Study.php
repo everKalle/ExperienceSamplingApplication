@@ -40,6 +40,7 @@ class Study extends CI_Controller {
       $this->load->view('templates/header', $this->logged_in);
       $this->load->view('study/create_study');
       $this->load->view('study/create_question');
+      $this->load->view('study/create_event');
       $this->load->view('templates/footer');
      } else {
       echo json_encode($this->input->post(NULL));  //create real saving system instead of just printint out
