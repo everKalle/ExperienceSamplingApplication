@@ -11,20 +11,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Realiseerida süsteem, mis kasutab uuringu andmeid ning kontrollib nende põhjal (piiksude intervalle kasutades) kas peaks nüüd teate saatma
-    // Vajutades OK -> kutsuda välja mingi QuestionnaireActivity
-    // Vajutades Postponne -> võtta uuringu andmetest postpone'i kestus ja kutsuda aja möödudes välja QuestionnaireActivity
-    // Vajutades Refuse -> eemaldada notifikatsioon
 
     private static String TAG = MainActivity.class.getSimpleName();
 
@@ -83,6 +77,27 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        Question q1 = new FreeTextQuestion("Is it easy?");
+        Question q2 = new FreeTextQuestion("Is it still easy?");
+        Question q3 = new FreeTextQuestion("Is it easy or is it easy?");
+
+        ArrayList<Question> questions = new ArrayList<>();
+        questions.add(q1);
+        questions.add(q2);
+        questions.add(q3);
+        Calendar c1 = Calendar.getInstance();
+        c1.set(Calendar.YEAR, Calendar.MONTH, 20);
+        Calendar c2 = Calendar.getInstance();
+        c2.set(Calendar.YEAR, Calendar.MONTH + 1, 20);
+        Study study = new Study("easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
+
+        //Intent msgIntent = new Intent(this, NotificationService.class);
+        //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());
+        //startService(msgIntent);
+
+        ResponseReceiver.setupAlarm(getApplicationContext(), study);
+
     }
 
 
