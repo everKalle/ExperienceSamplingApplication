@@ -40,14 +40,14 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-<?php if (isset($logged_in)) { ?>
+<?php if (isset($username)) { ?>
               <li class="active"><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
               <li><a href="<?php echo base_url(); ?>index.php/study/create/">Minuga jagatud uuringud</a></li>
               <li><a href="#">Uus uuring</a></li>
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="#">Konto seaded</a></li>
+              <li><a href="<?php echo base_url(); ?>index.php/settings">Konto seaded</a></li>
 	      <li><a href="<?php echo base_url(); ?>index.php/login/logout">Logi välja</a></li>
 <?php } else { ?>
 	      <li><a href="<?php echo base_url(); ?>index.php/login">Logi sisse</a></li>

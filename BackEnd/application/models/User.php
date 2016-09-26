@@ -16,6 +16,12 @@ class User extends CI_Model {
 			return false;
 		}
 	}
+	
+	function update_password($username,$password) {
+		$this->db->where('username', $username);
+		$this->db->update('users', array('password' => hash('sha256',$password)));
+		return true;
+	}
 }
 
 ?>
