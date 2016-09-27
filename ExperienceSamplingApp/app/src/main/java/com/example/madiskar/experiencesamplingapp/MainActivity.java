@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         c1.set(Calendar.YEAR, Calendar.MONTH, 20);
         Calendar c2 = Calendar.getInstance();
         c2.set(Calendar.YEAR, Calendar.MONTH + 1, 20);
-        Study study = new Study("easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
+        Study study = new Study(0, "easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
 
         //Intent msgIntent = new Intent(this, NotificationService.class);
         //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());

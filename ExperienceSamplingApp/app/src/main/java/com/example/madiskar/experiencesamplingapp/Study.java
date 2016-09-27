@@ -9,6 +9,7 @@ import java.util.Date;
  * Created by Joosep on 25.09.2016.
  */
 public class Study {
+    private int id;
     private ArrayList<Question> questions;
     private String name;
     private Calendar beginDate;
@@ -21,7 +22,8 @@ public class Study {
     private boolean postponable;
     private int currentQuestion; 
 
-    public Study(String name, ArrayList<Question> questions, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+    public Study(int id, String name, ArrayList<Question> questions, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+        this.id = id;
         this.name = name;
         this.questions = questions;
         this.beginDate = beginDate;
@@ -64,6 +66,10 @@ public class Study {
     }
     public int getStudyLength() {
         return studyLength;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public int getNotificationsPerDay() {
