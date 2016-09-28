@@ -1,5 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import java.lang.reflect.Array;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,7 +10,7 @@ import java.util.Date;
  * Created by Joosep on 25.09.2016.
  */
 public class Study {
-    private int id;
+    private long id;
     private ArrayList<Question> questions;
     private String name;
     private Calendar beginDate;
@@ -20,9 +21,8 @@ public class Study {
     private int minTimeBetweenNotifications;
     private int postponeTime;
     private boolean postponable;
-    private int currentQuestion; 
 
-    public Study(int id, String name, ArrayList<Question> questions, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+    public Study(long id, String name, ArrayList<Question> questions, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
         this.id = id;
         this.name = name;
         this.questions = questions;
@@ -34,7 +34,6 @@ public class Study {
         this.postponeTime = postponeTime;
         this.postponable = postponable;
         this.minTimeBetweenNotifications = minTimeBetweenNotifications;
-        currentQuestion = 0;
     }
 
     public String[] questionsAsText() {
@@ -59,16 +58,13 @@ public class Study {
         return endDate;
     }
 
-    public String nextQuestion(){
-        if (currentQuestion < questions.size())
-            return questions.get(currentQuestion++).getText();
-        return null;
-    }
     public int getStudyLength() {
         return studyLength;
     }
 
-    public int getId() {
+    public ArrayList<Question> getQuestions() { return questions; }
+
+    public long getId() {
         return id;
     }
 

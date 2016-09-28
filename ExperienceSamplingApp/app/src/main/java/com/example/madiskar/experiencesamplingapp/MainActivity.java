@@ -3,6 +3,7 @@ package com.example.madiskar.experiencesamplingapp;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -87,10 +88,15 @@ public class MainActivity extends AppCompatActivity {
         questions.add(q2);
         questions.add(q3);
         Calendar c1 = Calendar.getInstance();
-        c1.set(Calendar.YEAR, Calendar.MONTH, 20);
+        c1.set(2016, 2, 20);
         Calendar c2 = Calendar.getInstance();
-        c2.set(Calendar.YEAR, Calendar.MONTH + 1, 20);
+        c2.set(2016, 3, 20);
         Study study = new Study(0, "easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
+
+        DBHandler mydb = new DBHandler(getApplicationContext());
+        mydb.clearTables();
+        mydb.insertStudy(study);
+        //ArrayList<Study> currentStudies = mydb.getAllStudies();
 
         //Intent msgIntent = new Intent(this, NotificationService.class);
         //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());

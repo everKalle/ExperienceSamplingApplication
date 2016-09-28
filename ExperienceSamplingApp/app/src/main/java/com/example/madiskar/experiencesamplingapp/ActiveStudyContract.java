@@ -20,7 +20,6 @@ public class ActiveStudyContract {
         public static final String COLUMN_MINTIMEBETWEENNOTIFICATIONS = "minTimeBetweenNotifications";
         public static final String COLUMN_POSTPONETIME = "postponeTime";
         public static final String COLUMN_POSTPONABLE = "postponable";
-        public static final String COLUMN_CURRENTQUESTION = "currentQuestion";
     }
 
     public static class QuestionEntry implements  BaseColumns {
@@ -28,5 +27,6 @@ public class ActiveStudyContract {
         public static final String COLUMN_TEXT = "text";
         public static final String COLUMN_ANSWER = "answer";
         public static final String COLUMN_STUDYID = "study_id";
+        public static final String COLUMN_TYPE = "question_type";
     }
 }
