@@ -42,8 +42,8 @@
             <ul class="nav navbar-nav">
 <?php if (isset($username)) { ?>
               <li class="active"><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
-              <li><a href="<?php echo base_url(); ?>index.php/study/create/">Minuga jagatud uuringud</a></li>
-              <li><a href="#">Uus uuring</a></li>
+              <li><a href="#">Minuga jagatud uuringud</a></li>
+              <li><a href="<?php echo base_url(); ?>index.php/study/create/">Uus uuring</a></li>
 
             </ul>
             <ul class="nav navbar-nav navbar-right">

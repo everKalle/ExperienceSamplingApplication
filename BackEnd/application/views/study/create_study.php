@@ -41,10 +41,11 @@
           <label for="study-duration-time">Nädalat</label>
         </div>
       </div><hr>
-      <div class="form-group">
+      <div class="form-group" id="study-beep-amt-group">
         <label class="control-label col-sm-3" for="study-beeps-per-day">Piiksude arv päevas:</label>
         <div class="col-sm-7 form-inline">
           <input class="form-control input-sm" type="number" id="study-beeps-per-day" name="study-beeps-per-day" size="5" min="1" placeholder="0" required/> tk
+          <span style="display: none;" id="study-beep-amt-help" class="help-block">Piiksude arv ei mahu piiksude perioodi sisse ära!</span>
         </div>
       </div>
       <div class="form-group">
@@ -53,23 +54,24 @@
           <input class="form-control input-sm" type="number" id="study-min-time-between-beeps" name="study-min-time-between-beeps" size="5" min="1" placeholder="0" required/> tundi
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" id="study-beep-time-group">
         <label class="control-label col-sm-3" for="study-beep-start-time">Piiksud toimuvad ajavahemikul</label>
         <div class="col-sm-7 form-inline">
           <input class="form-control input-sm" type="text" id="study-beep-start-time" name="study-beep-start-time" size="5" placeholder="00:00" required/> kuni
           <input class="form-control input-sm" type="text" id="study-beep-end-time" name="study-beep-start-time" size="5" placeholder="00:00" required/>
+          <span style="display: none;" id="study-time-help-before" class="help-block">Piiksude lõppaeg peab olema hiljem kui algusaeg!</span>
         </div>
       </div><hr>
       <div class="form-group">
         <label class="control-label col-sm-3" for="no-target">Vastamise edasilükkamine</label>
         <div class="col-sm-7">
-          <input type="checkbox" name="study-allow-postpone" value="1" checked></b>
+          <input type="checkbox" id="study-allow-postpone" name="study-allow-postpone" value="1" checked></b>
         </div>
       </div>
       <div class="form-group">
         <label class="control-label col-sm-3" for="study-postpone-time">Vastamist lükatakse edasi</label>
         <div class="col-sm-7 form-inline">
-          <input class="form-control input-sm" type="number" id="study-postpone-time" name="study-postpone-time" size="5" min="1" placeholder="0" value="15"/> minutit
+          <input class="form-control input-sm" type="number" id="study-postpone-time" name="study-postpone-time" size="5" min="1" placeholder="0" value="15" required /> minutit
         </div>
       </div><hr>
       <div class="form-group">

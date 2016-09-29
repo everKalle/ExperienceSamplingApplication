@@ -132,7 +132,7 @@ function add_event(){
 			    '<div class="form-group">' +
 			        '<label class="control-label col-sm-3" for="event-control-time-' + eventCount + '">Kontrollaeg: </label>' +
 			        '<div class="col-sm-7 form-inline">' +
-			          	'<input class="form-control input-sm" type="text" id="event-control-time-' + eventCount + '" name="event-control-time-' + eventCount + '" size="5" placeholder="0" required/>&nbsp;&nbsp;' +
+			          	'<input class="form-control input-sm" type="number" id="event-control-time-' + eventCount + '" name="event-control-time-' + eventCount + '" size="5" min="1" placeholder="0" required/>&nbsp;&nbsp;' +
           				'<select class="form-control input-sm" name="event-control-time-unit-' + eventCount + '">' +
 			            '<option value="eng">minutit</option>' +
 			            '<option value="rus" selected>tundi</option>' +
@@ -165,36 +165,40 @@ function remove_event(){
 }
 
 $("#study-start-date").on("propertychange keyup paste input", function(){
-	//$('#study-start-date').setCustomValidity("errorMessage");
 	if (($("#study-start-date").val().length) == 10){
 	    var date = new Date($("#study-start-date").val());
 	    if (date instanceof Date){
 	    	if (date.toString() != "Invalid Date"){
 		    	$("#study-start-date-group").removeClass("has-error");
+	    		$("#study-start-date").get(0).setCustomValidity("");
 		    	comparedates();
 		    }
 	    } else {
 	    	$("#study-start-date-group").addClass("has-error");
+	    	$("#study-start-date").get(0).setCustomValidity("Vigane kuupäev");
 	    }
     } else {
     	$("#study-start-date-group").addClass("has-error");
+	    $("#study-start-date").get(0).setCustomValidity("Vigane kuupäev");
     }
 });
 
 $("#study-end-date").on("propertychange keyup paste input", function(){
-	//$('#study-start-date').setCustomValidity("errorMessage");
 	if (($("#study-end-date").val().length) == 10){
 	    var date = new Date($("#study-end-date").val());
 	    if (date instanceof Date){
 	    	if (date.toString() != "Invalid Date"){
 		    	$("#study-end-date-group").removeClass("has-error");
+		    	$("#study-end-date").get(0).setCustomValidity("");
 		    	comparedates();
 	    	}
 	    } else {
 	    	$("#study-end-date-group").addClass("has-error");
+	    	$("#study-end-date").get(0).setCustomValidity("Vigane kuupäev");
 	    }
     } else {
     	$("#study-end-date-group").addClass("has-error");
+	    $("#study-end-date").get(0).setCustomValidity("Vigane kuupäev");
     }
 });
 
@@ -204,25 +208,110 @@ function comparedates(){
 	    var startDate = new Date($("#study-start-date").val());
 	    if (endDate instanceof Date && startDate instanceof Date && startDate.toString() != "Invalid Date" && endDate.toString() != "Invalid Date"){
 		    if (startDate < endDate){
+		    	$("#study-end-date").get(0).setCustomValidity("");
 		    	$("#study-start-date-group").removeClass("has-error");
 		    	$("#study-end-date-group").removeClass("has-error");
 		    	$("#study-date-help").hide();	
 		    } else {
+		    	$("#study-end-date").get(0).setCustomValidity("Alguskuupäev peab eelnema lõppkuupäevale.");
 		    	$("#study-start-date-group").addClass("has-error");
 		    	$("#study-end-date-group").addClass("has-error");
 		    	$("#study-date-help").show();
 		    }
-	    	console.log(startDate);
 	    }
 	}
 }
 
-/*function validate_start_date(field){
-	field.setCustomValidity('Vigane kuupäev');
-	if (($("#study-start-date").val().length) == 10){
-	    var date = new Date($("#study-start-date").val());
-	    if (date instanceof Date){
-	    	
-	    }
+$("#study-beep-start-time").on("propertychange keyup paste input", function(){
+	if (validTime($("#study-beep-start-time").val())){
+		$("#study-beep-start-time").get(0).setCustomValidity("");
+		comparetimes();
+	} else {
+		$("#study-beep-start-time").get(0).setCustomValidity("Vigane kellaaeg.");
+	}
+});
+
+$("#study-beep-end-time").on("propertychange keyup paste input", function(){
+	if (validTime($("#study-beep-end-time").val())){
+		$("#study-beep-end-time").get(0).setCustomValidity("");
+		comparetimes();
+	} else {
+		$("#study-beep-end-time").get(0).setCustomValidity("Vigane kellaaeg.");
+	}
+});
+
+$("#study-beeps-per-day").on("propertychange keyup paste input", function(){
+	checkBeepPeriod();
+});
+
+$("#study-min-time-between-beeps").on("propertychange keyup paste input", function(){
+	checkBeepPeriod();
+});
+
+function validTime(time){
+	return /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])(:[0-5][0-9])?$/.test(time);
+}
+
+function comparetimes(){
+	if (validTime($("#study-beep-start-time").val()) && $("#study-beep-end-time").val()){
+		var startTime = $("#study-beep-start-time").val().split(":");
+		var endTime = $("#study-beep-end-time").val().split(":");
+
+		if (Number(startTime[0]) < Number(endTime[0])){
+			$("#study-beep-end-time").get(0).setCustomValidity("");
+			$("#study-beep-time-group").removeClass("has-error");
+			$("#study-time-help-before").hide();
+			checkBeepPeriod();
+		} else if (Number(startTime[0]) == Number(endTime[0])) {
+			if (Number(startTime[1]) < Number(endTime[1])){
+				$("#study-beep-end-time").get(0).setCustomValidity("");
+				$("#study-beep-time-group").removeClass("has-error");
+				$("#study-time-help-before").hide();
+			} else {
+				$("#study-beep-end-time").get(0).setCustomValidity("Piiksude algusaeg peab eelnema lõppajale.");
+				$("#study-beep-time-group").addClass("has-error");
+				$("#study-time-help-before").show();
+			}
+		} else {
+			
+			$("#study-beep-time-group").addClass("has-error");
+			$("#study-time-help-before").show();
+		}
+	}
+}
+
+function checkBeepPeriod(){
+	if ($("#study-beeps-per-day").val() != "" && $("#study-min-time-between-beeps").val() != "" && validTime($("#study-beep-start-time").val()) && $("#study-beep-end-time").val()) {
+		var startTime = $("#study-beep-start-time").val().split(":");
+		var endTime = $("#study-beep-end-time").val().split(":");
+
+		var startTimeInH = Number(startTime[0]) + (Number(startTime[1]) / 60);
+		var endTimeInH = Number(endTime[0]) + (Number(endTime[1]) / 60);
+
+		if (Number($("#study-beeps-per-day").val()) * Number($("#study-min-time-between-beeps").val()) <= Number(endTimeInH) - Number(startTimeInH)) {
+			$("#study-beeps-per-day").get(0).setCustomValidity("");
+			$("#study-beep-amt-group").removeClass("has-error");
+			$("#study-beep-amt-help").hide();
+		} else {
+			$("#study-beeps-per-day").get(0).setCustomValidity("Piiksude arv ei mahu piiksude perioodi sisse ära.");
+			$("#study-beep-amt-group").addClass("has-error");
+			$("#study-beep-amt-help").show();
+		}
+	}
+}
+
+$("[name=study-duration-for-user]").change(function() {
+    if ($("[name=study-duration-for-user]:checked").val() == "1"){
+    	$("#study-duration-time").prop('required', true);
+    } else {
+    	$("#study-duration-time").prop('required', false);
     }
-}*/
+});
+
+$("#study-allow-postpone").change(function() {
+    if ($("study-allow-postpone").prop('checked')){
+    	$("#study-allow-postpone").prop('required', true);
+    } else {
+    	$("#study-allow-postpone").prop('required', false);
+    }
+});
