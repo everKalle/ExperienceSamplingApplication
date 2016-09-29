@@ -79,9 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        Question q1 = new FreeTextQuestion("Is it easy?");
+        Question q4 = new FreeTextQuestion("Is it easy?");
         Question q2 = new FreeTextQuestion("Is it still easy?");
         Question q3 = new FreeTextQuestion("Is it easy or is it easy?");
+        Question q1  = new MultipleChoiceQuestion("How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
 
         ArrayList<Question> questions = new ArrayList<>();
         questions.add(q1);
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());
         //startService(msgIntent);
 
-        ResponseReceiver.setupAlarm(getApplicationContext(), study);
+        ResponseReceiver.setupAlarm(getApplicationContext(), study, true);
 
     }
 
@@ -118,11 +119,11 @@ public class MainActivity extends AppCompatActivity {
         mDrawerList.setItemChecked(position, true);
         String itemName = mMenuItems.get(position).mTitle;
         //if(itemName == "My Studies") {
-            Fragment fragment = new StudyFragment();
-            fragmentManager.beginTransaction()
-                    .replace(R.id.mainContent, fragment)
-                    .commit();
-            setTitle(itemName);
+        Fragment fragment = new StudyFragment();
+        fragmentManager.beginTransaction()
+                .replace(R.id.mainContent, fragment)
+                .commit();
+        setTitle(itemName);
         //}
 
         // Close the drawer

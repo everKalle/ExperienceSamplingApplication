@@ -11,15 +11,20 @@ import android.os.Looper;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class NotificationService extends IntentService {
 
     private static int questionCounter = 0;
+    private static int dailyQuestions = 0;
     private static final int NOTIFICATION_ID = 1;
     private static String NOTIFICATION_NAME = "STUDY";
     private static String NOTIFICATION_INTERVAL = "INTERVAL";
     private static String STUDY_QUESTIONS = "QUESTIONS";
+    private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
+    private static Study studyRef;
 
 
     public NotificationService() {
@@ -33,26 +38,42 @@ public class NotificationService extends IntentService {
             String name = intent.getStringExtra(NOTIFICATION_NAME);
             int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
             String[] textQuestions = intent.getStringArrayExtra(STUDY_QUESTIONS);
-            processNotification(name, textQuestions, interval);
+            int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
+            processNotification(name, studyRef.getQuestions(), interval, notificationsPerDay);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
 
-    public static Intent createIntentNotificationService(Context context, int interval, String name, String[] questions) {
+    public static Intent createIntentNotificationService(Context context, int interval, String name, String[] questions, int notificationsPerDay, Study study) {
+        studyRef = study;
         Intent intent = new Intent(context, NotificationService.class);
         intent.putExtra(NOTIFICATION_NAME, name);
         intent.putExtra(NOTIFICATION_INTERVAL, interval);
         intent.putExtra(STUDY_QUESTIONS, questions);
+        intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
         return intent;
     }
 
-    private void processNotification(String name, String[] questions, int interval) {
+    private void processNotification(String name, ArrayList<Question> questions, int interval, int notificationsPerDay) {
         // Do something. For example, fetch fresh data from backend to create a rich notification?
-        if (questionCounter < questions.length) {
+        if ((questionCounter < questions.size()) && (dailyQuestions != notificationsPerDay)) {
+            dailyQuestions++;
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            Intent okIntent;
 
-            Intent okIntent = new Intent(NotificationService.this, QuestionActivity.class);
+            if (questions.get(questionCounter) instanceof MultipleChoiceQuestion) {
+
+                MultipleChoiceQuestion mcq = (MultipleChoiceQuestion) questions.get(questionCounter);
+                String[] choices = mcq.getChoices();
+                okIntent = new Intent(NotificationService.this, MultipleChoiceQuestionActivity.class);
+                okIntent.putExtra("CHOICES", choices);
+
+            }
+            else {
+                okIntent = new Intent(NotificationService.this, FreeTextQuestionActivity.class);
+            }
+            okIntent.putExtra("QUESTION", questions.get(questionCounter).getText());
             Intent refuseIntent = new Intent(NotificationService.this, MainActivity.class);
             Intent postponeIntent = new Intent(NotificationService.this, MainActivity.class);
 
@@ -63,7 +84,7 @@ public class NotificationService extends IntentService {
             builder.setContentTitle(name)
                     .setAutoCancel(true)
                     .setColor(getResources().getColor(R.color.colorAccent))
-                    .setContentText(questions[questionCounter++])
+                    .setContentText(questions.get(questionCounter++).getText())
                     .setSmallIcon(R.drawable.ic_events)
                     .addAction(R.drawable.ic_ok, "Ok", okPendingIntent)
                     .addAction(R.drawable.ic_refuse, "Refuse", refusePendingIntent)
@@ -88,11 +109,14 @@ public class NotificationService extends IntentService {
             }, delay);
         }
         else {
-            PendingIntent alarmIntent = ResponseReceiver.getPendingIntent(getApplicationContext(), interval, name, questions);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            alarmManager.cancel(alarmIntent);
+            if (dailyQuestions == notificationsPerDay) {
+                dailyQuestions = 0;
+                questionCounter = 0;
+            }
+            if (questionCounter < questions.size()) {
+                ResponseReceiver.setupAlarm(getApplicationContext(), studyRef, false);
+
+            }
         }
-
-
     }
 }

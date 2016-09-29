@@ -5,8 +5,15 @@ package com.example.madiskar.experiencesamplingapp;
  */
 public class MultipleChoiceQuestion extends Question {
 
-    public MultipleChoiceQuestion(String question) {
+    private String[] choices;
+
+    public MultipleChoiceQuestion(String question, String[] choices) {
         super(question);
+        this.choices = choices;
+    }
+
+    public String[] getChoices() {
+        return choices;
     }
 
 }
