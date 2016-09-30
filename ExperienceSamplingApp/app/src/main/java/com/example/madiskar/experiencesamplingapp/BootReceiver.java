@@ -29,7 +29,7 @@ public class BootReceiver extends BroadcastReceiver {
         c1.set(Calendar.YEAR, Calendar.MONTH, 20);
         Calendar c2 = Calendar.getInstance();
         c2.set(Calendar.YEAR, Calendar.MONTH + 1, 20);
-        Study study = new Study("easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
+        Study study = new Study(0, "easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int interval = study.getNotificationInterval();

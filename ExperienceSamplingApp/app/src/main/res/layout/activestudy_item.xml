@@ -2,4 +2,55 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/activestudy_name"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/activestudy_duration"
+        android:layout_below="@+id/activestudy_name"
+        android:layout_alignRight="@+id/activestudy_name"
+        android:layout_alignEnd="@+id/activestudy_name"
+        android:layout_alignLeft="@+id/activestudy_name"
+        android:layout_alignStart="@+id/activestudy_name"
+        android:layout_marginTop="5dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event"
+        android:id="@+id/event_button"
+        android:drawableLeft="@drawable/ic_events"
+        android:background="#00ffffff"
+        android:layout_below="@+id/activestudy_duration"
+        android:layout_alignLeft="@+id/activestudy_duration"
+        android:layout_alignStart="@+id/activestudy_duration"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="15dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quit"
+        android:drawableLeft="@drawable/ic_exit"
+        android:id="@+id/quit_button"
+        android:background="#00ffffff"
+        android:layout_alignTop="@+id/event_button"
+        android:layout_alignRight="@+id/activestudy_duration"
+        android:layout_alignEnd="@+id/activestudy_duration" />
 </RelativeLayout>

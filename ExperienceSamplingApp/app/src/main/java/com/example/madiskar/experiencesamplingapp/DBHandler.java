@@ -108,10 +108,11 @@ public class DBHandler extends SQLiteOpenHelper{
         while(!cur.isAfterLast()) {
             String text = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TEXT));
             String qType = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TYPE));
+            // String[] choices = ...
             //TODO: more stuff here later...
             Question q;
             if(qType.equals("multiple_choice"))
-                q = new MultipleChoiceQuestion(text);
+                q = new MultipleChoiceQuestion(text, new String[] {"choice1", "choice2", "choice3"});
             else
                 q = new FreeTextQuestion(text);
             questions.add(q);
@@ -135,8 +136,8 @@ public class DBHandler extends SQLiteOpenHelper{
         ContentValues values = new ContentValues();
         values.put(ActiveStudyEntry._ID, study.getId());
         values.put(ActiveStudyEntry.COLUMN_NAME, study.getName());
-        values.put(ActiveStudyEntry.COLUMN_BEGINDATE, calendarToString(study.getBegimnDate()));
-        values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDatendDate()));
+        values.put(ActiveStudyEntry.COLUMN_BEGINDATE, calendarToString(study.getBeginDate()));
+        values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
         values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
         values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
         values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());

@@ -50,11 +50,11 @@ public class Study {
         return name;
     }
 
-    public Calendar getBegimnDate() {
+    public Calendar getBeginDate() {
         return beginDate;
     }
 
-    public Calendar getEndDatendDate() {
+    public Calendar getEndDate() {
         return endDate;
     }
 

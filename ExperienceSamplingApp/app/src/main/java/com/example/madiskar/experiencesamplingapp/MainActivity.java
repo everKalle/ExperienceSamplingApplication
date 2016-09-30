@@ -93,10 +93,12 @@ public class MainActivity extends AppCompatActivity {
         Calendar c2 = Calendar.getInstance();
         c2.set(2016, 3, 20);
         Study study = new Study(0, "easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
+        Study study2 = new Study(1, "Study 2", questions, c1, c2, 30, 3, 1, 5, true, 1);
 
         DBHandler mydb = new DBHandler(getApplicationContext());
         mydb.clearTables();
         mydb.insertStudy(study);
+        mydb.insertStudy(study2);
         //ArrayList<Study> currentStudies = mydb.getAllStudies();
 
         //Intent msgIntent = new Intent(this, NotificationService.class);
@@ -118,13 +120,13 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerList.setItemChecked(position, true);
         String itemName = mMenuItems.get(position).mTitle;
-        //if(itemName == "My Studies") {
-        Fragment fragment = new StudyFragment();
-        fragmentManager.beginTransaction()
-                .replace(R.id.mainContent, fragment)
-                .commit();
-        setTitle(itemName);
-        //}
+        if(itemName == "My Studies") {
+            Fragment fragment = new StudyFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.mainContent, fragment)
+                    .commit();
+            setTitle(itemName);
+        }
 
         // Close the drawer
         mDrawerLayout.closeDrawer(mDrawerPane);
