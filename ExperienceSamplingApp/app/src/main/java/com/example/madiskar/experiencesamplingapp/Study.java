@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public class Study {
     private long id;
-    private ArrayList<Question> questions;
+    private Questionnaire qBatch;
     private String name;
     private Calendar beginDate;
     private Calendar endDate;
@@ -22,10 +22,10 @@ public class Study {
     private int postponeTime;
     private boolean postponable;
 
-    public Study(long id, String name, ArrayList<Question> questions, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+    public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
         this.id = id;
         this.name = name;
-        this.questions = questions;
+        this.qBatch = qBatch;
         this.beginDate = beginDate;
         this.endDate = endDate;
         this.studyLength = studyLength;
@@ -38,10 +38,10 @@ public class Study {
 
     public String[] questionsAsText() {
 
-        String[] textQuestions = new String[questions.size()];
+        String[] textQuestions = new String[qBatch.getQuestions().size()];
 
-        for (int i = 0; i < questions.size(); i++) {
-            textQuestions[i] = questions.get(i).getText();
+        for (int i = 0; i < qBatch.getQuestions().size(); i++) {
+            textQuestions[i] = qBatch.getQuestions().get(i).getText();
         }
 
         return textQuestions;
@@ -62,7 +62,7 @@ public class Study {
         return studyLength;
     }
 
-    public ArrayList<Question> getQuestions() { return questions; }
+    public Questionnaire getQuesstionnaire() { return qBatch; }
 
     public long getId() {
         return id;

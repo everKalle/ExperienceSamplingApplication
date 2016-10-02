@@ -25,8 +25,14 @@ public class ActiveStudyContract {
     public static class QuestionEntry implements  BaseColumns {
         public static final String TABLE_NAME = "questions_table";
         public static final String COLUMN_TEXT = "text";
-        public static final String COLUMN_ANSWER = "answer";
         public static final String COLUMN_STUDYID = "study_id";
         public static final String COLUMN_TYPE = "question_type";
+    }
+
+    public static class AnswerEntry implements  BaseColumns {
+        public static final String TABLE_NAME = "answers_table";
+        public static final String COLUMN_STUDYID = "study_id";
+        public static final String COLUMN_ANSWER = "answer";
+        public static final String COLUMN_TIMESTAMP = "timestamp";
     }
 }

@@ -1,33 +1,50 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.app.Fragment;
 import android.app.ListFragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
+import android.os.Handler;
 import java.util.ArrayList;
+
 
 public class StudyFragment extends ListFragment {
 
+    Handler mHandler = new Handler();
+    Boolean from_menu;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_study, container, false);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        from_menu = args.getBoolean("fromNav");
+
+        new AsyncTask<Void, Void, ArrayList<Study>>() {
+            @Override
+            protected ArrayList<Study> doInBackground(Void... params) {
+                DBHandler mydb = DBHandler.getInstance(getActivity());
+                return mydb.getAllStudies();
+            }
+            @Override
+            protected void onPostExecute(final ArrayList<Study> results) {
+                if(from_menu) {
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), results);
+                            setListAdapter(asla);
+                        }
+                    }, 230); //Time for nav driver to close, for SMOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOTH animations
+                } else {
+                    ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), results);
+                    setListAdapter(asla);
+                }
+            }
+        }.execute();
+
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        DBHandler mydb = new DBHandler(getActivity());
 
-        ArrayList<Study> studies = mydb.getAllStudies();
 
-        ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), studies);
-        setListAdapter(asla);
-
-    }
 
 
 }

@@ -7,8 +7,8 @@ public class MultipleChoiceQuestion extends Question {
 
     private String[] choices;
 
-    public MultipleChoiceQuestion(String question, String[] choices) {
-        super(question);
+    public MultipleChoiceQuestion(long studyId, String question, String[] choices) {
+        super(studyId, question);
         this.choices = choices;
     }
 

@@ -19,7 +19,6 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
     private ArrayList<Study> studies;
 
     public ActiveStudyListAdapter(Context context, ArrayList<Study> studies) {
-        System.out.println("siin");
         this.mContext = context;
         this.studies = studies;
     }
@@ -40,7 +39,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view = convertView;
 
         if (convertView == null) {
@@ -59,6 +58,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
         Button eventBtn = (Button) view.findViewById(R.id.event_button);
         Button quitBtn = (Button) view.findViewById(R.id.quit_button);
 
+
         eventBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -71,12 +71,18 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
             @Override
             public void onClick(View v) {
                 // quit study here
+                DBHandler mydb = DBHandler.getInstance(mContext);
+                mydb.deleteStudyEntry(getItemId(position));
                 System.out.println("quit button clicked");
-                notifyDataSetChanged();
             }
         });
 
-
         return view;
     }
+
+    /*
+    private void refresh() {
+        this.notifyDataSetChanged();
+    }
+    */
 }

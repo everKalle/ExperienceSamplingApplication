@@ -41,7 +41,9 @@
         android:layout_alignLeft="@+id/activestudy_duration"
         android:layout_alignStart="@+id/activestudy_duration"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="15dp" />
+        android:layout_marginBottom="15dp"
+        android:enabled="true"
+        android:clickable="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -52,5 +54,7 @@
         android:background="#00ffffff"
         android:layout_alignTop="@+id/event_button"
         android:layout_alignRight="@+id/activestudy_duration"
-        android:layout_alignEnd="@+id/activestudy_duration" />
+        android:layout_alignEnd="@+id/activestudy_duration"
+        android:clickable="true"
+        android:enabled="true" />
 </RelativeLayout>

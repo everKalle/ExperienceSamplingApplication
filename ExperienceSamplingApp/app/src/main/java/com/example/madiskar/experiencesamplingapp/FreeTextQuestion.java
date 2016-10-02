@@ -5,7 +5,7 @@ package com.example.madiskar.experiencesamplingapp;
  */
 public class FreeTextQuestion extends Question {
 
-    public FreeTextQuestion(String question) {
-        super(question);
+    public FreeTextQuestion(long studyId, String question) {
+        super(studyId, question);
     }
 }

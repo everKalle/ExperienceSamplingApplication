@@ -2,8 +2,6 @@ package com.example.madiskar.experiencesamplingapp;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,7 +14,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,33 +76,46 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        Question q4 = new FreeTextQuestion("Is it easy?");
-        Question q2 = new FreeTextQuestion("Is it still easy?");
-        Question q3 = new FreeTextQuestion("Is it easy or is it easy?");
-        Question q1  = new MultipleChoiceQuestion("How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        Question q4 = new FreeTextQuestion(0, "Is it easy?");
+        Question q2 = new FreeTextQuestion(0, "Is it still easy?");
+        Question q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
+        Question q1  = new MultipleChoiceQuestion(1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
 
-        ArrayList<Question> questions = new ArrayList<>();
-        questions.add(q1);
-        questions.add(q2);
-        questions.add(q3);
+        ArrayList<Question> batch1 = new ArrayList<>();
+        batch1.add(q4);
+        batch1.add(q2);
+        ArrayList<Question> batch2 = new ArrayList<>();
+        batch2.add(q1);
+        batch2.add(q3);
+
+        Questionnaire qnaire1 = new Questionnaire(0, batch1);
+        Questionnaire qnaire2 = new Questionnaire(0, batch2);
+
         Calendar c1 = Calendar.getInstance();
         c1.set(2016, 2, 20);
         Calendar c2 = Calendar.getInstance();
         c2.set(2016, 3, 20);
-        Study study = new Study(0, "easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
-        Study study2 = new Study(1, "Study 2", questions, c1, c2, 30, 3, 1, 5, true, 1);
+        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
+        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 5, true, 1);
 
-        DBHandler mydb = new DBHandler(getApplicationContext());
-        mydb.clearTables();
-        mydb.insertStudy(study);
+        getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
+
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        //mydb.clearTables();
+
+        mydb.insertStudy(study1);
         mydb.insertStudy(study2);
+
         //ArrayList<Study> currentStudies = mydb.getAllStudies();
 
         //Intent msgIntent = new Intent(this, NotificationService.class);
         //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());
         //startService(msgIntent);
 
-        ResponseReceiver.setupAlarm(getApplicationContext(), study, true);
+        setTitle("My Studies");
+        loadFragment("My Studies", false);
+
+        ResponseReceiver.setupAlarm(getApplicationContext(), study1, true);
 
     }
 
@@ -115,21 +125,26 @@ public class MainActivity extends AppCompatActivity {
     * is selected.
     * */
     private void selectItemFromDrawer(int position) {
-
-        FragmentManager fragmentManager = getFragmentManager();
-
         mDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawer(mDrawerPane);
         String itemName = mMenuItems.get(position).mTitle;
+        setTitle(itemName);
+        loadFragment(itemName, true);
+
+    }
+
+    private void loadFragment(String itemName, boolean from_menu) {
+        FragmentManager fragmentManager = getFragmentManager();
         if(itemName == "My Studies") {
             Fragment fragment = new StudyFragment();
+            Bundle args = new Bundle();
+            args.putBoolean("fromNav", from_menu);
+            fragment.setArguments(args);
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
                     .commit();
-            setTitle(itemName);
         }
-
-        // Close the drawer
-        mDrawerLayout.closeDrawer(mDrawerPane);
+        // TODO: other fragments here
     }
 
 

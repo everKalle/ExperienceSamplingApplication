@@ -17,19 +17,19 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Question q1 = new FreeTextQuestion("Is it easy?");
-        Question q2 = new FreeTextQuestion("Is it still easy?");
-        Question q3 = new FreeTextQuestion("Is it easy or is it easy?");
+        Question q4 = new FreeTextQuestion(0, "Is it easy?");
+        Question q2 = new FreeTextQuestion(0, "Is it still easy?");
 
-        ArrayList<Question> questions = new ArrayList<>();
-        questions.add(q1);
-        questions.add(q2);
-        questions.add(q3);
+        ArrayList<Question> batch1 = new ArrayList<>();
+        batch1.add(q4);
+        batch1.add(q2);
+        Questionnaire qnaire1 = new Questionnaire(0, batch1);
+
         Calendar c1 = Calendar.getInstance();
-        c1.set(Calendar.YEAR, Calendar.MONTH, 20);
+        c1.set(2016, 2, 20);
         Calendar c2 = Calendar.getInstance();
-        c2.set(Calendar.YEAR, Calendar.MONTH + 1, 20);
-        Study study = new Study(0, "easy study", questions, c1, c2, 30, 3, 1, 5, true, 1);
+        c2.set(2016, 3, 20);
+        Study study = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int interval = study.getNotificationInterval();

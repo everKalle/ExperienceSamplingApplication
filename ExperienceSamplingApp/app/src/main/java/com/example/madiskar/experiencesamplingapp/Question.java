@@ -5,12 +5,18 @@ package com.example.madiskar.experiencesamplingapp;
  */
 public class Question {
     private String text;
+    private long studyId;
 
-    public Question(String text) {
+    public Question(long studyId, String text) {
         this.text = text;
+        this.studyId = studyId;
     }
 
     public String getText() {
         return text;
+    }
+
+    public long getStudyId() {
+        return studyId;
     }
 }

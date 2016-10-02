@@ -39,7 +39,7 @@ public class NotificationService extends IntentService {
             int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
             String[] textQuestions = intent.getStringArrayExtra(STUDY_QUESTIONS);
             int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
-            processNotification(name, studyRef.getQuestions(), interval, notificationsPerDay);
+            processNotification(name, studyRef.getQuesstionnaire().getQuestions(), interval, notificationsPerDay);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
