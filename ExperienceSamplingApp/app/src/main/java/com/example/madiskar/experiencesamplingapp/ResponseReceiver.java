@@ -65,7 +65,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
             intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
 
             PendingIntent PendingIntentD = PendingIntent.getBroadcast(context, 105, intent, 0);
-            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 60 * 1000, PendingIntentD);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 60 * 1000 , PendingIntentD);
         }
     }
 

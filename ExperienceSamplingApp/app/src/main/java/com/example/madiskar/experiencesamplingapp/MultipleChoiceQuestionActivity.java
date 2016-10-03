@@ -21,8 +21,8 @@ public class MultipleChoiceQuestionActivity extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.questionText);
         textView.setText(b.getString("QUESTION"));
 
-        String[] choices = b.getStringArray("CHOICES");
-
+      //  String[] choices = b.getStringArray("CHOICES");
+        String[] choices = {"easy", "hard"};
         RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         //LinearLayout layout = (LinearLayout) findViewById(R.id.linearLayout);
 

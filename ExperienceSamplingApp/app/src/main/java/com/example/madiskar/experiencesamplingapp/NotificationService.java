@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
 
@@ -61,6 +62,7 @@ public class NotificationService extends IntentService {
             dailyQuestions++;
             final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
             Intent okIntent;
+            Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);;
 
             if (questions.get(questionCounter) instanceof MultipleChoiceQuestion) {
 
@@ -68,18 +70,22 @@ public class NotificationService extends IntentService {
                 String[] choices = mcq.getChoices();
                 okIntent = new Intent(NotificationService.this, MultipleChoiceQuestionActivity.class);
                 okIntent.putExtra("CHOICES", choices);
-
+                postponeIntent.putExtra("TYPE", "free");
+                postponeIntent.putExtra("CHOICES", choices);
             }
             else {
                 okIntent = new Intent(NotificationService.this, FreeTextQuestionActivity.class);
+                postponeIntent.putExtra("TYPE", "multiple");
             }
             okIntent.putExtra("QUESTION", questions.get(questionCounter).getText());
+            postponeIntent.putExtra("QUESTION", questions.get(questionCounter).getText());
+            postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
             Intent refuseIntent = new Intent(NotificationService.this, MainActivity.class);
-            Intent postponeIntent = new Intent(NotificationService.this, MainActivity.class);
 
             PendingIntent okPendingIntent = PendingIntent.getActivity(this, 1, okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             PendingIntent refusePendingIntent = PendingIntent.getActivity(this, 1, refuseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            //PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, postponeIntent, 0);
 
             builder.setContentTitle(name)
                     .setAutoCancel(true)
@@ -115,7 +121,6 @@ public class NotificationService extends IntentService {
             }
             if (questionCounter < questions.size()) {
                 ResponseReceiver.setupAlarm(getApplicationContext(), studyRef, false);
-
             }
         }
     }

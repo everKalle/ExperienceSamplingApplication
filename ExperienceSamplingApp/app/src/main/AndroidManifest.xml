@@ -45,6 +45,8 @@
         <activity android:name=".QuestionActivity" />
         <activity android:name=".MultipleChoiceQuestionActivity" />
         <activity android:name=".FreeTextQuestionActivity"></activity>
+        <receiver android:process=":remote"
+            android:name=".PostponeReceiver" />
     </application>
 
 </manifest>
