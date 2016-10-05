@@ -54,14 +54,14 @@ public class DBHandler extends SQLiteOpenHelper{
     public static final String SQL_DELETE_TABLE_QUESTION = "DROP TABLE IF EXISTS " + QuestionEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_ANSWERS = "DROP TABLE IF EXISTS " + AnswerEntry.TABLE_NAME;
 
-    public static DBHandler getInstance(Context context) {
+    public static synchronized DBHandler getInstance(Context context) {
         // Use application context
         if (mInstance == null)
             mInstance = new DBHandler(context.getApplicationContext());
         return mInstance;
     }
 
-    private SQLiteDatabase getDbInstance() {
+    private synchronized SQLiteDatabase getDbInstance() {
         if (db == null)
             db = mInstance.getWritableDatabase();
         return db;

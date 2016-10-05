@@ -4,13 +4,18 @@ import android.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 
 public class StudyFragment extends ListFragment {
 
-    Handler mHandler = new Handler();
-    Boolean from_menu;
+    private Handler mHandler = new Handler();
+    private Boolean from_menu;
+    //private ActiveStudyListAdapter asla;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,7 +38,7 @@ public class StudyFragment extends ListFragment {
                             ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), results);
                             setListAdapter(asla);
                         }
-                    }, 230); //Time for nav driver to close, for SMOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOTH animations
+                    }, 230); //Time for nav driver to close, for nice animations
                 } else {
                     ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), results);
                     setListAdapter(asla);
@@ -42,9 +47,5 @@ public class StudyFragment extends ListFragment {
         }.execute();
 
     }
-
-
-
-
 
 }

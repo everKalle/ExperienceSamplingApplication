@@ -1,6 +1,8 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 /**
@@ -62,27 +66,39 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
         eventBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                // start event here
-                System.out.println("event button clicked");
-                notifyDataSetChanged();
+                // start event here //
             }
         });
+
         quitBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                // quit study here
-                DBHandler mydb = DBHandler.getInstance(mContext);
-                mydb.deleteStudyEntry(getItemId(position));
-                System.out.println("quit button clicked");
+                // quit study here //
+                AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
+                //alertDialog.setCanceledOnTouchOutside(false);
+                alertDialog.setTitle("Are you sure you want to quit \"" + ((Study)getItem(position)).getName() + "\"?");
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                studies.remove(position);
+                                DBHandler.getInstance(mContext).deleteStudyEntry(position);
+                                Toast.makeText(mContext, "Study left", Toast.LENGTH_SHORT).show();
+                                notifyDataSetChanged();
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
             }
         });
 
         return view;
     }
 
-    /*
-    private void refresh() {
-        this.notifyDataSetChanged();
-    }
-    */
+
 }
