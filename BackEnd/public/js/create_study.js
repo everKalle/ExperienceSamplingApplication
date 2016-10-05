@@ -7,7 +7,7 @@ function add_question(){
 		      '<div class="form-group">' +
 		        '<label class="control-label col-sm-3" for="question-type-' + questionCount + '">Küsimuse tüüp: </label>' +
 		        '<div class="col-sm-7">' + 
-				    '<select class="form-control input-sm" name="question-type-' + questionCount + '" id="question-type-' + questionCount + '" onChange="modifyType(' + questionCount + ');">' +
+				    '<select class="form-control input-sm" name="question[' + questionCount + '][question-type]" id="question-type-' + questionCount + '" onChange="modifyType(' + questionCount + ');">' +
 				      '<option value="freetext" selected>Vabatekst</option>' + 
 				      '<option value="multichoice">Valikvastustega</option>' + 
 				    '</select>' + 
@@ -16,7 +16,7 @@ function add_question(){
 		      	'<div class="form-group">' + 
 			        '<label class="control-label col-sm-3" for="question-title-' + questionCount + '">Küsimus: </label>' + 
 			        '<div class="col-sm-7">' + 
-			          '<input class="form-control" type="text" id="question-title-' + questionCount + '" name="question-title-' + questionCount + '" size="100" placeholder="Küsimus" required/>' + 
+			          '<input class="form-control" type="text" id="question-title-' + questionCount + '" name="question[' + questionCount + '][question-title]" size="100" placeholder="Küsimus" required/>' + 
 			        '</div>' + 
 			      '</div>' + 
 			  '<div id="question-data-holder-' + questionCount + '">' + 
@@ -59,21 +59,21 @@ function modifyType(index){
 						'<div class="form-group">'+
 					    '<label class="control-label col-sm-3" for="question-multichoice-single-choice-' + index + '">Valida saab: </label>'+
 					      '<div class="col-sm-7">'+
-					      	'<input type="radio" name="question-multichoice-single-choice-' + index + '" value="1" checked> Ühe vastusevariandi<br>' +
-          					'<input type="radio" name="question-multichoice-single-choice-' + index + '" value="0"> Mitu vastusevarianti' +
+					      	'<input type="radio" name="question[' + index + '][question-multichoice-single-choice]" value="1" checked> Ühe vastusevariandi<br>' +
+          					'<input type="radio" name="question[' + index + '][question-multichoice-single-choice]" value="0"> Mitu vastusevarianti' +
 					    '</div>'+
 					  '</div>' +
 						'<hr>'+
 			  		  '<div class="form-group">'+
 					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-0">Vastusevariandid: </label>'+
 					      '<div class="col-sm-7">'+
-					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-0" name="question-multichoice-' + index + '-0" size="100" placeholder="Vastusevariant 1" required/>'+
+					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-0" name="question[' + index + '][question-multichoice-0]" size="100" placeholder="Vastusevariant 1" required/>'+
 					    '</div>'+
 					  '</div>'+
 					  '<div class="form-group">'+
 					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-1">&nbsp;</label>'+
 					      '<div class="col-sm-7">'+
-					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-1" name="question-multichoice-' + index + '-1" size="100" placeholder="Vastusevariant 2" required/>'+
+					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-1" name="question[' + index + '][question-multichoice-1]" size="100" placeholder="Vastusevariant 2" required/>'+
 					    '</div>'+
 					  '</div>' +
 					  '<div class="form-group" id="multichoice-add-group-' + index + '">'+
@@ -90,7 +90,7 @@ function addMultichoice(index, choice_index){
 	$("#question-data-holder-" + index).append('<div class="form-group" id="multichoice-answer-group-' + index + '-' + choice_index + '">'+
 					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-' + choice_index + '">&nbsp;</label>'+
 					      '<div class="col-sm-7">'+
-					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-' + choice_index + '" name="question-multichoice-' + index + '-' + choice_index + '" size="100"  placeholder="Vastusevariant ' + (choice_index + 1) + '" required/>'+
+					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-' + choice_index + '" name="question[' + index + '][question-multichoice-' + choice_index + ']" size="100"  placeholder="Vastusevariant ' + (choice_index + 1) + '" required/>'+
 					    '</div>'+
 					  '</div>');
 	$("#question-data-holder-" + index).append('<div class="form-group" id="multichoice-add-group-' + index + '">'+
@@ -126,14 +126,14 @@ function add_event(){
 		      	'<div class="form-group">' +
 			        '<label class="control-label col-sm-3" for="event-title-' + eventCount + '">Sündmuse nimi: </label>' +
 			        '<div class="col-sm-7">' +
-			          '<input class="form-control" type="text" id="event-title-' + eventCount + '" name="event-title-' + eventCount + '" size="100" placeholder="Sündmuse nimi" required/>' +
+			          '<input class="form-control" type="text" id="event-title-' + eventCount + '" name="event[' + eventCount +'][event-title]" size="100" placeholder="Sündmuse nimi" required/>' +
 			        '</div>' +
 			    '</div>' +
 			    '<div class="form-group">' +
 			        '<label class="control-label col-sm-3" for="event-control-time-' + eventCount + '">Kontrollaeg: </label>' +
 			        '<div class="col-sm-7 form-inline">' +
-			          	'<input class="form-control input-sm" type="number" id="event-control-time-' + eventCount + '" name="event-control-time-' + eventCount + '" size="5" min="1" placeholder="0" required/>&nbsp;&nbsp;' +
-          				'<select class="form-control input-sm" name="event-control-time-unit-' + eventCount + '">' +
+			          	'<input class="form-control input-sm" type="number" id="event-control-time-' + eventCount + '" name="event[' + eventCount +'][event-control-time]" size="5" min="1" placeholder="0" required/>&nbsp;&nbsp;' +
+          				'<select class="form-control input-sm" name="event[' + eventCount + '][event-control-time-unit]">' +
 			            '<option value="eng">minutit</option>' +
 			            '<option value="rus" selected>tundi</option>' +
 			            '<option value="ger">päeva</option>' +
@@ -300,8 +300,8 @@ function checkBeepPeriod(){
 	}
 }
 
-$("[name=study-duration-for-user]").change(function() {
-    if ($("[name=study-duration-for-user]:checked").val() == "1"){
+$("[name=gen[study-duration-for-user]]").change(function() {
+    if ($("[name=gen[study-duration-for-user]]:checked").val() == "1"){
     	$("#study-duration-time").prop('required', true);
     } else {
     	$("#study-duration-time").prop('required', false);

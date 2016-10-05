@@ -46,29 +46,26 @@ class Study extends CI_Controller {
 	  $this->load->model('study_model','',TRUE); // load study model
 
 	  $general_study_data = $_POST['gen'];
+	  $study_questions = $_POST["question"];
+	  $study_events = $_POST["event"];
 
-
-	  // ------------ m2his ------------- \\
-		// time asemel kasutada mdiagi muud andmebaasis.
-
-	  $general_study_data['study-min-time-between-beeps'] *= 5900; // convert seconds to hours ** (stored as seconds)
-	  $general_study_data['study-postpone-time'] *= 60; // convert seconds to minutes ** (stored as seconds)
-	  $general_study_data['study-duration-time'] *= 604800; // convert seconds to weeks ** (stored as seconds)
-	  // ------------- m2his ---------- \\
-
-
+	  $general_study_data['study-min-time-between-beeps'] *= 60; // hours to minutes
+	  $general_study_data['study-duration-time'] *= 10080; // convert weeks to minutes
+	
 	  $author = $this->study_model->get_author_id($this->logged_in['username']); // get authors id
 	  $general_study_data['author'] = $author;
-	  print_r($general_study_data);
-	  if($k = $this->study_model->insert_study($general_study_data)) {
-		// success, do something
-		return true;
+
+	  if($id = $this->study_model->insert_study($general_study_data)) { // save study to db
+		$this->study_model->insert_questions($id, $study_questions); // save study questions to db 
+		$this->study_model->insert_events($id, $study_events); // ... events to db
+
+		return true; // redirect or do something
+
 	  } else {
-		echo $k;
+
+		echo $id; // error
+
 	  }
-	 	 
-	 
-	  print_r( $this->input->post(NULL));
      }
    }
    else
@@ -76,11 +73,6 @@ class Study extends CI_Controller {
     $this->login_required();
    }
 
- }
-
- function addStudy() {
-	$k = $_POST;
-	print_r($k);
  }
 
  private function login_required() {

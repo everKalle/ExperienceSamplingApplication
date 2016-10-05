@@ -4,7 +4,7 @@
   	Sündmused
   </div>
   <div class="panel-body">
-	<input type="hidden" id="study-event-count" name="study-event-count" value="0" required/>
+	<input type="hidden" id="study-event-count" name="event[study-event-count]" value="0" required/>
 	<div id="eventHolder">
 	</div>
 	<button type="button" class="btn btn-lg btn-default" onClick="add_event();">Lisa sündmus</button>
