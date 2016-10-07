@@ -110,8 +110,13 @@ public class DBHandler extends SQLiteOpenHelper{
             int minTimeBetweenNotification= cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
             int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
             String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
-            Questionnaire qnaire = new Questionnaire(id, getStudyQuestions(id));
-            Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
+            ArrayList<Question> qs = getStudyQuestions(id);
+	        Question[] qsArray = new Question[qs.size()];
+            for (int i = 0; i < qs.size(); i++) {
+                qsArray[i] = qs.get(i);
+            }
+            Questionnaire qnaire = new Questionnaire(id, qsArray);
+	        Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
             Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
             boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
 

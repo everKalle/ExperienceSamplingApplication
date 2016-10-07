@@ -20,9 +20,8 @@ public class BootReceiver extends BroadcastReceiver {
         Question q4 = new FreeTextQuestion(0, "Is it easy?");
         Question q2 = new FreeTextQuestion(0, "Is it still easy?");
 
-        ArrayList<Question> batch1 = new ArrayList<>();
-        batch1.add(q4);
-        batch1.add(q2);
+        Question[] batch1 = {q4, q2};
+
         Questionnaire qnaire1 = new Questionnaire(0, batch1);
 
         Calendar c1 = Calendar.getInstance();
