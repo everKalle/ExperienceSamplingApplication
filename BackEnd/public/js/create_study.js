@@ -134,9 +134,9 @@ function add_event(){
 			        '<div class="col-sm-7 form-inline">' +
 			          	'<input class="form-control input-sm" type="number" id="event-control-time-' + eventCount + '" name="event[' + eventCount +'][event-control-time]" size="5" min="1" placeholder="0" required/>&nbsp;&nbsp;' +
           				'<select class="form-control input-sm" name="event[' + eventCount + '][event-control-time-unit]">' +
-			            '<option value="eng">minutit</option>' +
-			            '<option value="rus" selected>tundi</option>' +
-			            '<option value="ger">päeva</option>' +
+			            '<option value="m">minutit</option>' +
+			            '<option value="h" selected>tundi</option>' +
+			            '<option value="d">päeva</option>' +
 			          '</select>' +
 			        '</div>' +
 			    '</div>' +

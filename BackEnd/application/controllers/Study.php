@@ -8,6 +8,7 @@ class Study extends CI_Controller {
  {
    parent::__construct();
    $this->load->model('user','',TRUE);
+    $this->load->model('study_model','',TRUE); // load study model
    if($this->session->userdata('logged_in')) {
 	$this->logged_in = $this->session->userdata('logged_in');
     }
@@ -18,8 +19,10 @@ class Study extends CI_Controller {
 
    if($this->logged_in)  //check if logged in
    {
+     $data['active_studies'] = $this->study_model->get_active_studies($this->study_model->get_author_id($this->logged_in['username']));
+     $data['ended_studies'] = $this->study_model->get_ended_studies($this->study_model->get_author_id($this->logged_in['username']));
      $this->load->view('templates/header', $this->logged_in);
-     //load and show study list
+     $this->load->view('study/list_own', $data);
      $this->load->view('templates/footer');
    }
    else
@@ -27,6 +30,25 @@ class Study extends CI_Controller {
     $this->login_required();
    }
 
+ }
+
+ function view($id)
+ {
+    if($this->logged_in)
+    {
+      $data['study_details'] = $this->study_model->get_study_data($id, $this->study_model->get_author_id($this->logged_in['username']));
+      if ($data['study_details'] != FALSE){
+        $data['questions'] = $this->study_model->get_study_questions($id);
+        $data['events'] = $this->study_model->get_study_events($id);
+        $this->load->view('templates/header', $this->logged_in);
+        $this->load->view('study/details_own', $data);
+        $this->load->view('templates/footer');
+      }
+    }
+    else
+    {
+      $this->login_required();
+    }
  }
 
  function create()
@@ -43,7 +65,6 @@ class Study extends CI_Controller {
       $this->load->view('study/create_event');
       $this->load->view('templates/footer');
      } else {
-	  $this->load->model('study_model','',TRUE); // load study model
 
 	  $general_study_data = $_POST['gen'];
 	  $study_questions = $_POST["question"];
@@ -59,7 +80,7 @@ class Study extends CI_Controller {
 		$this->study_model->insert_questions($id, $study_questions); // save study questions to db 
 		$this->study_model->insert_events($id, $study_events); // ... events to db
 
-		return true; // redirect or do something
+		redirect('/', 'location');
 
 	  } else {
 

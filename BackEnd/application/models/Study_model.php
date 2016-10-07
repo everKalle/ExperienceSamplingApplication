@@ -61,6 +61,62 @@ class Study_model extends CI_Model {
 			return false;
 		}
 	}
+
+	function get_active_studies($user_id) {
+		$this->db->select('id, study-title, study-start-date, study-end-date, study-is-public');
+		$this->db->from('survey');
+		$this->db->where('author', $user_id);
+		$this->db->where('study-end-date >=', date("y-m-d H:i:s"));
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function get_ended_studies($user_id) {
+		$this->db->select('id, study-title, study-start-date, study-end-date, study-is-public');
+		$this->db->from('survey');
+		$this->db->where('author', $user_id);
+		$this->db->where('study-end-date <', date("y-m-d H:i:s"));
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function get_study_data($id, $user_id) {
+		$this->db->select('*');
+		$this->db->from('survey');
+		$this->db->where('author', $user_id);
+		$this->db->where('id', $id);
+
+		$query = $this->db->get();
+		if($query -> num_rows() == 1) {
+			return $query->row_array();
+		} else {
+			return false;
+		}
+	}
+
+	function get_study_questions($id) {
+		$this->db->select('question-title, question-type, question-multichoices, question-multichoice-single-choice');
+		$this->db->from('survey_question');
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+
+		return $query->result_array();
+	}
+
+	function get_study_events($id) {
+		$this->db->select('event-title, event-control-time, event-control-time-unit');
+		$this->db->from('survey_custom_event');
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
 }
 
 ?>
