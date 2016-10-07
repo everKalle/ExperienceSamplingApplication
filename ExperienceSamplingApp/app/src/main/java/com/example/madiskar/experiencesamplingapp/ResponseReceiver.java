@@ -49,8 +49,8 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (firstTime) {
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + interval * 60 * 1000,
-                    interval * 60 * 1000,
+                    SystemClock.elapsedRealtime() + interval * 10 * 1000,
+                    interval * 10 * 1000,
                     alarmIntent);
         }
         else {
@@ -65,7 +65,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
             intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
 
             PendingIntent PendingIntentD = PendingIntent.getBroadcast(context, 105, intent, 0);
-            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 60 * 1000 , PendingIntentD);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 10 * 1000 , PendingIntentD);
         }
     }
 

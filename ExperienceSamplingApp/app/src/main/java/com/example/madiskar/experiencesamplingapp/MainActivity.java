@@ -76,17 +76,15 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        Question q4 = new FreeTextQuestion(0, "Is it easy?");
-        Question q2 = new FreeTextQuestion(0, "Is it still easy?");
-        Question q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
-        Question q1  = new MultipleChoiceQuestion(1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        FreeTextQuestion q4 = new FreeTextQuestion(0, "Is it easy?");
+        FreeTextQuestion q2 = new FreeTextQuestion(0, "Is it still easy?");
+        FreeTextQuestion q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
+        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
 
-        ArrayList<Question> batch1 = new ArrayList<>();
-        batch1.add(q4);
-        batch1.add(q2);
-        ArrayList<Question> batch2 = new ArrayList<>();
-        batch2.add(q1);
-        batch2.add(q3);
+        Question[] batch1 = {q4,q2};
+        Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
+
+        Question[]  batch2 = {q1,q3};
 
         Questionnaire qnaire1 = new Questionnaire(0, batch1);
         Questionnaire qnaire2 = new Questionnaire(0, batch2);

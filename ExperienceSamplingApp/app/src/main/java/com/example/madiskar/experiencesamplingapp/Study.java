@@ -1,5 +1,8 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.lang.reflect.Array;
 import java.sql.Time;
 import java.util.ArrayList;
@@ -38,10 +41,10 @@ public class Study {
 
     public String[] questionsAsText() {
 
-        String[] textQuestions = new String[qBatch.getQuestions().size()];
+        String[] textQuestions = new String[qBatch.getQuestions().length];
 
-        for (int i = 0; i < qBatch.getQuestions().size(); i++) {
-            textQuestions[i] = qBatch.getQuestions().get(i).getText();
+        for (int i = 0; i < qBatch.getQuestions().length; i++) {
+            textQuestions[i] = qBatch.getQuestions()[i].getText();
         }
 
         return textQuestions;
@@ -85,5 +88,4 @@ public class Study {
     }
 
     public int getMinTimeBetweenNotifications() { return minTimeBetweenNotifications; }
-
 }
