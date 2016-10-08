@@ -47,7 +47,7 @@
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="<?php echo base_url(); ?>index.php/settings">Konto seaded</a></li>
+              <li <?php if ($active_page == "account_settings") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/settings">Konto seaded</a></li>
 	      <li><a href="<?php echo base_url(); ?>index.php/login/logout">Logi välja</a></li>
 <?php } else { ?>
 	      <li><a href="<?php echo base_url(); ?>index.php/login">Logi sisse</a></li>

@@ -14,8 +14,10 @@ class Settings extends CI_Controller {
 
     function index() {
    		if($this->logged_in) { 
-
-        $this->load->view('templates/header.php',$this->logged_in);
+        $data['title'] = "Konto seaded";
+        $data['active_page'] = "account_settings";
+        $data['logged_in'] = $this->logged_in;
+        $this->load->view('templates/header.php',$data);
         $this->load->view('settings_view.php');
         $this->load->view('templates/footer.php');
   		} else {	
@@ -31,8 +33,10 @@ class Settings extends CI_Controller {
 
    		if($this->form_validation->run() == FALSE) {
 	    	//Field validation failed.
-      
-     		$this->load->view('templates/header.php',$this->logged_in);
+        $data['title'] = "Konto seaded";
+        $data['active_page'] = "account_settings";
+        $data['logged_in'] = $this->logged_in;
+        $this->load->view('templates/header.php',$data);
 		    $this->load->view('settings_view');
 		    $this->load->view('templates/footer.php');
    		}
