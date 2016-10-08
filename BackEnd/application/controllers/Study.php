@@ -21,7 +21,10 @@ class Study extends CI_Controller {
    {
      $data['active_studies'] = $this->study_model->get_active_studies($this->study_model->get_author_id($this->logged_in['username']));
      $data['ended_studies'] = $this->study_model->get_ended_studies($this->study_model->get_author_id($this->logged_in['username']));
-     $this->load->view('templates/header', $this->logged_in);
+     $data['title'] = "Minu uuringud";
+     $data['active_page'] = "own_studies";
+     $data['logged_in'] = $this->logged_in;
+     $this->load->view('templates/header', $data);
      $this->load->view('study/list_own', $data);
      $this->load->view('templates/footer');
    }
@@ -40,7 +43,10 @@ class Study extends CI_Controller {
       if ($data['study_details'] != FALSE){
         $data['questions'] = $this->study_model->get_study_questions($id);
         $data['events'] = $this->study_model->get_study_events($id);
-        $this->load->view('templates/header', $this->logged_in);
+        $data['title'] = $data['study_details']['study-title'];
+        $data['active_page'] = "own_studies";
+        $data['logged_in'] = $this->logged_in;
+        $this->load->view('templates/header', $data);
         $this->load->view('study/details_own', $data);
         $this->load->view('templates/footer');
       }
@@ -59,7 +65,10 @@ class Study extends CI_Controller {
      $this->load->library('form_validation');
       $this->form_validation->set_rules('gen[study-title]', 'Pealkiri', 'required');
      if ($this->form_validation->run() === FALSE){
-      $this->load->view('templates/header', $this->logged_in);
+      $data['title'] = "Uuringu loomine";
+      $data['active_page'] = "create_study";
+      $data['logged_in'] = $this->logged_in;
+      $this->load->view('templates/header', $data);
       $this->load->view('study/create_study');
       $this->load->view('study/create_question');
       $this->load->view('study/create_event');
@@ -71,7 +80,7 @@ class Study extends CI_Controller {
 	  $study_events = $_POST["event"];
 
 	  $general_study_data['study-min-time-between-beeps'] *= 60; // hours to minutes
-	  $general_study_data['study-duration-time'] *= 10080; // convert weeks to minutes
+	  $general_study_data['study-duration-time'] *= $this->input->post('study-duration-time-unit'); // convert weeks to minutes
 	
 	  $author = $this->study_model->get_author_id($this->logged_in['username']); // get authors id
 	  $general_study_data['author'] = $author;

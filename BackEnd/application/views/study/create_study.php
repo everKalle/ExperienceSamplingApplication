@@ -34,11 +34,15 @@
           <input type="radio" name="gen[study-duration-for-user]" value="1"> Piiratud kestvus:
         </div>
       </div>
-      <div class="form-group">
+      <div class="form-group" id="study-duration-group">
         <label class="control-label col-sm-3" for="no-target">&nbsp;</label>
         <div class="col-sm-7 form-inline">
           <input class="form-control input-sm" type="number" id="study-duration-time" name="gen[study-duration-time]" size="5" placeholder="0" min="1"/>
-          <label for="study-duration-time">Nädalat</label>
+          <select class="form-control input-sm" name="study-duration-time-unit" id="study-duration-time-unit">
+            <option value="1440">Päeva</option>
+            <option value="10080" selected>Nädalat</option>
+          </select>
+          <span style="display: none;" id="study-duration-help-exceeded" class="help-block">Kestvus ühe kasutaja jaoks on pikem kui kogu uuringu kestvus!</span>
         </div>
       </div><hr>
       <div class="form-group" id="study-beep-amt-group">

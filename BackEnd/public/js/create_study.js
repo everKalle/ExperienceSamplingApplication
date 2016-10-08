@@ -212,6 +212,7 @@ function comparedates(){
 		    	$("#study-start-date-group").removeClass("has-error");
 		    	$("#study-end-date-group").removeClass("has-error");
 		    	$("#study-date-help").hide();	
+				checkDuration();
 		    } else {
 		    	$("#study-end-date").get(0).setCustomValidity("Alguskuupäev peab eelnema lõppkuupäevale.");
 		    	$("#study-start-date-group").addClass("has-error");
@@ -300,11 +301,16 @@ function checkBeepPeriod(){
 	}
 }
 
-$("[name=gen[study-duration-for-user]]").change(function() {
-    if ($("[name=gen[study-duration-for-user]]:checked").val() == "1"){
+
+$("[name='gen[study-duration-for-user]']").change(function() {
+    if ($("[name='gen[study-duration-for-user]']:checked").val() == "1"){
     	$("#study-duration-time").prop('required', true);
+    	checkDuration();
     } else {
     	$("#study-duration-time").prop('required', false);
+    	$("#study-duration-time").get(0).setCustomValidity("");
+    	$("#study-duration-group").removeClass("has-error");
+		$("#study-duration-help-exceeded").hide();
     }
 });
 
@@ -315,3 +321,44 @@ $("#study-allow-postpone").change(function() {
     	$("#study-allow-postpone").prop('required', false);
     }
 });
+
+
+$("#study-duration-time").on("propertychange keyup paste input", function(){
+    checkDuration();
+});
+
+$("#study-duration-time-unit").change(function() {
+    checkDuration();
+});
+
+function checkDuration(){
+	if ($("#study-duration-time").prop('required')){
+    	if (($("#study-end-date").val().length) == 10 && ($("#study-start-date").val().length) == 10){
+		    var endDate = new Date($("#study-end-date").val());
+		    var startDate = new Date($("#study-start-date").val());
+		    if (endDate instanceof Date && startDate instanceof Date && startDate.toString() != "Invalid Date" && endDate.toString() != "Invalid Date"){
+		    	var dateDifInMinutes = ((endDate.getTime() - startDate.getTime()) / (60000));
+		    	var durationInMinutes = $("#study-duration-time").val() * $("#study-duration-time-unit").val();
+		    	console.log(endDate.getTime());
+		    	console.log(startDate.getTime());
+		    	console.log(dateDifInMinutes);
+		    	console.log(durationInMinutes);
+		    	console.log($("#study-duration-time").val());
+		    	console.log($("#study-duration-time-unit").val());
+		    	if (durationInMinutes <= dateDifInMinutes) {
+		    		$("#study-duration-time").get(0).setCustomValidity("");
+			    	$("#study-duration-group").removeClass("has-error");
+					$("#study-duration-help-exceeded").hide();
+		    	} else {
+		    		$("#study-duration-time").get(0).setCustomValidity("Kestvus ühe kasutaja jaoks on pikem kui kogu uuringu kestvus.");
+			    	$("#study-duration-group").addClass("has-error");
+					$("#study-duration-help-exceeded").show();
+		    	}
+		    }
+		}
+    } else {
+    	$("#study-duration-time").get(0).setCustomValidity("");
+    	$("#study-duration-group").removeClass("has-error");
+		$("#study-duration-help-exceeded").hide();
+    }
+}

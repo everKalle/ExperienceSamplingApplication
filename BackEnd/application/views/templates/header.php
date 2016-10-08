@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Experience Sampling Application Back-End</title>
+    <title><?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
     <link href="<?php echo base_url(); ?>bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -40,10 +40,10 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-<?php if (isset($username)) { ?>
-              <li class="active"><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
-              <li><a href="#">Minuga jagatud uuringud</a></li>
-              <li><a href="<?php echo base_url(); ?>index.php/study/create/">Uus uuring</a></li>
+<?php if ($logged_in == FALSE) { ?>
+              <li <?php if ($active_page == "own_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
+              <li <?php if ($active_page == "shared_studies") echo 'class="active"'; ?>><a href="#">Minuga jagatud uuringud</a></li>
+              <li <?php if ($active_page == "create_study") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/create/">Uus uuring</a></li>
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
