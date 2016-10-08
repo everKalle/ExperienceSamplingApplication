@@ -14,7 +14,10 @@ class Login extends CI_Controller {
 			redirect('','refresh');
 		} else {
 			$this->load->helper(array('form'));
-			$this->load->view('templates/header');
+			$data['title'] = "Logi sisse";
+	        $data['active_page'] = "login";
+	        $data['logged_in'] = FALSE;
+			$this->load->view('templates/header', $data);
 			$this->load->view('login_view');
 			$this->load->view('templates/footer');
 		}
