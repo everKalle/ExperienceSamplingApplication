@@ -63,18 +63,22 @@ public class NotificationService extends IntentService {
             if (dailyNotificationCounter != notificationsPerDay) {
                 dailyNotificationCounter++;
 
+                final int NOTIFICATION_ID = 1;
+
                 final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                 Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
                 Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);
+                Intent refuseIntent = new Intent(NotificationService.this, RefuseReceiver.class);
+                refuseIntent.putExtra("notificationId",NOTIFICATION_ID);
+                refuseIntent.putExtra("StudyId", studyRef.getId());
 
                 okIntent.putExtra("QUESTIONNAIRE", studyRef.getQuesstionnaire());
                 Log.v("TESTING 4", String.valueOf(studyRef.getQuesstionnaire().getQuestions()[0] instanceof FreeTextQuestion) + " " + studyRef.getQuesstionnaire().getQuestions()[0].getText());
                 postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
 
-                Intent refuseIntent = new Intent(NotificationService.this, MainActivity.class);
 
                 PendingIntent okPendingIntent = PendingIntent.getActivity(this, 1, okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                PendingIntent refusePendingIntent = PendingIntent.getActivity(this, 1, refuseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, 0, refuseIntent, 0);
                 //PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, postponeIntent, 0);
 

@@ -49,6 +49,7 @@
         <receiver
             android:name=".PostponeReceiver"
             android:process=":remote" />
+        <receiver android:name=".RefuseReceiver" />
 
         <activity android:name=".QuestionnaireActivity"></activity>
     </application>

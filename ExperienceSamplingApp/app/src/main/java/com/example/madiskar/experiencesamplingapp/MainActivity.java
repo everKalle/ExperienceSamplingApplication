@@ -220,11 +220,9 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         BeepfreePeriodPickerFragment dialogFragment = new BeepfreePeriodPickerFragment();
                         Bundle b = new Bundle();
                         b.putBoolean("new", true);
-                        Log.v("LOOMISE KOHAS PERIOD ID", String.valueOf(periodID));
                         b.putInt("identificator", periodID);
                         dialogFragment.setArguments(b);
                         dialogFragment.show(fm, "timePicker");
-                        Log.v("TESETING TESTING ", String.valueOf(dialogFragment.getCreatedBeepFreePeriod().getEndTimeHour()));
                         //periods.add(dialogFragment.getCreatedBeepFreePeriod());
                         //adapter.updateAdapter(periods);
                         dialog.dismiss();
@@ -276,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     public void onDialogUpdateObject(BeepfreePeriodPickerFragment dialog) {
         BeepFerePeriod bfp = dialog.getEditedBeepFreePeriod();
-        Log.v("WTF is going on", String.valueOf(bfp.getId()));
         adapter.indexBasedUpdateAdapter(bfp.getId(), bfp);
         NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
     }
