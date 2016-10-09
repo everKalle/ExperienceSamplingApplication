@@ -9,6 +9,7 @@ import android.util.Log;
 import com.example.madiskar.experiencesamplingapp.ActiveStudyContract.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
@@ -40,7 +41,9 @@ public class DBHandler extends SQLiteOpenHelper{
             "CREATE TABLE IF NOT EXISTS " + QuestionEntry.TABLE_NAME + " ("
                     + QuestionEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + QuestionEntry.COLUMN_TEXT + " TEXT NOT NULL, "
-                    + QuestionEntry.COLUMN_TYPE + " TEXT NOT NULL, "
+                    + QuestionEntry.COLUMN_SINGLECHOICE + " INTEGER, "
+                    + QuestionEntry.COLUMN_TYPE + " TEXT, "
+                    + QuestionEntry.COLUMN_MULTICHOICES + " TEXT, "
                     + QuestionEntry.COLUMN_STUDYID + " INTEGER NOT NULL, "
                     + "FOREIGN KEY (" + QuestionEntry.COLUMN_STUDYID + ") REFERENCES " + ActiveStudyEntry.TABLE_NAME + "(" + ActiveStudyEntry._ID + "))";
     public static final String SQL_CREATE_TABLE_ANSWERS =
@@ -139,15 +142,19 @@ public class DBHandler extends SQLiteOpenHelper{
         ArrayList<Question> questions = new ArrayList<>();
         while(!cur.isAfterLast()) {
             long id = cur.getLong(cur.getColumnIndex(QuestionEntry._ID));
-            //System.out.println(id);
             String text = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TEXT));
             String qType = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TYPE));
-            // String[] choices = ...
-            //TODO: more stuff here later...
+            int singleChoice = cur.getInt(cur.getColumnIndex(QuestionEntry.COLUMN_SINGLECHOICE));
+            String choicesTxt = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_MULTICHOICES));
+            //System.out.println(choicesTxt);
+            //String[] choices = choicesTxt.split(Pattern.quote(";"));
             Question q;
-            if(qType.equals("multiple_choice"))
-                q = new MultipleChoiceQuestion(studyID, text, new String[] {"choice1", "choice2", "choice3"});
-            else
+
+            if(qType.equals("multiple_choice")) {
+                String[] choices = choicesTxt.split(Pattern.quote(";"));
+                q = new MultipleChoiceQuestion(studyID, singleChoice, text, choices);
+                //System.out.println("getting multiple questions");
+            } else
                 q = new FreeTextQuestion(studyID, text);
             questions.add(q);
             cur.moveToNext();
@@ -185,7 +192,7 @@ public class DBHandler extends SQLiteOpenHelper{
 
 
     public long insertStudy(/*arguments here*/) {
-        // TODO: Implement inserting a study using only its data
+        // TODO: Implement inserting a study using only its data, needed when database connection gets implemented
         return -1;
     }
 
@@ -194,8 +201,19 @@ public class DBHandler extends SQLiteOpenHelper{
         SQLiteDatabase db = getDbInstance();
         ContentValues values = new ContentValues();
         values.put(QuestionEntry.COLUMN_TEXT, question.getText());
-        if(question instanceof MultipleChoiceQuestion)
+        if(question instanceof MultipleChoiceQuestion) {
             values.put(QuestionEntry.COLUMN_TYPE, "multiple_choice");
+            values.put(QuestionEntry.COLUMN_SINGLECHOICE, ((MultipleChoiceQuestion) question).getSingleChoice());
+            StringBuilder sb = new StringBuilder();
+            String[] c = ((MultipleChoiceQuestion) question).getChoices();
+            for(int i = 0; i < c.length; i ++) {
+                if(i != c.length-1)
+                    sb.append(c[i]).append(";");
+                else
+                    sb.append(c[i]);
+            }
+            values.put(QuestionEntry.COLUMN_MULTICHOICES, sb.toString());
+        }
         else
             values.put(QuestionEntry.COLUMN_TYPE, "free_text");
         values.put(QuestionEntry.COLUMN_STUDYID, studyID);
@@ -207,9 +225,40 @@ public class DBHandler extends SQLiteOpenHelper{
         SQLiteDatabase db = getDbInstance();
         ContentValues values = new ContentValues();
         values.put(AnswerEntry.COLUMN_STUDYID, studyId);
-        values.put(AnswerEntry.COLUMN_ANSWER, answer); // DANGEROUS, must check input and escape characters if necessary //// ANSWER GOES IN CSV FORMAT: answer1,answer2,answer3,...
+        values.put(AnswerEntry.COLUMN_ANSWER, answer); // TODO: DANGEROUS, must check input and escape characters if necessary //// ANSWER GOES IN CSV FORMAT: answer1,answer2,answer3,...
         values.put(AnswerEntry.COLUMN_TIMESTAMP, timestamp);
         return db.insert(AnswerEntry.TABLE_NAME, null, values);
+    }
+
+    public long insertAnswer(long studyId, String[] answers, String timestamp) {
+        SQLiteDatabase db = getDbInstance();
+        ContentValues values = new ContentValues();
+        values.put(AnswerEntry.COLUMN_STUDYID, studyId);
+        StringBuilder sb = new StringBuilder();
+        for(String s : answers)
+            sb.append(s).append(",");
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        values.put(AnswerEntry.COLUMN_ANSWER, sb.toString());
+        values.put(AnswerEntry.COLUMN_TIMESTAMP, timestamp);
+        return db.insert(AnswerEntry.TABLE_NAME, null, values);
+    }
+
+    public ArrayList<String> getAnswers(long studyId) {
+        SQLiteDatabase db = getDbInstance();
+        Cursor cur = db.rawQuery("SELECT * FROM " + AnswerEntry.TABLE_NAME + " WHERE " + AnswerEntry.COLUMN_STUDYID + " = " + studyId + " ORDER BY " + AnswerEntry._ID, null);
+        cur.moveToFirst();
+
+        ArrayList<String> answers = new ArrayList<>();
+        while(!cur.isAfterLast()) {
+            StringBuilder sb = new StringBuilder();
+            String timestamp = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_TIMESTAMP));
+            String answerTxt = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_ANSWER));
+            sb.append(timestamp).append(" ; ").append(answerTxt);
+            answers.add(sb.toString());
+            cur.moveToNext();
+        }
+        cur.close();
+        return answers;
     }
 
 
@@ -249,7 +298,7 @@ public class DBHandler extends SQLiteOpenHelper{
                     Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]));
             return cal;
         } catch (Exception e) {
-            Log.d("DBHandler class", "Wrong date format");
+            Log.v("DBHandler class", "Wrong date format");
         }
         return cal;
     }

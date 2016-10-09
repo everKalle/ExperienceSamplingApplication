@@ -17,7 +17,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,16 +43,12 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".QuestionActivity" />
-        <activity android:name=".MultipleChoiceQuestionActivity" />
-        <activity android:name=".FreeTextQuestionActivity" />
-
         <receiver
             android:name=".PostponeReceiver"
             android:process=":remote" />
         <receiver android:name=".RefuseReceiver" />
 
-        <activity android:name=".QuestionnaireActivity"></activity>
+        <activity android:name=".QuestionnaireActivity" android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

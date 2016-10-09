@@ -15,6 +15,7 @@ public class FreeTextQuestion extends Question {
     public static final Parcelable.Creator<FreeTextQuestion> CREATOR = new Parcelable.Creator<FreeTextQuestion>() {
 
         public FreeTextQuestion createFromParcel(Parcel in) {
+            String type = in.readString();
             return new FreeTextQuestion(in);
         }
 
@@ -23,15 +24,17 @@ public class FreeTextQuestion extends Question {
         }
     };
 
+    @Override
     public int describeContents() {
         return 0;
     }
 
     public void writeToParcel(Parcel out, int flags) {
+        out.writeString("Freetext");
         super.writeToParcel(out, flags);
     }
 
-    private FreeTextQuestion(Parcel in) {
+    public FreeTextQuestion(Parcel in) {
         super(in);
     }
 

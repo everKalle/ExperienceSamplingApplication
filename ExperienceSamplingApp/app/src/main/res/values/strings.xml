@@ -12,7 +12,4 @@
     <string name="disable_beepfree">Disable</string>
     <string name="edit_beepfree">Edit</string>
     <string name="add_beepfree">Add new</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

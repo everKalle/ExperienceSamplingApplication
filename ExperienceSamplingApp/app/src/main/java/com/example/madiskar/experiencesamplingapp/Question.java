@@ -6,14 +6,11 @@ import android.os.Parcelable;
 /**
  * Created by Joosep on 25.09.2016.
  */
-public class Question implements Parcelable{
+public abstract class Question implements Parcelable{
 
     private long studyId;
     private String text;
 
-    public Question() {
-
-    }
     public Question(long studyId, String text) {
         this.text = text;
         this.studyId = studyId;
@@ -43,7 +40,16 @@ public class Question implements Parcelable{
     // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
     public static final Parcelable.Creator<Question> CREATOR = new Parcelable.Creator<Question>() {
         public Question createFromParcel(Parcel in) {
-            return new Question(in);
+            String questionType = in.readString();
+            Question question = null;
+
+            if(questionType.equals("Freetext"))
+                question = new FreeTextQuestion(in);
+
+            if(questionType.equals("Multiplechoice"))
+                question = new MultipleChoiceQuestion(in);
+
+            return question;
         }
 
         public Question[] newArray(int size) {

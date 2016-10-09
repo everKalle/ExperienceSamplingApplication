@@ -17,6 +17,7 @@ public class PostponeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // TODO Auto-generated method stub
 
+        /*
         Intent scheduledIntent;
         String type = intent.getStringExtra("TYPE");
         String question = intent.getStringExtra("QUESTION");
@@ -41,5 +42,6 @@ public class PostponeReceiver extends BroadcastReceiver {
                 SystemClock.elapsedRealtime() + interval * 60 * 1000,
                 pendingIntent);
         //context.startActivity(scheduledIntent);
+        */
     }
 }

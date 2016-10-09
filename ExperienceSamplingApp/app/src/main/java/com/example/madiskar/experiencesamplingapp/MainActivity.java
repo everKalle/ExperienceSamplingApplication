@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteReadOnlyDatabaseException;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -94,12 +95,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         FreeTextQuestion q4 = new FreeTextQuestion(0, "Is it easy?");
         FreeTextQuestion q2 = new FreeTextQuestion(0, "Is it still easy?");
         FreeTextQuestion q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
-        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(0,"How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(0, 1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        MultipleChoiceQuestion q5 = new MultipleChoiceQuestion(0, 0, "How would you rate the difficulty of this question now huh?", new String[]{"pretty easy", "medium, I think", "hard", "impossible"});
 
-        Question[] batch1 = {q4, q2, q3};
+        Question[] batch1 = {q4,q2,q5,q1};
         //Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
 
-        Question[] batch2 = {q1};
+        Question[] batch2 = {q3};
 
         Questionnaire qnaire1 = new Questionnaire(0, batch1);
         Questionnaire qnaire2 = new Questionnaire(1, batch2);
@@ -111,20 +113,33 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
         Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 5, true, 1);
 
-
         getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
 
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         //mydb.clearTables();
 
-        mydb.insertStudy(study1);
-        mydb.insertStudy(study2);
+        try {
+            mydb.insertStudy(study1);
+            mydb.insertStudy(study2);
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            Log.i("Error", "Clicked on notification, catch error");
+        }
 
-        //ArrayList<Study> currentStudies = mydb.getAllStudies();
 
         //Intent msgIntent = new Intent(this, NotificationService.class);
         //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());
         //startService(msgIntent);
+
+
+        /*
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        //System.out.println("lisatud");
+        ArrayList<Study> currentStudies = mydb.getAllStudies();
+        Study study1 = null;
+        for(Study s : currentStudies)
+            if(s.getName().equals("Study 1"))
+                study1 = s;
+        */
 
         setTitle("My Studies");
         loadFragment("My Studies", false);

@@ -30,6 +30,8 @@ public class BootReceiver extends BroadcastReceiver {
         c2.set(2016, 3, 20);
         Study study = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
 
+        // TODO: get studies from database here
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int interval = study.getNotificationInterval();
         String name = study.getName();

@@ -3,24 +3,29 @@ package com.example.madiskar.experiencesamplingapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Arrays;
+
 /**
  * Created by Joosep on 25.09.2016.
  */
 public class MultipleChoiceQuestion extends Question {
 
     private String[] choices;
+    private int singleChoice;
 
-    public MultipleChoiceQuestion() {
-        super();
-    }
 
-    public MultipleChoiceQuestion(long studyId, String question, String[] choices) {
+    public MultipleChoiceQuestion(long studyId, int singleChoice, String question, String[] choices) {
         super(studyId, question);
         this.choices = choices;
+        this.singleChoice = singleChoice;
     }
 
     public String[] getChoices() {
         return choices;
+    }
+
+    public int getSingleChoice() {
+        return singleChoice;
     }
 
     @Override
@@ -31,13 +36,16 @@ public class MultipleChoiceQuestion extends Question {
     // write your object's data to the passed-in Parcel
     @Override
     public void writeToParcel(Parcel out, int flags) {
+        out.writeString("Multiplechoice");
         super.writeToParcel(out,flags);
         out.writeStringArray(choices);
+        out.writeInt(singleChoice);
     }
 
     public static final Parcelable.Creator<MultipleChoiceQuestion> CREATOR = new Parcelable.Creator<MultipleChoiceQuestion>() {
         @Override
         public MultipleChoiceQuestion createFromParcel(Parcel in) {
+            String type = in.readString();
             return new MultipleChoiceQuestion(in);
         }
 
@@ -51,6 +59,7 @@ public class MultipleChoiceQuestion extends Question {
     public MultipleChoiceQuestion(Parcel in) {
         super(in);
         choices = in.createStringArray();
+        singleChoice = in.readInt();
     }
 
 }
