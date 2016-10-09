@@ -8,13 +8,13 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Experience Sampling Application Back-End</title>
+    <title><?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
-    <link href="<?php echo base_url(); ?>/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles -->
-    <link href="<?php echo base_url(); ?>/public/css/navbar.css" rel="stylesheet">
+    <link href="<?php echo base_url(); ?>public/css/style.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -40,13 +40,18 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Minu uuringud</a></li>
-              <li><a href="#">Minuga jagatud uuringud</a></li>
-              <li><a href="#">Uus uuring</a></li>
+<?php if ($logged_in != FALSE) { ?>
+              <li <?php if ($active_page == "own_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
+              <li <?php if ($active_page == "shared_studies") echo 'class="active"'; ?>><a href="#">Minuga jagatud uuringud</a></li>
+              <li <?php if ($active_page == "create_study") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/create/">Uus uuring</a></li>
+
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li><a href="../navbar-static-top/">Konto seaded</a></li>
-              <li><a href="../navbar-fixed-top/">Logi välja</a></li>
+              <li <?php if ($active_page == "account_settings") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/settings">Konto seaded</a></li>
+	      <li><a href="<?php echo base_url(); ?>index.php/login/logout">Logi välja</a></li>
+<?php } else { ?>
+	      <li><a href="<?php echo base_url(); ?>index.php/login">Logi sisse</a></li>
+<?php } ?>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
