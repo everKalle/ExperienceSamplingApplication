@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+	PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         setContentView(R.layout.activity_main);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -69,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MenuItem menuItem = mMenuItems.get(position);
+
+                loadFragment(menuItem.mSubtitle, false);
                 selectItemFromDrawer(position);
             }
         });
@@ -180,6 +184,11 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
 
 
+        }
+	else if (itemName.equals("Settings")) {
+       	    getFragmentManager().beginTransaction()
+                    .replace(R.id.mainContent, new SettingsFragment())
+                    .commit();
         }
         // TODO: other fragments here
     }

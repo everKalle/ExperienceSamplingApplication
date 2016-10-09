@@ -6,11 +6,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.NotificationCompat;
+import android.os.Vibrator;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -27,6 +32,9 @@ public class NotificationService extends IntentService {
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private static Study studyRef;
     private static ArrayList<BeepFerePeriod> beepFreePeriods = new ArrayList<BeepFerePeriod>();
+    private int alarmType;
+    private int alarmTone;
+    public static final String PREFS_NAME = "preferences";
 
     public NotificationService() {
         super(NotificationService.class.getName());
@@ -58,10 +66,28 @@ public class NotificationService extends IntentService {
     }
 
     private void processNotification(String name, Question[] questions, int interval, int notificationsPerDay) {
-
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
+        alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
+        Log.v("alarmType", String.valueOf(alarmType));
+        Log.v("alarmTone", String.valueOf(alarmTone));
         if (!beepFreePeriod()) {
             if (dailyNotificationCounter != notificationsPerDay) {
                 dailyNotificationCounter++;
+                ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+                if (alarmType == 0) {
+                    if (alarmTone == 0)
+                        toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 300);
+                    else if (alarmTone == 1)
+                        toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 300);
+                    else
+                        toneG.startTone(ToneGenerator.TONE_PROP_PROMPT, 300);
+                }
+                else if (alarmType == 1) {
+                    Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+                    // Vibrate for 1000 milliseconds
+                    v.vibrate(1000);
+                }
 
                 final int NOTIFICATION_ID = 1;
 
