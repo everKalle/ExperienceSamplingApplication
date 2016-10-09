@@ -1,8 +1,12 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,18 +14,24 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BeepfreePeriodPickerFragment.BeepFreePeriodListener{
 
-
+    private static int periodID = 0;
     private static String TAG = MainActivity.class.getSimpleName();
 
     ListView mDrawerList;
     RelativeLayout mDrawerPane;
+    ArrayList<BeepFerePeriod> bfpArrayList = new ArrayList<BeepFerePeriod>();
+    BeepFreePeriodListAdapter adapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
 
@@ -40,7 +50,12 @@ public class MainActivity extends AppCompatActivity {
         mMenuItems.add(new MenuItem("Log Out", "Log out from current account", R.drawable.ic_logout));
         mMenuItems.add(new MenuItem("Exit", "Active studies will continue \nto run in background", R.drawable.ic_exit));
 
+        BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
+        bfpArrayList.add(bfp);
+        NotificationService.addBeepFreePeriod(bfp);
+        periodID = 1;
         // DrawerLayout
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
         // Populate the drawer menu with options
@@ -79,15 +94,15 @@ public class MainActivity extends AppCompatActivity {
         FreeTextQuestion q4 = new FreeTextQuestion(0, "Is it easy?");
         FreeTextQuestion q2 = new FreeTextQuestion(0, "Is it still easy?");
         FreeTextQuestion q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
-        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(0,"How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
 
-        Question[] batch1 = {q4,q2};
-        Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
+        Question[] batch1 = {q4, q2, q3};
+        //Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
 
-        Question[]  batch2 = {q1,q3};
+        Question[] batch2 = {q1};
 
         Questionnaire qnaire1 = new Questionnaire(0, batch1);
-        Questionnaire qnaire2 = new Questionnaire(0, batch2);
+        Questionnaire qnaire2 = new Questionnaire(1, batch2);
 
         Calendar c1 = Calendar.getInstance();
         c1.set(2016, 2, 20);
@@ -95,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         c2.set(2016, 3, 20);
         Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
         Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 5, true, 1);
+
 
         getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
 
@@ -142,6 +158,14 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.mainContent, fragment)
                     .commit();
         }
+        else if (itemName.equals("Beepfree period")) {
+            Fragment fragment = new BeepFreeFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.mainContent, fragment)
+                    .commit();
+
+
+        }
         // TODO: other fragments here
     }
 
@@ -171,9 +195,59 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.menu_settings) {
+            setUpBeepFreePeriods(getWindow().getDecorView().getRootView());
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
+    public void setUpBeepFreePeriods(View v) {
+        adapter = new BeepFreePeriodListAdapter(this, bfpArrayList);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set beepfree periods");
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+
+            }
+        });
+        FragmentActivity activity = (FragmentActivity)(this);
+        final android.support.v4.app.FragmentManager fm = activity.getSupportFragmentManager();
+        builder.setPositiveButton("Add new",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        BeepfreePeriodPickerFragment dialogFragment = new BeepfreePeriodPickerFragment();
+                        Bundle b = new Bundle();
+                        b.putBoolean("new", true);
+                        Log.v("LOOMISE KOHAS PERIOD ID", String.valueOf(periodID));
+                        b.putInt("identificator", periodID);
+                        dialogFragment.setArguments(b);
+                        dialogFragment.show(fm, "timePicker");
+                        Log.v("TESETING TESTING ", String.valueOf(dialogFragment.getCreatedBeepFreePeriod().getEndTimeHour()));
+                        //periods.add(dialogFragment.getCreatedBeepFreePeriod());
+                        //adapter.updateAdapter(periods);
+                        dialog.dismiss();
+                    }
+                });
+        builder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+
+
+
+
+
+        //DialogFragment newFragment = new BeepfreePeriodPickerFragment();
+        //newFragment.
+        // newFragment.show(getSupportFragmentManager(), "timePicker");
+    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -181,4 +255,29 @@ public class MainActivity extends AppCompatActivity {
         mDrawerToggle.syncState();
     }
 
+    @Override
+    public void onDialogPositiveClick(BeepfreePeriodPickerFragment dialog) {
+        BeepFerePeriod bfp = dialog.getCreatedBeepFreePeriod();
+        bfpArrayList.add(bfp);
+        NotificationService.addBeepFreePeriod(bfp);
+        adapter.updateAdapter(bfpArrayList);
+        periodID += 1;
+    }
+
+    @Override
+    public void onDialogNegativeClick(BeepfreePeriodPickerFragment dialog) {
+    }
+
+    public static void removeItem(int position) {
+        periodID -= 1;
+        NotificationService.removeBeepFreePeriod(position);
+    }
+
+    @Override
+    public void onDialogUpdateObject(BeepfreePeriodPickerFragment dialog) {
+        BeepFerePeriod bfp = dialog.getEditedBeepFreePeriod();
+        Log.v("WTF is going on", String.valueOf(bfp.getId()));
+        adapter.indexBasedUpdateAdapter(bfp.getId(), bfp);
+        NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
+    }
 }

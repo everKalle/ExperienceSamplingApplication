@@ -31,8 +31,19 @@ public class QuestionnaireActivity extends AppCompatActivity {
         LinearLayout layout = (LinearLayout) findViewById(R.id.linearLayout);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
+        for (Question q : questionnaire.getQuestions()) {
+            try {
+                Log.v("LAASDADKOAKDOAKS", q.getText());
+            } catch (Exception e) {
+                Log.v("NULLLLL", "lape");
+            }
+        }
+
         FreeTextQuestion[] freeTextQuestions = questionnaire.getFreeTextQuestions();
         MultipleChoiceQuestion[] multipleChoiceQuestions = questionnaire.getMultipleChoiceQuestions();
+
+        Log.v("SUUR POISS 1", String.valueOf(freeTextQuestions.length));
+        Log.v("Suur POiss 2",  String.valueOf(multipleChoiceQuestions.length));
 
         // Järjestame küsimused õigesti:
 
@@ -45,6 +56,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 orderedQuestions[i] = freeTextQuestions[freeCounter++];
             else
                 orderedQuestions[i] = multipleChoiceQuestions[multipleCounter++];
+            Log.v("TESTING BIG BOI", questionnaire.getQuestions()[i].getText());
         }
 
         for (int i = 0; i < orderedQuestions.length; i++)

@@ -51,6 +51,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
             view = inflater.inflate(R.layout.activestudy_item, null);
         }
 
+
         TextView nameView = (TextView) view.findViewById(R.id.activestudy_name);
         TextView durationView = (TextView) view.findViewById(R.id.activestudy_duration);
 

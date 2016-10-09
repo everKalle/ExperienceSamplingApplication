@@ -26,7 +26,7 @@ public class NotificationService extends IntentService {
     private static String STUDY_QUESTIONS = "QUESTIONS";
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private static Study studyRef;
-
+    private static ArrayList<BeepFerePeriod> beepFreePeriods = new ArrayList<BeepFerePeriod>();
 
     public NotificationService() {
         super(NotificationService.class.getName());
@@ -59,58 +59,96 @@ public class NotificationService extends IntentService {
 
     private void processNotification(String name, Question[] questions, int interval, int notificationsPerDay) {
 
-        if (dailyNotificationCounter != notificationsPerDay) {
-            dailyNotificationCounter++;
+        if (!beepFreePeriod()) {
+            if (dailyNotificationCounter != notificationsPerDay) {
+                dailyNotificationCounter++;
 
-            final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
-            Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
+                Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);
 
-            okIntent.putExtra("QUESTIONNAIRE", studyRef.getQuesstionnaire());
-            Log.v("TESTING 4", String.valueOf(studyRef.getQuesstionnaire().getQuestions()[0] instanceof FreeTextQuestion) + " " + studyRef.getQuesstionnaire().getQuestions()[0].getText());
-            postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
+                okIntent.putExtra("QUESTIONNAIRE", studyRef.getQuesstionnaire());
+                Log.v("TESTING 4", String.valueOf(studyRef.getQuesstionnaire().getQuestions()[0] instanceof FreeTextQuestion) + " " + studyRef.getQuesstionnaire().getQuestions()[0].getText());
+                postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
 
-            Intent refuseIntent = new Intent(NotificationService.this, MainActivity.class);
+                Intent refuseIntent = new Intent(NotificationService.this, MainActivity.class);
 
-            PendingIntent okPendingIntent = PendingIntent.getActivity(this, 1, okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent refusePendingIntent = PendingIntent.getActivity(this, 1, refuseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            //PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, postponeIntent, 0);
+                PendingIntent okPendingIntent = PendingIntent.getActivity(this, 1, okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent refusePendingIntent = PendingIntent.getActivity(this, 1, refuseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                //PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, postponeIntent, 0);
 
-            builder.setContentTitle(name)
-                    .setAutoCancel(true)
-                    .setColor(getResources().getColor(R.color.colorAccent))
-                    .setContentText(questions[dailyNotificationCounter++].getText())
-                    .setSmallIcon(R.drawable.ic_events)
-                    .addAction(R.drawable.ic_ok, "Ok", okPendingIntent)
-                    .addAction(R.drawable.ic_refuse, "Refuse", refusePendingIntent)
-                    .addAction(R.drawable.ic_postpone, "Postpone", postponePendingIntent).build();;
+                builder.setContentTitle(name)
+                        .setAutoCancel(true)
+                        .setColor(getResources().getColor(R.color.colorAccent))
+                        .setContentText(studyRef.getName() + " questionnaire")
+                        .setSmallIcon(R.drawable.ic_events)
+                        .addAction(R.drawable.ic_ok, "Ok", okPendingIntent)
+                        .addAction(R.drawable.ic_refuse, "Refuse", refusePendingIntent)
+                        .addAction(R.drawable.ic_postpone, "Postpone", postponePendingIntent).build();
+                ;
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                    NOTIFICATION_ID,
-                    new Intent(this, MainActivity.class),
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(pendingIntent);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                        NOTIFICATION_ID,
+                        new Intent(this, MainActivity.class),
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentIntent(pendingIntent);
 
-            final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.notify(NOTIFICATION_ID, builder.build());
+                final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+                manager.notify(NOTIFICATION_ID, builder.build());
 
-            Handler h = new Handler(Looper.getMainLooper());
-            long delay = 30000;
-            h.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    manager.cancel(NOTIFICATION_ID);
+                Handler h = new Handler(Looper.getMainLooper());
+                long delay = 30000;
+                h.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        manager.cancel(NOTIFICATION_ID);
+                    }
+                }, delay);
+            } else {
+                if (dailyNotificationCounter == notificationsPerDay) {
+                    dailyNotificationCounter = 0;
                 }
-            }, delay);
-        }
-        else {
-            if (dailyNotificationCounter == notificationsPerDay) {
-                dailyNotificationCounter = 0;
-            }
-            if (dailyNotificationCounter < questions.length) {
-                ResponseReceiver.setupAlarm(getApplicationContext(), studyRef, false);
+                if (dailyNotificationCounter < questions.length) {
+                    ResponseReceiver.setupAlarm(getApplicationContext(), studyRef, false);
+                }
             }
         }
+    }
+
+    public static void addBeepFreePeriod(BeepFerePeriod bfp) {
+        beepFreePeriods.add(bfp);
+
+    }
+    public static void modifyBeepFreePeriod(int index, BeepFerePeriod bfp) {
+        beepFreePeriods.set(index, bfp);
+    }
+
+    public static void removeBeepFreePeriod(int index) {
+        beepFreePeriods.remove(index);
+        for (int i = index; i < beepFreePeriods.size(); i++)
+            beepFreePeriods.get(i).setId(beepFreePeriods.get(i).getId()-1);
+    }
+
+    public static boolean beepFreePeriod() {
+        Calendar c = Calendar.getInstance();
+        int hours = c.get(Calendar.HOUR);
+        int minutes = c.get(Calendar.MINUTE);
+        boolean beepfree = false;
+
+        for (int i = 0; i < beepFreePeriods.size(); i++) {
+            BeepFerePeriod bfp = beepFreePeriods.get(i);
+            int startHour = bfp.getStartTimeHour();
+            int startMinute = bfp.getStartTimeMinute();
+            int endHour = bfp.getEndTimeHour();
+            int endMinute = bfp.getEndTimeMinute();
+            if (hours >= startHour && hours <= endHour) {
+                if ((hours == startHour && minutes < startMinute) || (hours == endHour && minutes > endMinute)) {
+                }
+                else
+                    beepfree = true;
+            }
+        }
+        return beepfree;
     }
 }
