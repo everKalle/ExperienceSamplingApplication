@@ -1,25 +1,34 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.lang.reflect.Array;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Joosep on 25.09.2016.
  */
 public class Study {
-    private ArrayList<Question> questions;
+    private long id;
+    private Questionnaire qBatch;
     private String name;
-    private Time beginDate;
-    private Time endDate;
-    private Time studyLength;
+    private Calendar beginDate;
+    private Calendar endDate;
+    private int studyLength;
     private int notificationsPerDay;
     private int notificationInterval;
+    private int minTimeBetweenNotifications;
     private int postponeTime;
     private boolean postponable;
 
-    public Study(String name, ArrayList<Question> questions, Time beginDate, Time endDate, Time studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable){
+    public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+        this.id = id;
         this.name = name;
-        this.questions = questions;
+        this.qBatch = qBatch;
         this.beginDate = beginDate;
         this.endDate = endDate;
         this.studyLength = studyLength;
@@ -27,38 +36,56 @@ public class Study {
         this.notificationInterval = notificationInterval;
         this.postponeTime = postponeTime;
         this.postponable = postponable;
+        this.minTimeBetweenNotifications = minTimeBetweenNotifications;
     }
 
+    public String[] questionsAsText() {
+
+        String[] textQuestions = new String[qBatch.getQuestions().length];
+
+        for (int i = 0; i < qBatch.getQuestions().length; i++) {
+            textQuestions[i] = qBatch.getQuestions()[i].getText();
+        }
+
+        return textQuestions;
+    }
     public String getName() {
         return name;
     }
 
-    public Time getBeginDate() {
+    public Calendar getBeginDate() {
         return beginDate;
     }
 
-    public Time endDate() {
+    public Calendar getEndDate() {
         return endDate;
     }
 
-    public Time studyLength() {
+    public int getStudyLength() {
         return studyLength;
     }
 
-    public int notificationsPerDay() {
+    public Questionnaire getQuesstionnaire() { return qBatch; }
+
+    public long getId() {
+        return id;
+    }
+
+    public int getNotificationsPerDay() {
         return notificationsPerDay;
     }
 
-    public int notificationInterval() {
+    public int getNotificationInterval() {
         return notificationInterval;
     }
 
-    public int postponeTime() {
+    public int getPostponeTime() {
         return postponeTime;
     }
 
-    public boolean postponable() {
+    public boolean getPostponable() {
         return postponable;
     }
 
+    public int getMinTimeBetweenNotifications() { return minTimeBetweenNotifications; }
 }

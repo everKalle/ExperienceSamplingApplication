@@ -1,24 +1,51 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.app.Fragment;
+import android.app.ListFragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.os.Handler;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.Toast;
 
-public class StudyFragment extends Fragment {
+import java.util.ArrayList;
 
 
-    public StudyFragment() {
-        // Required empty public constructor
-    }
+public class StudyFragment extends ListFragment {
 
+    private Handler mHandler = new Handler();
+    private Boolean from_menu;
+    //private ActiveStudyListAdapter asla;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_study, container, false);
-    }
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        from_menu = args.getBoolean("fromNav");
 
+        new AsyncTask<Void, Void, ArrayList<Study>>() {
+            @Override
+            protected ArrayList<Study> doInBackground(Void... params) {
+                DBHandler mydb = DBHandler.getInstance(getActivity());
+                return mydb.getAllStudies();
+            }
+            @Override
+            protected void onPostExecute(final ArrayList<Study> results) {
+                if(from_menu) {
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), results);
+                            setListAdapter(asla);
+                        }
+                    }, 230); //Time for nav driver to close, for nice animations
+                } else {
+                    ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), results);
+                    setListAdapter(asla);
+                }
+            }
+        }.execute();
+
+    }
 
 }

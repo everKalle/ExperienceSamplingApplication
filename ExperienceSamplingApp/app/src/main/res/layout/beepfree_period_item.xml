@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:clickable="false"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/beepfree_duration"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
+        android:paddingBottom="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/disable_beepfree"
+        android:drawableLeft="@drawable/ic_exit"
+        android:id="@+id/beepfree_disable"
+        android:background="#00ffffff"
+        android:clickable="true"
+        android:focusable="false"
+        android:enabled="true"
+        android:layout_marginLeft="18dp"
+        android:layout_marginStart="18dp"
+        android:layout_alignBaseline="@+id/beepfree_duration"
+        android:layout_alignBottom="@+id/beepfree_duration"
+        android:layout_toRightOf="@+id/beepfree_duration"
+        android:layout_toEndOf="@+id/beepfree_duration" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_beepfree"
+        android:id="@+id/beepfree_edit"
+        android:drawableLeft="@drawable/ic_edit"
+        android:background="#00ffffff"
+        android:focusable="false"
+        android:enabled="true"
+        android:clickable="true"
+        android:layout_marginLeft="23dp"
+        android:layout_marginStart="23dp"
+        android:layout_alignBaseline="@+id/beepfree_duration"
+        android:layout_alignBottom="@+id/beepfree_disable"
+        android:layout_toRightOf="@+id/beepfree_disable"
+        android:layout_toEndOf="@+id/beepfree_disable" />
+</RelativeLayout>
