@@ -108,8 +108,10 @@ public class QuestionnaireActivity extends AppCompatActivity {
                     */
                     finish();
                 }
-                currentQNumber ++;
-                switchFragment(questions[currentQNumber-1], currentQNumber, questions.length);
+                if(currentQNumber != answers.length) {
+                    currentQNumber++;
+                    switchFragment(questions[currentQNumber - 1], currentQNumber, questions.length);
+                }
             }
         });
         Button back = (Button) findViewById(R.id.previousquestionbutton);

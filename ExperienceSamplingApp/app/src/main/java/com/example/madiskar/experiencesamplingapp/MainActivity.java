@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mMenuItems.add(new MenuItem("My Studies", "View my current studies", R.drawable.ic_study));
-        mMenuItems.add(new MenuItem("My Events", "View active events", R.drawable.ic_events));
         mMenuItems.add(new MenuItem("Join Studies", "Browse and join available \nstudies", R.drawable.ic_add));
+        mMenuItems.add(new MenuItem("Settings", "Change my settings", R.drawable.ic_settings));
         mMenuItems.add(new MenuItem("Log Out", "Log out from current account", R.drawable.ic_logout));
         mMenuItems.add(new MenuItem("Exit", "Active studies will continue \nto run in background", R.drawable.ic_exit));
 
@@ -114,13 +114,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         c1.set(2016, 2, 20);
         Calendar c2 = Calendar.getInstance();
         c2.set(2016, 3, 20);
-        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
-        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 5, true, 1);
+        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 2, true, 1);
+        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 2, true, 1);
 
-        getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
+        //getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
 
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
-        //mydb.clearTables();
+        mydb.clearTables();
 
         try {
             mydb.insertStudy(study1);
@@ -211,11 +211,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         int id = item.getItemId();
 
         if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
             return true;
         }
 

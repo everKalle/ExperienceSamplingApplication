@@ -48,7 +48,6 @@ public class NotificationService extends IntentService {
             int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
             String[] textQuestions = intent.getStringArrayExtra(STUDY_QUESTIONS);
             int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
-            Log.v("TESTING 3", String.valueOf(studyRef.getQuesstionnaire().getQuestions()[0] instanceof FreeTextQuestion) + " " + studyRef.getQuesstionnaire().getQuestions()[0].getText());
             processNotification(name, studyRef.getQuesstionnaire().getQuestions(), interval, notificationsPerDay);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
@@ -101,6 +100,10 @@ public class NotificationService extends IntentService {
                 okIntent.putExtra("QUESTIONNAIRE", studyRef.getQuesstionnaire());
                 Log.v("TESTING 4", String.valueOf(studyRef.getQuesstionnaire().getQuestions()[0] instanceof FreeTextQuestion) + " " + studyRef.getQuesstionnaire().getQuestions()[0].getText());
                 postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
+                postponeIntent.putExtra("QUESTIONNAIRE", studyRef.getQuesstionnaire());
+                postponeIntent.putExtra("postpone", studyRef.getPostponeTime());
+                postponeIntent.putExtra("INTERVAL", studyRef.getNotificationInterval());
+                postponeIntent.putExtra("notificationId", NOTIFICATION_ID);
 
 
                 PendingIntent okPendingIntent = PendingIntent.getActivity(this, 1, okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
