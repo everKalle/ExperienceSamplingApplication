@@ -31,7 +31,7 @@ public class NotificationService extends IntentService {
     private static String STUDY_QUESTIONS = "QUESTIONS";
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private static Study studyRef;
-    private static ArrayList<BeepFerePeriod> beepFreePeriods = new ArrayList<BeepFerePeriod>();
+    public static ArrayList<BeepFerePeriod> beepFreePeriods = new ArrayList<BeepFerePeriod>();
     private int alarmType;
     private int alarmTone;
     public static final String PREFS_NAME = "preferences";
