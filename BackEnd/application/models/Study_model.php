@@ -48,6 +48,24 @@ class Study_model extends CI_Model {
 		return true;
 	}
 
+	function remove_questions($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('survey_question');
+		return true;
+	}
+
+	function remove_events($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('survey_custom_event');
+		return true;
+	}
+
+	function remove_study($study_id) {
+		$this->db->where('id',$study_id);
+		$this->db->delete('survey');
+		return true;
+	}
+
 	function get_author_id($username) {
 		$this->db->select('id');
 		$this->db->from('users');

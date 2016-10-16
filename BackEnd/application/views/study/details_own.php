@@ -125,3 +125,27 @@
     <strong>TODO</strong>
   </div>
 </div>
+
+<button type="button" class="btn btn-lg btn-warning">Muuda</button>
+<button type="button" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#deleteModal">Kustuta</button>
+
+<div id="deleteModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Palun kinnitata uuringu kustutamine</h4>
+      </div>
+      <div class="modal-body">
+        <p>Kas oled kindel, et soovid kustutada uuringu "<?php echo $study_details['study-title']; ?>"</p>
+        <p class="small text-danger">Seda tegevust ei saa tagasi võtta!</p>
+      </div>
+      <div class="modal-footer">
+        <a href="<?php echo site_url('study/delete/'.$study_details['id']); ?>" class="btn btn-danger">Kustuta</a>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Tühista</button>
+      </div>
+    </div>
+
+  </div>
+</div>

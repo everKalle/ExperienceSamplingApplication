@@ -57,6 +57,24 @@ class Study extends CI_Controller {
     }
  }
 
+ function delete($id)
+ {
+    if($this->logged_in)
+    {
+      $data['study_details'] = $this->study_model->get_study_data($id, $this->study_model->get_author_id($this->logged_in['username']));
+      if ($data['study_details'] != FALSE){
+        $this->study_model->remove_questions($id);
+        $this->study_model->remove_events($id);
+        $this->study_model->remove_study($id);
+        redirect('/', 'location');
+      }
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
+
  function create()
  {
    if($this->logged_in)  //check if logged in
