@@ -75,6 +75,24 @@ class Study extends CI_Controller {
     }
  }
 
+ function get_public_studies(){
+    $public_studies = $this->study_model->get_all_public_studies();
+    $study_array = array();
+    foreach($public_studies as $study):
+      $study['questions'] = $this->study_model->get_study_questions($study['id']);
+      $study['events'] = $this->study_model->get_study_events($study['id']);
+      $study_array[] = $study;
+    endforeach;
+    echo (json_encode($study_array));
+ }
+
+ function get_study_details($id){
+    $study = $this->study_model->get_study_android($id);
+    $study['questions'] = $this->study_model->get_study_questions($study['id']);
+    $study['events'] = $this->study_model->get_study_events($study['id']);
+    echo (json_encode($study));
+ }
+
  function create()
  {
    if($this->logged_in)  //check if logged in

@@ -116,6 +116,19 @@ class Study_model extends CI_Model {
 		}
 	}
 
+	function get_study_android($id) {
+		$this->db->select('id, study-title, study-start-date, study-end-date, study-duration-for-user, study-beeps-per-day, study-min-time-between-beeps, study-postpone-time, study-allow-postpone, study-language, study-is-public, study-beep-start-time, study-beep-end-time, study-duration-time');
+		$this->db->from('survey');
+		$this->db->where('id', $id);
+
+		$query = $this->db->get();
+		if($query -> num_rows() == 1) {
+			return $query->row_array();
+		} else {
+			return false;
+		}
+	}
+
 	function get_study_questions($id) {
 		$this->db->select('question-title, question-type, question-multichoices, question-multichoice-single-choice');
 		$this->db->from('survey_question');
@@ -130,6 +143,16 @@ class Study_model extends CI_Model {
 		$this->db->select('event-title, event-control-time, event-control-time-unit');
 		$this->db->from('survey_custom_event');
 		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function get_all_public_studies() {
+		$this->db->select('id, study-title, study-start-date, study-end-date, study-duration-for-user, study-beeps-per-day, study-min-time-between-beeps, study-postpone-time, study-allow-postpone, study-language, study-is-public, study-beep-start-time, study-beep-end-time, study-duration-time');
+		$this->db->from('survey');
+		$this->db->where('study-is-public', 1);
 
 		$query = $this->db->get();
 		
