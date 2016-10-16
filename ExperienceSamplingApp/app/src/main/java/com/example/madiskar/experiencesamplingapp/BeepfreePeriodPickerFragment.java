@@ -13,15 +13,19 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class BeepfreePeriodPickerFragment extends DialogFragment {
 
@@ -68,8 +72,10 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
 
         final boolean newValue = args.getBoolean("new");
         int identificator = args.getInt("identificator");
-
-
+        final ArrayList<Integer> existingStartHours = args.getIntegerArrayList("existingStartHours");
+        final ArrayList<Integer> existingStartMinutes = args.getIntegerArrayList("existingStartMinutes");
+        final ArrayList<Integer> existingEndHours = args.getIntegerArrayList("existingEndHours");
+        final ArrayList<Integer> existingEndMinutes = args.getIntegerArrayList("existingEndMinutes");
 
         if (newValue) {
             beepFerePeriod.setId(identificator);
@@ -162,12 +168,109 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (!newValue)
+                        if (!newValue) {
                             mListener.onDialogUpdateObject(BeepfreePeriodPickerFragment.this);
-                        else
-                            mListener.onDialogPositiveClick(BeepfreePeriodPickerFragment.this);
+                            getDialog().dismiss();
+                        }
+                        else {
+                            boolean overlap = false;
+                            for (int i = 0; i < existingStartHours.size(); i++) {
 
-                        getDialog().dismiss();
+                                if (existingStartHours.get(i) > existingEndHours.get(i)) { // 22.00 - 2.30
+                                    if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) { // 20.00 - 4.00
+                                        overlap = true;
+                                    }
+                                    else { // 1.00 - 13.00
+                                        if (beepFerePeriod.getStartTimeHour() <= existingEndHours.get(i)) { // 13.00 - 15.00 and 23.00 - 18.0
+                                            if (beepFerePeriod.getStartTimeHour() == existingEndHours.get(i) && beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)
+                                                    && beepFerePeriod.getEndTimeHour() <= existingStartHours.get(i)) { // 12.55 - 22.40 and 22.30 - 12.50
+                                                if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i)) { // 12.55 - 22.00 and 22.30 - 12.50
+                                                }
+                                                else {
+                                                    overlap = true;
+                                                }
+                                            }
+                                            else {
+                                                overlap = true;
+                                            }
+                                        }
+                                    }
+                                }
+                                else { // 13.00 - 18.00 or 18.00 - 18.00
+                                    if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) { // 23.00 - 1.30
+                                        if (beepFerePeriod.getStartTimeHour() > existingEndHours.get(i)) {  // 23.00 - 1.30 and 1.00 - 22.00
+                                            if (beepFerePeriod.getEndTimeHour() < existingStartHours.get(i)) { // 23.00 - 2.00 and  3.00 - 22.00
+                                            }
+                                            else { //beepFerePeriod.getEndTimeHour() >= existingStartHours.get(i) -> ... - 3.00 and 1.00 - ...
+                                                if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i)) { // ... - 3.00 and 3.30 - ...
+                                                }
+                                                else {
+                                                    overlap = true;
+                                                }
+                                            }
+                                        }
+                                        else { //beepFerePeriod.getStartTimeHour() <= existingEndHours.get(i) -> 21.00 - 1.30 and 13.00 - 23.00
+                                            if (beepFerePeriod.getStartTimeHour() == existingEndHours.get(i) && beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) { // 21.40 - 1.30 and 13.00 - 21.30
+                                                if (beepFerePeriod.getEndTimeHour() <= existingStartHours.get(i)) { // 21.40 - 1.30 and 13.00 - 21.30
+                                                    if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() >= existingStartMinutes.get(i)) { // 21.40 - 13.30 and 13.00 - 21.30
+                                                        overlap = true;
+                                                    }
+                                                }
+                                                else { // beepFerePeriod.getEndTimeHour() > existingStartHours.get(i) ->  21.40 - 14.30 and 13.00 - 21.30
+                                                    overlap = true;
+                                                }
+                                            }
+                                            else { //beepFerePeriod.getStartTimeHour() < existingEndHours.get(i) -> 21.00 - 1.30 and 1.00 - 22.00
+                                                overlap = true;
+                                            }
+                                        }
+                                    }
+                                    // 3.00 - 3.29 and 3.30 - 5.30
+                                    else { // beepFerePeriod.getStartTimeHour() <= beepFerePeriod.getEndTimeHour() -> 13.00 - 18.00 | existingStartHours.get(i) <= existingEndHours.get(i)
+                                        if (beepFerePeriod.getStartTimeHour() >= existingStartHours.get(i) && beepFerePeriod.getEndTimeHour() <= existingEndHours.get(i)) {
+                                            if (beepFerePeriod.getStartTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeHour() == existingEndHours.get(i) &&
+                                                    beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour() || beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour()
+                                                    && beepFerePeriod.getStartTimeHour() == existingStartHours.get(i) || beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour()
+                                                    && beepFerePeriod.getEndTimeHour() == existingEndHours.get(i)) {
+                                                if (beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i) || beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) {
+                                                }
+                                                else {
+                                                    overlap = true;
+                                                }
+                                            }
+                                            else {
+                                                overlap = true;
+                                            }
+                                        }
+                                        else {
+                                            if (beepFerePeriod.getStartTimeHour() < existingStartHours.get(i) && beepFerePeriod.getEndTimeHour() >= existingStartHours.get(i)) { //  13.00 - 22.00 and 18.00 - 23.00
+                                                if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i)) { // 13.00 - 22.00 and 22.30 - 23.00
+                                                    if (beepFerePeriod.getEndTimeMinute() >= existingStartMinutes.get(i)) {
+                                                        overlap = true;
+                                                    }
+                                                }
+                                                else {
+                                                    overlap = true;
+                                                }
+                                            }
+                                            //  5.33 - 21.56 and 3.30 - 5.30
+                                            else if (beepFerePeriod.getStartTimeHour() <= existingEndHours.get(i) && beepFerePeriod.getEndTimeHour() >= existingEndHours.get(i)
+                                                    && beepFerePeriod.getStartTimeMinute() <= existingEndMinutes.get(i)) {
+                                                overlap = true;
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+
+                            if (!overlap) {
+                                mListener.onDialogPositiveClick(BeepfreePeriodPickerFragment.this);
+                                getDialog().dismiss();
+                            }
+                            else
+                                Toast.makeText(getContext(), "Overlapping beepfree period!", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
 

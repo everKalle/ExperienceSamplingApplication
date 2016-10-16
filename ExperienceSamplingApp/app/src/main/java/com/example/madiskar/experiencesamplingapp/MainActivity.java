@@ -238,6 +238,26 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     public void onClick(DialogInterface dialog, int which) {
                         BeepfreePeriodPickerFragment dialogFragment = new BeepfreePeriodPickerFragment();
                         Bundle b = new Bundle();
+                        ArrayList<Integer> existingStartHours = new ArrayList<Integer>();
+                        ArrayList<Integer> existingStartMinutes = new ArrayList<Integer>();
+                        ArrayList<Integer> existingEndHours = new ArrayList<Integer>();
+                        ArrayList<Integer> existingEndMinutes = new ArrayList<Integer>();
+                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                            existingStartHours.add(bfp.getStartTimeHour());
+                        }
+                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                            existingStartMinutes.add(bfp.getStartTimeMinute());
+                        }
+                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                            existingEndHours.add(bfp.getEndTimeHour());
+                        }
+                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                            existingEndMinutes.add(bfp.getEndTimeMinute());
+                        }
+                        b.putIntegerArrayList("existingStartHours", existingStartHours);
+                        b.putIntegerArrayList("existingStartMinutes", existingStartMinutes);
+                        b.putIntegerArrayList("existingEndHours", existingEndHours);
+                        b.putIntegerArrayList("existingEndMinutes", existingEndMinutes);
                         b.putBoolean("new", true);
                         b.putInt("identificator", periodID);
                         dialogFragment.setArguments(b);

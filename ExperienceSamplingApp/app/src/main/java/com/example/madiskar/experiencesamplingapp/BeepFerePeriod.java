@@ -60,4 +60,8 @@ public class BeepFerePeriod {
         endTimeMinute = time;
     }
 
+    public String toString() {
+        return this.startTimeHour + "." + this.startTimeMinute + ":" + this.endTimeHour + "." + this.endTimeMinute;
+    }
+
 }
