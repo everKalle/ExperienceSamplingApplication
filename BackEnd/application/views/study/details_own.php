@@ -8,7 +8,13 @@
     Uuringu jagamine
   </div>
   <div class="panel-body">
-    <strong>TODO</strong>
+    <div class="container">
+			
+			<?php echo form_open('study/share/'.$study_details['id']); ?>
+			<p><input type="text" placeholder="kasutaja.." name="user"  /></p>
+			<p><button class="btn btn-sm">Jaga</button></p>
+			</form>
+		</div>
   </div>
 </div>
 <?php if (!$study_details['study-is-public']) { ?>

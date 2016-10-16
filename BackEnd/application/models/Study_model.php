@@ -158,6 +158,13 @@ class Study_model extends CI_Model {
 		
 		return $query->result_array();
 	}
+
+  function share_study($author,$study_id,$target_user) {
+		// author - kontrollida, kas on oigused study jagamiseks 
+		// TO-DO
+		return True;
+	}
+
 }
 
 ?>

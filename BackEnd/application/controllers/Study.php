@@ -46,6 +46,10 @@ class Study extends CI_Controller {
         $data['title'] = $data['study_details']['study-title'];
         $data['active_page'] = "own_studies";
         $data['logged_in'] = $this->logged_in;
+					
+				$this->load->helper('form');
+   			$this->load->library('form_validation');
+
         $this->load->view('templates/header', $data);
         $this->load->view('study/details_own', $data);
         $this->load->view('templates/footer');
@@ -56,6 +60,26 @@ class Study extends CI_Controller {
       $this->login_required();
     }
  }
+
+ function share($study_id) {
+
+
+		$this->load->helper('form');
+    $this->load->library('form_validation');
+    $this->form_validation->set_rules('user', 'User', 'required');
+    if ($this->form_validation->run() === FALSE){
+			// siia mingi error, kuna kasutajat ei pandud
+     	$this->view($id);
+     } else {
+			 $user = $_POST['user'];
+			 if($this->study_model->share_study($this->study_model->get_author_id($this->logged_in['username']),$study_id,$user)) { // TO-DO: share_survey modelis 
+				// success..
+			 } else {
+				// fail
+			 }			 
+		}
+ }
+
 
  function delete($id)
  {
