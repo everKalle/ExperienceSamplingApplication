@@ -83,14 +83,18 @@ class Study extends CI_Controller {
       $study['events'] = $this->study_model->get_study_events($study['id']);
       $study_array[] = $study;
     endforeach;
-    echo (json_encode($study_array));
+    $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
  }
 
  function get_study_details($id){
     $study = $this->study_model->get_study_android($id);
-    $study['questions'] = $this->study_model->get_study_questions($study['id']);
-    $study['events'] = $this->study_model->get_study_events($study['id']);
-    echo (json_encode($study));
+    if ($study != FALSE){
+      $study['questions'] = $this->study_model->get_study_questions($study['id']);
+      $study['events'] = $this->study_model->get_study_events($study['id']);
+      $this->output->set_content_type('application/json')->set_output(json_encode($study));
+    } else {
+      $this->output->set_content_type('application/json')->set_output(json_encode(array()));
+    }
  }
 
  function create()
