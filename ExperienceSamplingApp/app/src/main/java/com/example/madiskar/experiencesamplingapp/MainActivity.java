@@ -94,13 +94,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-        FreeTextQuestion q4 = new FreeTextQuestion(0, "Is it easy?");
-        FreeTextQuestion q2 = new FreeTextQuestion(0, "Is it still easy?");
-        FreeTextQuestion q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
-        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(0, 1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
-        MultipleChoiceQuestion q5 = new MultipleChoiceQuestion(0, 0, "How would you rate the difficulty of this question now huh?", new String[]{"pretty easy", "medium, I think", "hard", "impossible"});
+        Question q4 = new FreeTextQuestion(0, "Is it easy?");
+        Question q2 = new FreeTextQuestion(0, "Is it still easy?");
+        Question q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
+        Question q1 = new MultipleChoiceQuestion(0, 1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        Question q5 = new MultipleChoiceQuestion(0, 0, "How would you rate the difficulty of this question?", new String[]{"pretty easy", "medium, I think", "hard", "impossible"});
 
         Question[] batch1 = {q4,q2,q5,q1};
         //Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
 
         }
-	else if (itemName.equals("Settings")) {
+	    else if (itemName.equals("Settings")) {
        	    getFragmentManager().beginTransaction()
                     .replace(R.id.mainContent, new SettingsFragment())
                     .commit();
