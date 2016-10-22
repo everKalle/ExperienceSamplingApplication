@@ -9,8 +9,8 @@ class Study extends CI_Controller {
    parent::__construct();
    $this->load->model('user','',TRUE);
     $this->load->model('study_model','',TRUE); // load study model
-   if($this->session->userdata('logged_in')) {
-	$this->logged_in = $this->session->userdata('logged_in');
+    if($this->session->userdata('logged_in')) {
+      $this->logged_in = $this->session->userdata('logged_in');
     }
  }
 
@@ -35,24 +35,80 @@ class Study extends CI_Controller {
 
  }
 
+ function shared()
+ {
+
+   if($this->logged_in)  //check if logged in
+   {
+     $data['active_studies'] = $this->study_model->get_active_shared_studies($this->study_model->get_author_id($this->logged_in['username']));
+     $data['ended_studies'] = $this->study_model->get_ended_shared_studies($this->study_model->get_author_id($this->logged_in['username']));
+     $data['title'] = "Minuga jagatud uuringud";
+     $data['active_page'] = "shared_studies";
+     $data['logged_in'] = $this->logged_in;
+     $this->load->view('templates/header', $data);
+     $this->load->view('study/list_shared', $data);
+     $this->load->view('templates/footer');
+   }
+   else
+   {
+    $this->login_required();
+   }
+
+ }
+
  function view($id)
  {
     if($this->logged_in)
     {
-      $data['study_details'] = $this->study_model->get_study_data($id, $this->study_model->get_author_id($this->logged_in['username']));
-      if ($data['study_details'] != FALSE){
+      if ($this->study_model->get_admin_is_owner_of_study($id,$this->study_model->get_author_id($this->logged_in['username']))){
+        $data['study_details'] = $this->study_model->get_study_data($id);
         $data['questions'] = $this->study_model->get_study_questions($id);
         $data['events'] = $this->study_model->get_study_events($id);
         $data['title'] = $data['study_details']['study-title'];
+        $data['other_users'] = $this->user->get_other_usernames($this->logged_in['username']);
+        $data['shared_with'] = $this->study_model->get_study_shares($id);
         $data['active_page'] = "own_studies";
         $data['logged_in'] = $this->logged_in;
-					
-				$this->load->helper('form');
-   			$this->load->library('form_validation');
+
+        $this->load->helper('form');
+        $this->load->library('form_validation');
 
         $this->load->view('templates/header', $data);
         $this->load->view('study/details_own', $data);
         $this->load->view('templates/footer');
+      } else {
+        redirect('/', 'location');
+      }
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
+
+ function view_shared($id)
+ {
+    if($this->logged_in)
+    {
+      if ($this->study_model->get_user_has_access_to_study($id, $this->study_model->get_author_id($this->logged_in['username']))){
+        $data['study_details'] = $this->study_model->get_study_data($id);
+        $data['questions'] = $this->study_model->get_study_questions($id);
+        $data['events'] = $this->study_model->get_study_events($id);
+        $data['title'] = $data['study_details']['study-title'];
+        $data['owner_name'] = $this->user->get_username_via_id($data['study_details']['author'])['username'];
+        $data['other_users'] = $this->user->get_other_usernames($this->logged_in['username']);
+        $data['shared_with'] = $this->study_model->get_study_shares($id);
+        $data['active_page'] = "shared_studies";
+        $data['logged_in'] = $this->logged_in;
+
+        $this->load->helper('form');
+        $this->load->library('form_validation');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('study/details_shared', $data);
+        $this->load->view('templates/footer');
+      } else {
+        redirect('/study/shared/', 'location');
       }
     }
     else
@@ -66,16 +122,18 @@ class Study extends CI_Controller {
 
 		$this->load->helper('form');
     $this->load->library('form_validation');
-    $this->form_validation->set_rules('user', 'User', 'required');
+    $this->form_validation->set_rules('share-study-username', 'User', 'required');
     if ($this->form_validation->run() === FALSE){
-			// siia mingi error, kuna kasutajat ei pandud
-     	$this->view($id);
+     	redirect('/study/view/' . $study_id, 'location');
      } else {
-			 $user = $_POST['user'];
-			 if($this->study_model->share_study($this->study_model->get_author_id($this->logged_in['username']),$study_id,$user)) { // TO-DO: share_survey modelis 
-				// success..
+			 $user = $_POST['share-study-username'];
+			 if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) { // TO-DO: share_survey modelis 
+        if (!$this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($user))){
+  				$this->study_model->share_study($study_id, $this->study_model->get_author_id($user));
+        }
+        redirect('/study/view/' . $study_id, 'location');
 			 } else {
-				// fail
+				redirect('/study/view/' . $study_id, 'location');
 			 }			 
 		}
  }

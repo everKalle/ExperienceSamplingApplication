@@ -42,7 +42,7 @@
             <ul class="nav navbar-nav">
 <?php if ($logged_in != FALSE) { ?>
               <li <?php if ($active_page == "own_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
-              <li <?php if ($active_page == "shared_studies") echo 'class="active"'; ?>><a href="#">Minuga jagatud uuringud</a></li>
+              <li <?php if ($active_page == "shared_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/shared/">Minuga jagatud uuringud</a></li>
               <li <?php if ($active_page == "create_study") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/create/">Uus uuring</a></li>
 
             </ul>

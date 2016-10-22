@@ -102,15 +102,73 @@ class Study_model extends CI_Model {
 		return $query->result_array();
 	}
 
-	function get_study_data($id, $user_id) {
+	function get_active_shared_studies($user_id) {
+		$this->db->select('survey_id, study-title, study-start-date, study-end-date, study-is-public');
+		$this->db->from('view_survey_shared');
+		$this->db->where('users_id', $user_id);
+		$this->db->where('study-end-date >=', date("y-m-d H:i:s"));
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function get_ended_shared_studies($user_id) {
+		$this->db->select('survey_id, study-title, study-start-date, study-end-date, study-is-public');
+		$this->db->from('view_survey_shared');
+		$this->db->where('users_id', $user_id);
+		$this->db->where('study-end-date <', date("y-m-d H:i:s"));
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function get_study_data($id) {
 		$this->db->select('*');
+		$this->db->from('survey');
+		$this->db->where('id', $id);
+
+		$query = $this->db->get();
+		if($query -> num_rows() == 1) {
+			return $query->row_array();
+		} else {
+			return false;
+		}
+	}
+
+	function get_study_shares($id) {
+		$this->db->select('username');
+		$this->db->from('view_survey_share_names');
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+
+	function get_admin_is_owner_of_study($id, $user_id) {
+		$this->db->select('id');
 		$this->db->from('survey');
 		$this->db->where('author', $user_id);
 		$this->db->where('id', $id);
 
 		$query = $this->db->get();
 		if($query -> num_rows() == 1) {
-			return $query->row_array();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function get_user_has_access_to_study($id, $user_id) {
+		$this->db->select('*');
+		$this->db->from('user_survey_access');
+		$this->db->where('users_id', $user_id);
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+		if($query -> num_rows() == 1) {
+			return true;
 		} else {
 			return false;
 		}
@@ -159,10 +217,17 @@ class Study_model extends CI_Model {
 		return $query->result_array();
 	}
 
-  function share_study($author,$study_id,$target_user) {
-		// author - kontrollida, kas on oigused study jagamiseks 
-		// TO-DO
-		return True;
+  function share_study($study_id, $target_user) {
+		$data = array(
+		   'users_id' => $target_user ,
+		   'survey_id' => $study_id
+		);
+
+		if ($this->db->insert('user_survey_access', $data)){
+			return True;
+		} else {
+			return $this->db->error_message();
+		}
 	}
 
 }
