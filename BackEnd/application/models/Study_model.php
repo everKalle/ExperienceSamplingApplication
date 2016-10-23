@@ -48,6 +48,31 @@ class Study_model extends CI_Model {
 		return true;
 	}
 
+	function update_study($study_id, $study_data) {
+		$this->db->where('id', $study_id);
+		if ($this->db->update('survey', $study_data)){
+			return true;
+		} else {
+			$this->db->error_message();
+		}
+	}
+
+	function update_events($event_data){
+		$len = $event_data["study-event-count"];
+		for($i = 0; $i < $len; $i++) {
+			$event = $event_data[$i];
+			$event_id = $event['event-id'];
+			unset($event['event-id']);
+			$this->db->where('id', $event_id);
+			if($this->db->update('survey_custom_event', $event)) {
+				continue;
+			} else {
+				return $this->db->error_message();
+			}
+		}
+		return true;
+	}
+
 	function remove_questions($study_id) {
 		$this->db->where('survey_id',$study_id);
 		$this->db->delete('survey_question');
@@ -199,6 +224,16 @@ class Study_model extends CI_Model {
 
 	function get_study_events($id) {
 		$this->db->select('event-title, event-control-time, event-control-time-unit');
+		$this->db->from('survey_custom_event');
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function get_study_events_for_modification($id) {
+		$this->db->select('*');
 		$this->db->from('survey_custom_event');
 		$this->db->where('survey_id', $id);
 

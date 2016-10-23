@@ -149,7 +149,7 @@
   </div>
 </div>
 
-<button type="button" class="btn btn-lg btn-warning">Muuda</button>
+<a href="<?php echo site_url('study/modify/'.$study_details['id']); ?>" type="button" class="btn btn-lg btn-warning">Muuda</a>
 <button type="button" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#deleteModal">Kustuta</button>
 
 <div id="deleteModal" class="modal fade" role="dialog">
