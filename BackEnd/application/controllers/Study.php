@@ -261,17 +261,18 @@ class Study extends CI_Controller {
         $data['active_page'] = "own_studies";
         $data['logged_in'] = $this->logged_in;
         $data['study_details'] = $this->study_model->get_study_data($id);
+        $data['questions'] = $this->study_model->get_study_questions_for_modification($id);
         $data['events'] = $this->study_model->get_study_events_for_modification($id);
 
         $this->load->view('templates/header', $data);
         $this->load->view('study/modify_study', $data);
-        //$this->load->view('study/create_question');
+        $this->load->view('study/modify_question', $data);
         $this->load->view('study/modify_event', $data);
         $this->load->view('templates/footer');
        } else {
         $study_id = $_POST['study-id'];
         $general_study_data = $_POST['gen'];
-        //$study_questions = $_POST["question"];
+        $study_questions = $_POST["question"];
         $study_events = $_POST["event"];
 
         $general_study_data['study-min-time-between-beeps'] *= 60; // hours to minutes
@@ -281,8 +282,7 @@ class Study extends CI_Controller {
         $general_study_data['author'] = $author;
 
         if($id = $this->study_model->update_study($study_id, $general_study_data)) { // save study to db
-          //echo json_encode($study_events);
-        //$this->study_model->insert_questions($id, $study_questions); // save study questions to db 
+        $this->study_model->update_questions($study_questions); // save study questions to db 
         $this->study_model->update_events($study_events); // ... events to db
         redirect('/study/view/' . $study_id, 'location');
 

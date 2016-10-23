@@ -57,6 +57,32 @@ class Study_model extends CI_Model {
 		}
 	}
 
+	function update_questions($question_data) {
+
+		$len = $question_data["study-question-count"];
+		for($i = 0; $i < $len; $i++) {
+			$question = $question_data[$i];
+			$question_id = $question['question-id'];
+			unset($question['question-id']);
+			$type = $question['question-type'];
+			if($type == 'multichoice') { // dealing with multi choice question
+				$choices = count($question) - 2;
+				$temp = array();
+				for($j = 0; $j < $choices; $j++) {
+					array_push($temp, $question['question-multichoice-'.$j]);
+					unset($question['question-multichoice-'.$j]);
+				}
+				$question['question-multichoices'] = json_encode($temp);
+			} 
+			$this->db->where('id', $question_id);
+			if($this->db->update('survey_question',$question)) { // insert question into db
+				continue;
+			} else {
+				return $this->db->error_message();
+			}
+		}
+	}
+
 	function update_events($event_data){
 		$len = $event_data["study-event-count"];
 		for($i = 0; $i < $len; $i++) {
@@ -229,6 +255,16 @@ class Study_model extends CI_Model {
 
 		$query = $this->db->get();
 		
+		return $query->result_array();
+	}
+
+	function get_study_questions_for_modification($id) {
+		$this->db->select('*');
+		$this->db->from('survey_question');
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+
 		return $query->result_array();
 	}
 
