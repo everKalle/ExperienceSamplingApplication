@@ -138,7 +138,7 @@ class Study_model extends CI_Model {
 	}
 
 	function get_study_shares($id) {
-		$this->db->select('username');
+		$this->db->select('users_id, username');
 		$this->db->from('view_survey_share_names');
 		$this->db->where('survey_id', $id);
 
@@ -217,7 +217,7 @@ class Study_model extends CI_Model {
 		return $query->result_array();
 	}
 
-  function share_study($study_id, $target_user) {
+ 	function share_study($study_id, $target_user) {
 		$data = array(
 		   'users_id' => $target_user ,
 		   'survey_id' => $study_id
@@ -230,6 +230,12 @@ class Study_model extends CI_Model {
 		}
 	}
 
+	function remove_sharing($study_id,$user_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->where('users_id',$user_id);
+		$this->db->delete('user_survey_access');
+		return true;
+	}
 }
 
 ?>

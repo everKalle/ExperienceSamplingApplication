@@ -25,7 +25,7 @@
     <p><strong>Periood: </strong>
         <?php echo explode(" ", $study_details['study-start-date'])[0]; ?> - 
         <?php echo explode(" ", $study_details['study-end-date'])[0]; ?><br>
-        <strong>Kestvus kasutaja jaoks:</strong> <?php echo $study_details['study-duration-for-user'] ? $study_details['study-duration-time'] . 'nädalat' : 'Kuni kasutaja soovib' ?>
+        <strong>Kestvus kasutaja jaoks:</strong> <?php echo $study_details['study-duration-for-user'] ? ((($study_details['study-duration-time'] / 10080) < 1) ? ($study_details['study-duration-time'] / 1440) . ' päeva' : ($study_details['study-duration-time'] / 10080) . ' nädalat') : 'Kuni kasutaja soovib' ?>
         </p>
     <p><strong>Piiksud: </strong>
         <strong><?php echo $study_details['study-beeps-per-day']; ?></strong> piiksu päevas. 

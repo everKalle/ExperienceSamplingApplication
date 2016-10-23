@@ -118,24 +118,45 @@ class Study extends CI_Controller {
  }
 
  function share($study_id) {
+    if($this->logged_in)
+    {
+  		$this->load->helper('form');
+      $this->load->library('form_validation');
+      $this->form_validation->set_rules('share-study-username', 'User', 'required');
+      if ($this->form_validation->run() === FALSE){
+       	redirect('/study/view/' . $study_id, 'location');
+       } else {
+  			 $user = $_POST['share-study-username'];
+  			 if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) && $user != $this->logged_in['username']) {
+          if (!$this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($user))){
+    				$this->study_model->share_study($study_id, $this->study_model->get_author_id($user));
+          }
+          redirect('/study/view/' . $study_id, 'location');
+  			 } else {
+  				redirect('/study/view/' . $study_id, 'location');
+  			 }			 
+  		}
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
 
-
-		$this->load->helper('form');
-    $this->load->library('form_validation');
-    $this->form_validation->set_rules('share-study-username', 'User', 'required');
-    if ($this->form_validation->run() === FALSE){
-     	redirect('/study/view/' . $study_id, 'location');
-     } else {
-			 $user = $_POST['share-study-username'];
-			 if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) { // TO-DO: share_survey modelis 
-        if (!$this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($user))){
-  				$this->study_model->share_study($study_id, $this->study_model->get_author_id($user));
+  function remove_share($study_id,$user_id) {
+    if($this->logged_in)
+    {
+      if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) {
+        if ($this->study_model->get_user_has_access_to_study($study_id,$user_id)){
+          $this->study_model->remove_sharing($study_id, $user_id);
         }
-        redirect('/study/view/' . $study_id, 'location');
-			 } else {
-				redirect('/study/view/' . $study_id, 'location');
-			 }			 
-		}
+      }
+      redirect('/study/view/' . $study_id, 'location');
+    }
+    else
+    {
+      $this->login_required();
+    }
  }
 
 

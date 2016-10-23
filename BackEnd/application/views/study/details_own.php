@@ -13,7 +13,7 @@
         <p><strong>Uuring on jagatud järgnevate inimestega: </strong></p>
           <ul class="list-group">
             <?php foreach ($shared_with as $sw):
-              echo '<li class="list-group-item">' . $sw['username'] . '</li>';
+              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $sw['username'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_share/'.$study_details['id'].'/'.$sw['users_id']) . '" class="text-danger">Eemalda</a></div></div></li>';
             endforeach; ?>
           </ul>
       </div>
@@ -55,7 +55,7 @@
     <p><strong>Periood: </strong>
         <?php echo explode(" ", $study_details['study-start-date'])[0]; ?> - 
         <?php echo explode(" ", $study_details['study-end-date'])[0]; ?><br>
-        <strong>Kestvus kasutaja jaoks:</strong> <?php echo $study_details['study-duration-for-user'] ? $study_details['study-duration-time'] . 'nädalat' : 'Kuni kasutaja soovib' ?>
+        <strong>Kestvus kasutaja jaoks:</strong> <?php echo $study_details['study-duration-for-user'] ? ((($study_details['study-duration-time'] / 10080) < 1) ? ($study_details['study-duration-time'] / 1440) . ' päeva' : ($study_details['study-duration-time'] / 10080) . ' nädalat') : 'Kuni kasutaja soovib' ?>
         </p>
     <p><strong>Piiksud: </strong>
         <strong><?php echo $study_details['study-beeps-per-day']; ?></strong> piiksu päevas. 
