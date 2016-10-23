@@ -1,10 +1,10 @@
 <?php
 
 class Participant_model extends CI_Model {
-	function login($username, $password) {
+	function login($email, $password) {
 		$this->db->select('token');
 		$this->db->from('participants');
-		$this->db->where('username', $username);
+		$this->db->where('email', $email);
 		$this->db->where('password', $password);
 		$this->db->limit(1);
 

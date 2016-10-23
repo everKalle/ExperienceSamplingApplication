@@ -11,10 +11,10 @@ class Participant extends CI_Controller {
 
  function login()
  {
-   $username = $this->input->post('username');
+   $email = $this->input->post('email');
    $password = $this->input->post('password');
-   if($username != NULL && $password != NULL){
-     $data = $this->participant_model->login($username, $password);
+   if($email != NULL && $password != NULL){
+     $data = $this->participant_model->login($email, $password);
      if ($data === FALSE){
       echo "invalid";
      } else {
