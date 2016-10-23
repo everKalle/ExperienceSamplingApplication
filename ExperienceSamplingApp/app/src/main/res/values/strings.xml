@@ -17,4 +17,8 @@
     <string name="pref_alarm_type">Alarm type</string>
     <string name="pref_alarm_tone">Alarm tone</string>
     <string name="pref_language">Language</string>
+    <string name="new_event">Active Event</string>
+    <string name="start">Start</string>
+    <string name="cancel">Cancel</string>
+    <string name="choose_event">Choose the type of event and press \"Start\"</string>
 </resources>

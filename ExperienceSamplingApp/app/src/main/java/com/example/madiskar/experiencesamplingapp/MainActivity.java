@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mMenuItems.add(new MenuItem("My Studies", "View my current studies", R.drawable.ic_study));
         mMenuItems.add(new MenuItem("Join Studies", "Browse and join available \nstudies", R.drawable.ic_add));
         mMenuItems.add(new MenuItem("Settings", "Change my settings", R.drawable.ic_settings));
+        mMenuItems.add(new MenuItem("My Events", "Change my settings", R.drawable.ic_settings));
         mMenuItems.add(new MenuItem("Log Out", "Log out from current account", R.drawable.ic_logout));
         mMenuItems.add(new MenuItem("Exit", "Active studies will continue \nto run in background", R.drawable.ic_exit));
 
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             }
         };
 
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         Question q4 = new FreeTextQuestion(0, "Is it easy?");
         Question q2 = new FreeTextQuestion(0, "Is it still easy?");
@@ -114,10 +115,30 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         c1.set(2016, 2, 20);
         Calendar c2 = Calendar.getInstance();
         c2.set(2016, 3, 20);
-        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 2, true, 1);
-        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 2, true, 1);
+        Event event1 = new Event(0,1,"Running",5, "m");
+        Event event2 = new Event(1,1, "Cooking",5, "m");
+        Event event3 = new Event(2,1, "Swimming",5, "m");
+        Event event4 = new Event(3,1, "Dancing",7, "m");
+        Event event5 = new Event(4,1, "Sleeping",2, "m");
+        Event event6 = new Event(5,1,"Cycling",3, "m");
+        Event event7 = new Event(6,1, "Boxing",1, "m");
+        Event event8 = new Event(7,1, "Eating",4, "m");
+        Event event9 = new Event(8, 1, "Gaming", 5, "m");
+        Event event14 = new Event(13, 1, "Drinking Vodka", 5, "m");
+        Event event15 = new Event(14, 1, "Trying to get a girlfriend", 5, "m");
 
-        //getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
+        Event event10 = new Event(9,2, "Cooking",3, "m");
+        Event event11 = new Event(10,2, "Dancing",5, "m");
+        Event event12 = new Event(11,2, "Eating",1, "m");
+        Event event13 = new Event(12,2, "Gaming",2, "m");
+
+        Event[] eventsArray1 = {event1, event2, event3, event4, event5, event6, event7, event8, event9, event14, event15};
+        Event[] eventsArray2 = {event10, event11, event12, event13};
+
+        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 2, true, 1, eventsArray1);
+        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 2, true, 1, eventsArray2);
+
+        getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
 
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         mydb.clearTables();

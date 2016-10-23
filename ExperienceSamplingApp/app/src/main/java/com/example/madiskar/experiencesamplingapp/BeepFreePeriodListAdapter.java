@@ -134,6 +134,27 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 b.putInt("startMinute", bfp.getStartTimeMinute());
                 b.putInt("endHour", bfp.getEndTimeHour());
                 b.putInt("endMinute", bfp.getEndTimeMinute());
+
+                ArrayList<Integer> existingStartHours = new ArrayList<Integer>();
+                ArrayList<Integer> existingStartMinutes = new ArrayList<Integer>();
+                ArrayList<Integer> existingEndHours = new ArrayList<Integer>();
+                ArrayList<Integer> existingEndMinutes = new ArrayList<Integer>();
+                for (BeepFerePeriod bfp2: NotificationService.beepFreePeriods) {
+                    existingStartHours.add(bfp2.getStartTimeHour());
+                }
+                for (BeepFerePeriod bfp2: NotificationService.beepFreePeriods) {
+                    existingStartMinutes.add(bfp2.getStartTimeMinute());
+                }
+                for (BeepFerePeriod bfp2: NotificationService.beepFreePeriods) {
+                    existingEndHours.add(bfp2.getEndTimeHour());
+                }
+                for (BeepFerePeriod bfp2: NotificationService.beepFreePeriods) {
+                    existingEndMinutes.add(bfp2.getEndTimeMinute());
+                }
+                b.putIntegerArrayList("existingStartHours", existingStartHours);
+                b.putIntegerArrayList("existingStartMinutes", existingStartMinutes);
+                b.putIntegerArrayList("existingEndHours", existingEndHours);
+                b.putIntegerArrayList("existingEndMinutes", existingEndMinutes);
                 dialogFragment.setArguments(b);
                 dialogFragment.show(fm, "timePicker");
 

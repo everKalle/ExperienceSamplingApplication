@@ -3,6 +3,9 @@ package com.example.madiskar.experiencesamplingapp;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +70,15 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
         eventBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                // start event here //
+                FragmentActivity activity = (FragmentActivity)(mContext);
+                final android.support.v4.app.FragmentManager fm = activity.getSupportFragmentManager();
+                EventDialogFragment edf = new EventDialogFragment();
+                Study study = (Study) getItem(position);
+                Log.v("NIMIII", String.valueOf(study.getEvents().length));
+                Bundle b = new Bundle();
+                b.putParcelableArray("EVENTS", study.getEvents());
+                edf.setArguments(b);
+                edf.show(fm, "eventChooser");
             }
         });
 

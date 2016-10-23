@@ -53,9 +53,28 @@ public class DBHandler extends SQLiteOpenHelper{
                     + AnswerEntry.COLUMN_TIMESTAMP + " TEXT NOT NULL, "
                     + AnswerEntry.COLUMN_STUDYID + " INTEGER NOT NULL, "
                     + "FOREIGN KEY (" + AnswerEntry.COLUMN_STUDYID + ") REFERENCES " + ActiveStudyEntry.TABLE_NAME + "(" + ActiveStudyEntry._ID + "))";
+    public static final String SQL_CREATE_TABLE_EVENTS =
+            "CREATE TABLE IF NOT EXISTS " + EventEntry.TABLE_NAME + " ("
+                    + EventEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + EventEntry.COLUMN_STUDYID + " INTEGER NOT NULL, "
+                    + EventEntry.COLUMN_NAME + " TEXT NOT NULL, "
+                    + EventEntry.COLUMN_CONTROLTIME + " INTEGER NOT NULL, "
+                    + EventEntry.COLUMN_UNIT + " TEXT NOT NULL, "
+                    + "FOREIGN KEY (" + EventEntry.COLUMN_STUDYID + ") REFERENCES " + ActiveStudyEntry.TABLE_NAME + "(" + ActiveStudyEntry._ID + "))";
+    public static final String SQL_CREATE_TABLE_EVENT_RESULTS =
+            "CREATE TABLE IF NOT EXISTS " + EventResultsEntry.TABLE_NAME + " ("
+                    + EventResultsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + EventResultsEntry.COLUMN_EVENTID + " INTEGER NOT NULL, "
+                    + EventResultsEntry.COLUMN_DURATION + " INTEGER NOT NULL, "
+                    + "FOREIGN KEY (" + EventResultsEntry.COLUMN_EVENTID + ") REFERENCES " + EventEntry.TABLE_NAME + "(" + EventEntry._ID + "))";
+
+
+
     public static final String SQL_DELETE_TABLE_STUDY = "DROP TABLE IF EXISTS " + ActiveStudyEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_QUESTION = "DROP TABLE IF EXISTS " + QuestionEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_ANSWERS = "DROP TABLE IF EXISTS " + AnswerEntry.TABLE_NAME;
+    public static final String SQL_DELETE_TABLE_EVENTS = "DROP TABLE IF EXISTS " + EventEntry.TABLE_NAME;
+    public static final String SQL_DELETE_TABLE_EVENT_RESULTS = "DROP TABLE IF EXISTS " + EventResultsEntry.TABLE_NAME;
 
     public static synchronized DBHandler getInstance(Context context) {
         // Use application context
@@ -80,6 +99,8 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(SQL_CREATE_TABLE_STUDY);
         db.execSQL(SQL_CREATE_TABLE_QUESTION);
         db.execSQL(SQL_CREATE_TABLE_ANSWERS);
+        db.execSQL(SQL_CREATE_TABLE_EVENTS);
+        db.execSQL(SQL_CREATE_TABLE_EVENT_RESULTS);
     }
 
 
@@ -87,6 +108,8 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(SQL_DELETE_TABLE_STUDY);
         db.execSQL(SQL_DELETE_TABLE_QUESTION);
         db.execSQL(SQL_DELETE_TABLE_ANSWERS);
+        db.execSQL(SQL_DELETE_TABLE_EVENTS);
+        db.execSQL(SQL_DELETE_TABLE_EVENT_RESULTS);
         onCreate(db);
     }
 
@@ -96,6 +119,8 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL("DELETE FROM " + ActiveStudyEntry.TABLE_NAME);
         db.execSQL("DELETE FROM " + QuestionEntry.TABLE_NAME);
         db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
+        db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
+        db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
     }
 
 
@@ -119,13 +144,14 @@ public class DBHandler extends SQLiteOpenHelper{
                 qsArray[i] = qs.get(i);
             }
             Questionnaire qnaire = new Questionnaire(id, qsArray);
+            Event[] events = getStudyEvents(id);
 	        Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
             Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
             boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
 
             Study newStudy = new Study (
                     id, name, qnaire, beginDate, endDate, studyLength,
-                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification);
+                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events);
             studies.add(newStudy);
             cur.moveToNext();
         }
@@ -163,6 +189,31 @@ public class DBHandler extends SQLiteOpenHelper{
         return questions;
     }
 
+    private Event[] getStudyEvents(long studyID) {
+        SQLiteDatabase db = getDbInstance();
+        Cursor cur = db.rawQuery("SELECT * FROM " + EventEntry.TABLE_NAME + " WHERE " + EventEntry.COLUMN_STUDYID + " = " + studyID + " ORDER BY " + EventEntry._ID, null);
+        cur.moveToFirst();
+
+        ArrayList<Event> eventsArrayList = new ArrayList<>();
+        while(!cur.isAfterLast()) {
+            long id = cur.getLong(cur.getColumnIndex(EventEntry._ID));
+            long studyId = cur.getLong(cur.getColumnIndex(EventEntry.COLUMN_STUDYID));
+            String name = cur.getString(cur.getColumnIndex(EventEntry.COLUMN_NAME));
+            int controlTime = cur.getInt(cur.getColumnIndex(EventEntry.COLUMN_CONTROLTIME));
+            String unit = cur.getString(cur.getColumnIndex(EventEntry.COLUMN_UNIT));
+
+            Event event = new Event(id, studyId, name, controlTime, unit);
+            eventsArrayList.add(event);
+            cur.moveToNext();
+        }
+        cur.close();
+        Event[] events = new Event[eventsArrayList.size()];
+        for (int i = 0; i < eventsArrayList.size(); i++) {
+            events[i] = eventsArrayList.get(i);
+        }
+        return events;
+    }
+
 
     /*
     public ArrayList<Question> getStudyQuestions(int studyID) {
@@ -187,6 +238,8 @@ public class DBHandler extends SQLiteOpenHelper{
         values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
         for(Question q : study.getQuesstionnaire().getQuestions())
             insertQuestion(q, study.getId());
+        for (Event e : study.getEvents())
+            insertEvent(e, study.getId());
         return db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
     }
 
@@ -220,6 +273,23 @@ public class DBHandler extends SQLiteOpenHelper{
         return db.insert(QuestionEntry.TABLE_NAME, null, values);
     }
 
+    private long insertEvent(Event event, long studyID) {
+        SQLiteDatabase db = getDbInstance();
+        ContentValues values = new ContentValues();
+        values.put(EventEntry.COLUMN_NAME, event.getName());
+        values.put(EventEntry.COLUMN_STUDYID, studyID);
+        values.put(EventEntry.COLUMN_CONTROLTIME, event.getControlTime());
+        values.put(EventEntry.COLUMN_UNIT, event.getUnit());
+        return db.insert(EventEntry.TABLE_NAME, null, values);
+    }
+
+    public long insertEventResult(long eventId, int duration) {
+        SQLiteDatabase db = getDbInstance();
+        ContentValues values = new ContentValues();
+        values.put(EventResultsEntry.COLUMN_EVENTID, eventId);
+        values.put(EventResultsEntry.COLUMN_DURATION, duration);
+        return db.insert(EventResultsEntry.TABLE_NAME, null, values);
+    }
 
     public long insertAnswer(long studyId, String answer, String timestamp) {
         SQLiteDatabase db = getDbInstance();

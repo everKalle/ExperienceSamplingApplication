@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,6 +36,7 @@ public class NotificationService extends IntentService {
     private int alarmType;
     private int alarmTone;
     public static final String PREFS_NAME = "preferences";
+    static boolean started = false;
 
     public NotificationService() {
         super(NotificationService.class.getName());
@@ -68,6 +70,7 @@ public class NotificationService extends IntentService {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
+        //final MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.opa);
         Log.v("alarmType", String.valueOf(alarmType));
         Log.v("alarmTone", String.valueOf(alarmTone));
         if (!beepFreePeriod()) {
@@ -75,8 +78,13 @@ public class NotificationService extends IntentService {
                 dailyNotificationCounter++;
                 ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
                 if (alarmType == 0) {
-                    if (alarmTone == 0)
+                    if (alarmTone == 0) {
                         toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 300);
+                        if (!started) {
+                            //mediaPlayer.start();
+                            started = true;
+                        }
+                    }
                     else if (alarmTone == 1)
                         toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 300);
                     else

@@ -37,4 +37,18 @@ public class ActiveStudyContract {
         public static final String COLUMN_ANSWER = "answer";
         public static final String COLUMN_TIMESTAMP = "timestamp";
     }
+
+    public static class EventEntry implements BaseColumns {
+        public static final String TABLE_NAME = "event_table";
+        public static final String COLUMN_STUDYID = "study_id";
+        public static final String COLUMN_NAME = "event_title";
+        public static final String COLUMN_CONTROLTIME = "event_control_time";
+        public static final String COLUMN_UNIT = "event_unit";
+    }
+
+    public static class EventResultsEntry implements BaseColumns {
+        public static final String TABLE_NAME = "event_results_table";
+        public static final String COLUMN_EVENTID = "event_id";
+        public static final String COLUMN_DURATION = "event_duration";
+    }
 }

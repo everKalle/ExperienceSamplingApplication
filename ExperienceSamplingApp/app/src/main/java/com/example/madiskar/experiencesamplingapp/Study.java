@@ -24,8 +24,9 @@ public class Study {
     private int minTimeBetweenNotifications;
     private int postponeTime;
     private boolean postponable;
+    private Event[] events;
 
-    public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+    public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications, Event[] events){
         this.id = id;
         this.name = name;
         this.qBatch = qBatch;
@@ -37,6 +38,7 @@ public class Study {
         this.postponeTime = postponeTime;
         this.postponable = postponable;
         this.minTimeBetweenNotifications = minTimeBetweenNotifications;
+        this.events = events;
     }
 
     public String[] questionsAsText() {
@@ -88,4 +90,8 @@ public class Study {
     }
 
     public int getMinTimeBetweenNotifications() { return minTimeBetweenNotifications; }
+
+    public Event[] getEvents() {
+        return events;
+    }
 }
