@@ -7,6 +7,7 @@ class Participant extends CI_Controller {
  {
    parent::__construct();
    $this->load->model('participant_model','',TRUE);
+   $this->load->helper('string');
  }
 
  function login()
@@ -19,6 +20,22 @@ class Participant extends CI_Controller {
       echo "invalid";
      } else {
       echo $data['token'];
+     }
+   } else {
+    echo "nothing";
+   }
+ }
+
+ function register()
+ {
+   $email = $this->input->post('email');
+   $password = $this->input->post('password');
+   if($email != NULL && $password != NULL){
+     if ($this->participant_model->account_exists($email)){
+      echo "exists";
+     } else {
+      $token = random_string('alnum', 64);
+      echo $this->participant_model->create_account($email, $password, $token);
      }
    } else {
     echo "nothing";
