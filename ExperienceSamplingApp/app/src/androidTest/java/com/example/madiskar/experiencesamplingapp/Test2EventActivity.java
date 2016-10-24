@@ -77,7 +77,7 @@ public class Test2EventActivity {
 
         ViewInteraction appCompatButton3 = onView(
                 allOf(withId(android.R.id.button1), withText("Start")));
-        appCompatButton3.perform(scrollTo(), click());
+        appCompatButton3.perform(click());
 
 
         mDevice.openNotification();
