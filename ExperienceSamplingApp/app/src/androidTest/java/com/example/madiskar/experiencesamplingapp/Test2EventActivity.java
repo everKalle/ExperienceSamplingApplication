@@ -93,7 +93,7 @@ public class Test2EventActivity {
         UiObject eventFalseName = mDevice.findObject(new UiSelector().text("Cooking"));
         assertFalse(eventFalseName.exists());
 
-        UiObject eventStopButton = mDevice.findObject(new UiSelector().text("STOP"));
+        UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
         assertTrue(eventStopButton.exists());
         eventStopButton.click();
 
