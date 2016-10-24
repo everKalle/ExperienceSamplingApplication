@@ -8,6 +8,7 @@ class Study extends CI_Controller {
  {
    parent::__construct();
    $this->load->model('user','',TRUE);
+   $this->load->model('participant_model','',TRUE);
     $this->load->model('study_model','',TRUE); // load study model
     if($this->session->userdata('logged_in')) {
       $this->logged_in = $this->session->userdata('logged_in');
@@ -67,6 +68,8 @@ class Study extends CI_Controller {
         $data['title'] = $data['study_details']['study-title'];
         $data['other_users'] = $this->user->get_other_usernames($this->logged_in['username']);
         $data['shared_with'] = $this->study_model->get_study_shares($id);
+        $data['participants'] = $this->study_model->get_study_participants($id);
+        $data['all_participants'] = $this->participant_model->get_all_participants();
         $data['active_page'] = "own_studies";
         $data['logged_in'] = $this->logged_in;
 
@@ -160,6 +163,45 @@ class Study extends CI_Controller {
  }
 
 
+ function add_participant($study_id) {
+    if($this->logged_in)
+    {
+      $this->load->helper('form');
+      $this->load->library('form_validation');
+      $this->form_validation->set_rules('add-participant-username', 'User', 'required');
+      if ($this->form_validation->run() === FALSE){
+        redirect('/study/view/' . $study_id, 'location');
+       } else {
+         $user = $_POST['add-participant-username'];
+         if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) || $this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) {
+            $this->study_model->add_participant($study_id, $this->study_model->get_participant_id($user));
+          redirect('/study/view/' . $study_id, 'location');  
+        } else {
+          redirect('/study/view/' . $study_id, 'location');  
+        }
+      }
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
+
+  function remove_participant($study_id,$user_id) {
+    if($this->logged_in)
+    {
+      if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) || $this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) {
+        $this->study_model->remove_participant($study_id, $user_id);
+      }
+      redirect('/study/view/' . $study_id, 'location');
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
+
+
  function delete($id)
  {
     if($this->logged_in)
@@ -187,6 +229,105 @@ class Study extends CI_Controller {
       $study_array[] = $study;
     endforeach;
     $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
+ }
+
+ function get_participant_studies(){
+    $token = $this->input->post('token');
+    if ($token != NULL){
+      $p_id = $this->participant_model->get_id_via_token($token);
+      if ($p_id === false) {
+        echo "invalid_token";
+      } else {
+        $participant_studies = $this->study_model->get_participant_studies($p_id);
+        $study_array = array();
+        foreach($participant_studies as $study):
+          $study['questions'] = $this->study_model->get_study_questions($study['id']);
+          $study['events'] = $this->study_model->get_study_events($study['id']);
+          $study_array[] = $study;
+        endforeach;
+        $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
+      }
+    } else {
+      echo "nothing";
+    }
+ }
+
+ function participant_join_study() {
+    $token = $this->input->post('token');
+    $study_id = $this->input->post('study_id');
+    if ($token != NULL && $study_id != NULL){
+      $p_id = $this->participant_model->get_id_via_token($token);
+      if ($p_id === false) {
+        echo "invalid_token";
+      } else {
+        if ($this->study_model->get_study_data($study_id) != false){
+          $success = $this->study_model->add_participant($study_id, $p_id);
+          if ($success === TRUE){
+            echo "success";
+          } else {
+            echo $success;
+          }
+        } else {
+          echo "invalid_study";
+        }
+      }
+    } else {
+      echo "nothing";
+    }
+ }
+
+ function store_study_results() {
+    $token = $this->input->post('token');
+    $study_id = $this->input->post('study_id');
+    $answers = $this->input->post('answers');
+    if ($token != NULL && $study_id != NULL && $answers != NULL){
+      $p_id = $this->participant_model->get_id_via_token($token);
+      if ($p_id === false) {
+        echo "invalid_token";
+      } else {
+        if ($this->study_model->get_study_data($study_id) != false){
+          $success = $this->study_model->save_answers($study_id, $p_id, $answers);
+          if ($success === TRUE){
+            echo "success";
+          } else {
+            echo $success;
+          }
+        } else {
+          echo "invalid_study";
+        }
+      }
+    } else {
+      echo "nothing";
+    }
+ }
+
+ function store_event_results() {
+    $token = $this->input->post('token');
+    $event_id = $this->input->post('event_id');
+    $time = $this->input->post('time');
+    if ($token != NULL && $event_id != NULL && $time != NULL){
+      $p_id = $this->participant_model->get_id_via_token($token);
+      if ($p_id === false) {
+        echo "invalid_token";
+      } else {
+        if ($this->study_model->get_event_exists($event_id)){
+          if (intval($time)>0){
+            $success = $this->study_model->save_event_time($event_id, $p_id, $time);
+            if ($success === TRUE){
+              echo "success";
+            } else {
+              echo $success;
+            }
+          } else {
+            echo "invalid_time";
+          }
+        } else {
+          echo "invalid_event";
+        }
+      }
+    } else {
+      echo "nothing";
+    }
  }
 
  function get_study_details($id){

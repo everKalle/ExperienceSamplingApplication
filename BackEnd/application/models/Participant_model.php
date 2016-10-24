@@ -45,12 +45,36 @@ class Participant_model extends CI_Model {
 			return false;
 		}
 	}
+
+	function get_id_via_token($token)
+	{
+		$this->db->select('id');
+		$this->db->from('participants');
+		$this->db->where('token', $token);
+		$this->db->limit(1);
+
+		$query = $this->db->get();
+		
+		if($query -> num_rows() >= 1) {
+			return $query->row(0)->id;
+		} else {
+			return false;
+		}
+	}
 	
 	function update_password($token,$password) {
 		$this->db->where('token', $token);
 		$this->db->update('participants', array('password' => hash('sha256',$password)));
 		return true;
 	}
+
+	function get_all_participants() {
+    $this->db->select('email');
+    $this->db->from('participants');
+    $query = $this->db->get();
+
+    return $query->result_array();
+  }
 }
 
 ?>

@@ -131,6 +131,21 @@ class Study_model extends CI_Model {
 		}
 	}
 
+	function get_participant_id($email) {
+		$this->db->select('id');
+		$this->db->from('participants');
+		$this->db->where('email',$email);
+		$this->db->limit(1);
+		$query = $this->db->get();
+
+		if($query -> num_rows() == 1) {
+			return $query->row(0)->id;
+		} else {
+			return false;
+		}
+	}
+
+
 	function get_active_studies($user_id) {
 		$this->db->select('id, study-title, study-start-date, study-end-date, study-is-public');
 		$this->db->from('survey');
@@ -197,6 +212,15 @@ class Study_model extends CI_Model {
 		return $query->result_array();
 	}
 
+	function get_study_participants($id) {
+		$this->db->select('participant_id, email');
+		$this->db->from('view_survey_participant');
+		$this->db->where('survey_id', $id);
+
+		$query = $this->db->get();
+		return $query->result_array();
+	}
+
 	function get_admin_is_owner_of_study($id, $user_id) {
 		$this->db->select('id');
 		$this->db->from('survey');
@@ -233,6 +257,20 @@ class Study_model extends CI_Model {
 		$query = $this->db->get();
 		if($query -> num_rows() == 1) {
 			return $query->row_array();
+		} else {
+			return false;
+		}
+	}
+
+	function get_event_exists($id) {
+		$this->db->select('event-title');
+		$this->db->from('survey_custom_event');
+		$this->db->where('id', $id);
+		$this->db->limit(1);
+		$query = $this->db->get();
+
+		if($query -> num_rows() == 1) {
+			return true;
 		} else {
 			return false;
 		}
@@ -306,6 +344,65 @@ class Study_model extends CI_Model {
 		$this->db->where('users_id',$user_id);
 		$this->db->delete('user_survey_access');
 		return true;
+	}
+
+	function add_participant($study_id, $target_user) {
+		$data = array(
+		   'participant_id' => $target_user ,
+		   'survey_id' => $study_id ,
+		   'join_date' => date('Y-m-d H:i:s')
+		);
+
+		if ($this->db->insert('partipant_to_study', $data)){
+			return True;
+		} else {
+			return $this->db->error_message();
+		}
+	}
+
+	function remove_participant($study_id,$user_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->where('participant_id',$user_id);
+		$this->db->delete('partipant_to_study');
+		return true;
+	}
+
+	function get_participant_studies($p_id) {
+		$this->db->select('id, study-title, study-start-date, study-end-date, study-duration-for-user, study-beeps-per-day, study-min-time-between-beeps, study-postpone-time, study-allow-postpone, study-language, study-is-public, study-beep-start-time, study-beep-end-time, study-duration-time, join_date');
+		$this->db->from('view_participant_surveys');
+		$this->db->where('p_id', $p_id);
+
+		$query = $this->db->get();
+		
+		return $query->result_array();
+	}
+
+	function save_answers($study_id, $target_user, $answers) {
+		$data = array(
+		   'participant_id' => $target_user ,
+		   'survey_id' => $study_id ,
+		   'answers' => $answers
+		);
+
+		if ($this->db->insert('survey_answers', $data)){
+			return True;
+		} else {
+			return $this->db->error_message();
+		}
+	}
+
+	function save_event_time($event_id, $target_user, $time) {
+		$data = array(
+		   'participant_id' => $target_user ,
+		   'event_id' => $event_id ,
+		   'event_time' => $time
+		);
+
+		if ($this->db->insert('event_results', $data)){
+			return True;
+		} else {
+			return $this->db->error_message();
+		}
 	}
 }
 

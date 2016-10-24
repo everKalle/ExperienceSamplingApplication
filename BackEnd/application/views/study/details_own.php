@@ -40,7 +40,30 @@
     Uuringusse osalejate lisamine
   </div>
   <div class="panel-body">
-    <strong>TODO</strong>
+    <div class="row">
+      <div class="col-sm-6">
+        <p><strong>Uuringus osalejad:: </strong></p>
+          <ul class="list-group">
+            <?php foreach ($participants as $p):
+              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $p['email'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_participant/'.$study_details['id'].'/'.$p['participant_id']) . '" class="text-danger">Eemalda</a></div></div></li>';
+            endforeach; ?>
+          </ul>
+      </div>
+      <div class="col-sm-6">
+        <?php echo form_open('study/add_participant/'.$study_details['id']); ?>
+        <div class="form-group">
+          <label class="control-label" for="add-participant-username">Sisesta e-maili aadress:</label>
+          <input class="form-control" list="partic" id="add-participant-username" name="add-participant-username" placeholder="E-Mail" required>
+          <datalist id="partic">
+            <?php foreach ($all_participants as $ou):
+              echo '<option value="' . $ou['email'] . '">';
+            endforeach; ?>
+          </datalist>
+        </div>
+        <input class="btn btn-primary" type="submit" name="submit" id="submit-button" value="Jaga uuring"/>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
 <?php } ?>
