@@ -208,6 +208,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
 
             if (existingStartHours.get(i) > existingEndHours.get(i)) { // 22.00 - 2.30
                 if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) { // 20.00 - 4.00
+                    Log.v("lap 0", "siin");
                     overlap = true;
                 }
                 else { // 1.00 - 13.00
@@ -217,10 +218,18 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i)) { // 12.55 - 22.00 and 22.30 - 12.50
                             }
                             else {
-                                overlap = true;
+                                if (beepFerePeriod.getEndTimeHour() <= existingStartHours.get(i)) {
+                                    if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && existingStartMinutes.get(i) < beepFerePeriod.getEndTimeMinute())
+                                        overlap = true;
+                                }
+                                else {
+                                    Log.v("lap 1", "siin");
+                                    overlap = true;
+                                }
                             }
                         }
                         else {
+                            Log.v("lap 2", "siin");
                             overlap = true;
                         }
                     }
@@ -235,6 +244,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i)) { // ... - 3.00 and 3.30 - ...
                             }
                             else {
+                                Log.v("lap 3", "siin");
                                 overlap = true;
                             }
                         }
@@ -243,14 +253,17 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                         if (beepFerePeriod.getStartTimeHour() == existingEndHours.get(i) && beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) { // 21.40 - 1.30 and 13.00 - 21.30
                             if (beepFerePeriod.getEndTimeHour() <= existingStartHours.get(i)) { // 21.40 - 1.30 and 13.00 - 21.30
                                 if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() >= existingStartMinutes.get(i)) { // 21.40 - 13.30 and 13.00 - 21.30
+                                    Log.v("lap 4", "siin");
                                     overlap = true;
                                 }
                             }
                             else { // beepFerePeriod.getEndTimeHour() > existingStartHours.get(i) ->  21.40 - 14.30 and 13.00 - 21.30
+                                Log.v("lap 5", "siin");
                                 overlap = true;
                             }
                         }
                         else { //beepFerePeriod.getStartTimeHour() < existingEndHours.get(i) -> 21.00 - 1.30 and 1.00 - 22.00
+                            Log.v("lap 6", "siin");
                             overlap = true;
                         }
                     }
@@ -265,10 +278,12 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             if (beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i) || beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) {
                             }
                             else {
+                                Log.v("lap 7", "siin");
                                 overlap = true;
                             }
                         }
                         else {
+                            Log.v("lap 8", "siin");
                             overlap = true;
                         }
                     }
@@ -276,10 +291,12 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                         if (beepFerePeriod.getStartTimeHour() < existingStartHours.get(i) && beepFerePeriod.getEndTimeHour() >= existingStartHours.get(i)) { //  13.00 - 22.00 and 18.00 - 23.00
                             if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i)) { // 13.00 - 22.00 and 22.30 - 23.00
                                 if (beepFerePeriod.getEndTimeMinute() >= existingStartMinutes.get(i)) {
+                                    Log.v("lap 9", "siin");
                                     overlap = true;
                                 }
                             }
                             else {
+                                Log.v("lap 10", "siin");
                                 overlap = true;
                             }
                         }
@@ -288,24 +305,28 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             Log.v("OLEN SIIN..", "ops");
                             if (beepFerePeriod.getStartTimeHour() == existingEndHours.get(i) && beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) {
                             }
-                            else
+                            else {
+                                Log.v("lap 11", "siin");
                                 overlap = true;
+                            }
                         }
 
                         else if (beepFerePeriod.getStartTimeHour() >= existingEndHours.get(i) && beepFerePeriod.getEndTimeHour() >= existingEndHours.get(i)) {
                             if (existingEndHours.get(i) >= beepFerePeriod.getStartTimeHour()) {
                                 if (existingEndHours.get(i) == beepFerePeriod.getStartTimeHour()) {
                                     if (existingEndMinutes.get(i) >= beepFerePeriod.getStartTimeMinute()){
+                                        Log.v("lap 12", "siin");
                                         overlap = true;
                                     }
                                 }
-                                else
+                                else {
+                                    Log.v("lap 13", "siin");
                                     overlap = true;
+                                }
                             }
                         }
                     }
                 }
-
             }
         }
         return overlap;

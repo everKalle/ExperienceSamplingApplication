@@ -185,8 +185,11 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         setTitle("My Studies");
         loadFragment("My Studies", false);
 
-        ResponseReceiver.setupAlarm(getApplicationContext(), study1, true);
-        //ResponseReceiver.setupAlarm(getApplicationContext(), study2, true); //TODO: fix bug where multiple notifications don't show up
+        ResponseReceiver responseReceiver1 = new ResponseReceiver(study1);
+        ResponseReceiver responseReceiver2 = new ResponseReceiver(study2);
+
+        responseReceiver1.setupAlarm(getApplicationContext(), true);
+        responseReceiver2.setupAlarm(getApplicationContext(), true); //TODO: fix bug where multiple notifications don't show up
 
     }
 

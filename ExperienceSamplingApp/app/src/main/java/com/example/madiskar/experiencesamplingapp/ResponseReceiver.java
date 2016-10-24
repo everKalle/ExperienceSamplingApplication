@@ -8,6 +8,7 @@ import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,33 +19,44 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
     private static String NOTIFICATION_NAME = "STUDY";
     private static String STUDY_QUESTIONS = "QUESTIONS";
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
-    private static Study studyRef;
+    private Study study;
+    public static ArrayList<Integer> dailyNotificationCount = new ArrayList<>();
+    public static ArrayList<Study> studies = new ArrayList<>();
+
+    public ResponseReceiver(Study study) {
+        this.study = study;
+        studies.add(study);
+        dailyNotificationCount.add(0);
+    }
+    public ResponseReceiver () {
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
-        int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
+        int interval = intent.getIntExtra(NOTIFICATION_INTERVAL, 0);
         String name = intent.getStringExtra(NOTIFICATION_NAME);
         String[] textQuestions = intent.getStringArrayExtra(STUDY_QUESTIONS);
         int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
-        Intent serviceIntent = NotificationService.createIntentNotificationService(context, interval, name, textQuestions, notificationsPerDay, studyRef);
+        long id = intent.getLongExtra("studyId", 0);
+
+        Intent serviceIntent = NotificationService.createIntentNotificationService(context, interval, name, textQuestions, notificationsPerDay, studies.get((int)id));
         if (serviceIntent != null) {
             startWakefulService(context, serviceIntent);
         }
     }
 
 
-    public static void setupAlarm(Context context, Study study, boolean firstTime) {
-        studyRef = study;
+    public void setupAlarm(Context context, boolean firstTime) {
         int interval = study.getNotificationInterval();
         String name = study.getName();
         String[] textQuestions = study.questionsAsText();
         int notificationsPerDay = study.getNotificationsPerDay();
         Intent intent = new Intent(context, ResponseReceiver.class);
+        long id = study.getId();
 
-        PendingIntent alarmIntent = getPendingIntent(context, intent, interval, name, textQuestions, notificationsPerDay);
+        PendingIntent alarmIntent = getPendingIntent(context, intent, interval, name, textQuestions, notificationsPerDay, id);
 
-        cancelExistingAlarm(context, intent, 0);
+        //cancelExistingAlarm(context, intent, 0);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (firstTime) {
@@ -79,12 +91,13 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         }
     }
 
-    public static PendingIntent getPendingIntent(Context context, Intent intent, int interval, String name, String[] questions, int notificationsPerDay) {
+    public static PendingIntent getPendingIntent(Context context, Intent intent, int interval, String name, String[] questions, int notificationsPerDay, long id) {
         intent.putExtra(NOTIFICATION_INTERVAL, interval);
         intent.putExtra(NOTIFICATION_NAME, name);
         intent.putExtra(STUDY_QUESTIONS, questions);
         intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra("studyId", id);
+        return PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
     }
 }

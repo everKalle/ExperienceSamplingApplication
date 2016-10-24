@@ -57,7 +57,7 @@ public class BootReceiver extends BroadcastReceiver {
         String name = study.getName();
         String[] textQuestions = study.questionsAsText();
         int notificationsPerDay = study.getNotificationsPerDay();
-        PendingIntent alarmIntent = ResponseReceiver.getPendingIntent(context, intent, interval, name, textQuestions, notificationsPerDay);
+        PendingIntent alarmIntent = ResponseReceiver.getPendingIntent(context, intent, interval, name, textQuestions, notificationsPerDay, study.getId());
 
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + interval * 60 * 1000,

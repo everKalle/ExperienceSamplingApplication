@@ -2,6 +2,8 @@ package com.example.madiskar.experiencesamplingapp;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +34,10 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         Questionnaire questionnaire = extras.getParcelable("QUESTIONNAIRE");
+
+        final int notificationId = extras.getInt("notificationId");
+        NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(notificationId);
 
         studyId = questionnaire.getStudyId();
         questions = questionnaire.getQuestions();
