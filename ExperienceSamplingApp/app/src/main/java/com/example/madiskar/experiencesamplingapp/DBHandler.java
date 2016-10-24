@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import com.example.madiskar.experiencesamplingapp.ActiveStudyContract.*;
+
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -371,6 +375,23 @@ public class DBHandler extends SQLiteOpenHelper{
             Log.v("DBHandler class", "Wrong date format");
         }
         return cal;
+    }
+    
+
+    public static String hashSha256(String s) {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try {
+            md.update(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] digest = md.digest();
+        return String.format("%064x", new java.math.BigInteger(1, digest));
     }
 
 }

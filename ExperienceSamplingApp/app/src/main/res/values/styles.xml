@@ -13,6 +13,12 @@
         <item name="android:background">#263238</item>
     </style>
 
+    <style name="AppTheme_Dark_Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/buttonTextAccent</item>
+        <item name="android:textColorPrimary">@color/buttonTextAccent</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

@@ -1,9 +1,14 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteReadOnlyDatabaseException;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -19,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.preference.PreferenceManager;
 import java.util.ArrayList;
@@ -41,15 +47,25 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-	PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         setContentView(R.layout.activity_main);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        SharedPreferences spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+        String username = spref.getString("username", "none");
+        TextView usernameField = (TextView) findViewById(R.id.userName_email);
+        usernameField.setText(username);
+
+        //print token
+        //String token = spref.getString("token", "none");
+        //Log.i("TOKEN", token);
+
+
         mMenuItems.add(new MenuItem("My Studies", "View my current studies", R.drawable.ic_study));
         mMenuItems.add(new MenuItem("Join Studies", "Browse and join available \nstudies", R.drawable.ic_add));
+        mMenuItems.add(new MenuItem("My Events", "View my active events", R.drawable.ic_events));
         mMenuItems.add(new MenuItem("Settings", "Change my settings", R.drawable.ic_settings));
-        mMenuItems.add(new MenuItem("My Events", "Change my settings", R.drawable.ic_settings));
         mMenuItems.add(new MenuItem("Log Out", "Log out from current account", R.drawable.ic_logout));
         mMenuItems.add(new MenuItem("Exit", "Active studies will continue \nto run in background", R.drawable.ic_exit));
 
@@ -95,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         Question q4 = new FreeTextQuestion(0, "Is it easy?");
         Question q2 = new FreeTextQuestion(0, "Is it still easy?");
@@ -138,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 2, true, 1, eventsArray1);
         Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 2, true, 1, eventsArray2);
 
-        getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
+        //getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
 
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         mydb.clearTables();
@@ -170,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         loadFragment("My Studies", false);
 
         ResponseReceiver.setupAlarm(getApplicationContext(), study1, true);
+        //ResponseReceiver.setupAlarm(getApplicationContext(), study2, true); //TODO: fix bug where multiple notifications don't show up
 
     }
 
@@ -182,14 +199,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerPane);
         String itemName = mMenuItems.get(position).mTitle;
-        setTitle(itemName);
         loadFragment(itemName, true);
-
     }
 
     private void loadFragment(String itemName, boolean from_menu) {
         FragmentManager fragmentManager = getFragmentManager();
         if(itemName == "My Studies") {
+        	setTitle(itemName);
             Fragment fragment = new StudyFragment();
             Bundle args = new Bundle();
             args.putBoolean("fromNav", from_menu);
@@ -211,7 +227,34 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .replace(R.id.mainContent, new SettingsFragment())
                     .commit();
         }
-        // TODO: other fragments here
+        else if (itemName.equals("Log Out")) {
+            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt("LoggedIn", 0);
+            editor.putString("username", "none");
+            editor.putString("token", "none");
+            editor.apply();
+            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+            DBHandler.getInstance(getApplicationContext()).clearTables();
+            try{
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                AlarmManager am=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                am.cancel(pendingIntent);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            finish();
+            startActivity(i);
+        }
+        else if (itemName.equals("Exit")) {
+            finish();
+        }
+        else if(itemName.equals("Join Studies")) {
+            //TODO: launch study join activity here
+        }
+        else if(itemName.equals("My Events")) {
+            //TODO: launch activity where one can see active events and press stop
+        }
     }
 
 
