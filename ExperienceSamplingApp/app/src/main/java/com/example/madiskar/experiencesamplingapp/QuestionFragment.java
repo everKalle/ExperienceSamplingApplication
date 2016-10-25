@@ -84,6 +84,7 @@ public class QuestionFragment extends Fragment {
             for (int i = 0; i < choices.length; i++) {
                 RadioButton rb = new RadioButton(view.getContext());
                 rb.setText(choices[i]);
+                rb.setId(i);
                 radioGroup.addView(rb);
             }
         } else {

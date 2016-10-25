@@ -127,10 +127,15 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         Questionnaire qnaire1 = new Questionnaire(0, batch1);
         Questionnaire qnaire2 = new Questionnaire(1, batch2);
 
-        Calendar c1 = Calendar.getInstance();
-        c1.set(2016, 2, 20);
-        Calendar c2 = Calendar.getInstance();
-        c2.set(2016, 3, 20);
+        //yyyy-MM-dd HH:mm:ss
+        String c1s = "2016-2-10";
+        String c2s = "2016-3-10";
+        Calendar c1 = DBHandler.stringToCalendar(c1s);
+        //Log.i("BEGINDATE", DBHandler.calendarToString(c1));
+        //c1.set(2016, 2, 20, 10, 0);
+        Calendar c2 = DBHandler.stringToCalendar(c2s);
+        //Log.i("ENDDATE", DBHandler.calendarToString(c2));
+        //c2.set(2016, 3, 20, 10, 0);
         Event event1 = new Event(0,1,"Running",5, "m");
         Event event2 = new Event(1,1, "Cooking",5, "m");
         Event event3 = new Event(2,1, "Swimming",5, "m");
@@ -185,11 +190,26 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         setTitle("My Studies");
         loadFragment("My Studies", false);
 
+
+        ArrayList<Study> studylist = mydb.getAllStudies();
+
+        for(Study s : studylist) {
+            ResponseReceiver rR = new ResponseReceiver(s);
+            rR.setupAlarm(getApplicationContext(), true);
+        }
+
+        Log.i("EQUIVALENCE", Boolean.toString(study1.equals(studylist.get(0))) + " AND " + Boolean.toString(study2.equals(studylist.get(1))));
+
+        //TODO: Check for problems in dbhandler methods
+
+
+        /*
         ResponseReceiver responseReceiver1 = new ResponseReceiver(study1);
         ResponseReceiver responseReceiver2 = new ResponseReceiver(study2);
 
         responseReceiver1.setupAlarm(getApplicationContext(), true);
-        responseReceiver2.setupAlarm(getApplicationContext(), true); //TODO: fix bug where multiple notifications don't show up
+        responseReceiver2.setupAlarm(getApplicationContext(), true);
+        */
 
     }
 
@@ -207,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
     private void loadFragment(String itemName, boolean from_menu) {
         FragmentManager fragmentManager = getFragmentManager();
-        if(itemName == "My Studies") {
+        if(itemName.equals("My Studies")) {
         	setTitle(itemName);
             Fragment fragment = new StudyFragment();
             Bundle args = new Bundle();

@@ -20,11 +20,10 @@ import java.util.regex.Pattern;
 /**
  * Created by madiskar on 27/09/2016.
  */
-public class DBHandler extends SQLiteOpenHelper{
+public class DBHandler extends SQLiteOpenHelper {
     private static DBHandler mInstance = null;
-    private SQLiteDatabase db = null;
+    //private SQLiteDatabase db = null;
 
-    private Context mCxt;
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "ActiveStudies.db";
@@ -87,15 +86,16 @@ public class DBHandler extends SQLiteOpenHelper{
         return mInstance;
     }
 
+    /*
     private synchronized SQLiteDatabase getDbInstance() {
-        if (db == null)
-            db = mInstance.getWritableDatabase();
-        return db;
+        //if (db == null)
+        //    db = mInstance.getWritableDatabase();
+        return this.getWritableDatabase();
     }
+    */
 
     private DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.mCxt = context;
     }
 
 
@@ -119,7 +119,7 @@ public class DBHandler extends SQLiteOpenHelper{
 
 
     public void clearTables() {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + ActiveStudyEntry.TABLE_NAME);
         db.execSQL("DELETE FROM " + QuestionEntry.TABLE_NAME);
         db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
@@ -129,88 +129,110 @@ public class DBHandler extends SQLiteOpenHelper{
 
 
     public ArrayList<Study> getAllStudies() {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getReadableDatabase();
+
+        db.beginTransaction();
         Cursor cur = db.rawQuery("SELECT * FROM " + ActiveStudyEntry.TABLE_NAME, null);
         cur.moveToFirst();
 
         ArrayList<Study> studies = new ArrayList<>();
-        while (!cur.isAfterLast()) {
-            long id = cur.getLong(cur.getColumnIndex(ActiveStudyEntry._ID));
-            int studyLength = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_STUDYLENGTH));
-            int notificationsPerDay = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY));
-            int notificationInterval = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL));
-            int minTimeBetweenNotification= cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
-            int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
-            String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
-            ArrayList<Question> qs = getStudyQuestions(id);
-	        Question[] qsArray = new Question[qs.size()];
-            for (int i = 0; i < qs.size(); i++) {
-                qsArray[i] = qs.get(i);
-            }
-            Questionnaire qnaire = new Questionnaire(id, qsArray);
-            Event[] events = getStudyEvents(id);
-	        Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
-            Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
-            boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+        try {
+            while (!cur.isAfterLast()) {
+                long id = cur.getLong(cur.getColumnIndex(ActiveStudyEntry._ID));
+                int studyLength = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_STUDYLENGTH));
+                int notificationsPerDay = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY));
+                int notificationInterval = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL));
+                int minTimeBetweenNotification = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
+                int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
+                String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
+                ArrayList<Question> qs = getStudyQuestions(id);
+                Question[] qsArray = new Question[qs.size()];
+                for (int i = 0; i < qs.size(); i++) {
+                    qsArray[i] = qs.get(i);
+                }
+                Questionnaire qnaire = new Questionnaire(id, qsArray);
+                Event[] events = getStudyEvents(id);
+                Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
+                Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
+                boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
 
-            Study newStudy = new Study (
-                    id, name, qnaire, beginDate, endDate, studyLength,
-                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events);
-            studies.add(newStudy);
-            cur.moveToNext();
+                Study newStudy = new Study(
+                        id, name, qnaire, beginDate, endDate, studyLength,
+                        notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events);
+                studies.add(newStudy);
+                cur.moveToNext();
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            cur.close();
         }
-        cur.close();
         return studies;
     }
 
 
     private ArrayList<Question> getStudyQuestions(long studyID) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getReadableDatabase();
+
         Cursor cur = db.rawQuery("SELECT * FROM " + QuestionEntry.TABLE_NAME + " WHERE " + QuestionEntry.COLUMN_STUDYID + " = " + studyID + " ORDER BY " + QuestionEntry._ID, null);
-        cur.moveToFirst();
 
         ArrayList<Question> questions = new ArrayList<>();
-        while(!cur.isAfterLast()) {
-            long id = cur.getLong(cur.getColumnIndex(QuestionEntry._ID));
-            String text = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TEXT));
-            String qType = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TYPE));
-            int singleChoice = cur.getInt(cur.getColumnIndex(QuestionEntry.COLUMN_SINGLECHOICE));
-            String choicesTxt = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_MULTICHOICES));
-            //System.out.println(choicesTxt);
-            //String[] choices = choicesTxt.split(Pattern.quote(";"));
-            Question q;
+        try {
+            cur.moveToFirst();
+            while (!cur.isAfterLast()) {
+                long id = cur.getLong(cur.getColumnIndex(QuestionEntry._ID));
+                String text = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TEXT));
+                String qType = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_TYPE));
+                int singleChoice = cur.getInt(cur.getColumnIndex(QuestionEntry.COLUMN_SINGLECHOICE));
+                String choicesTxt = cur.getString(cur.getColumnIndex(QuestionEntry.COLUMN_MULTICHOICES));
+                //System.out.println(choicesTxt);
+                //String[] choices = choicesTxt.split(Pattern.quote(";"));
+                Question q;
 
-            if(qType.equals("multiple_choice")) {
-                String[] choices = choicesTxt.split(Pattern.quote(";"));
-                q = new MultipleChoiceQuestion(studyID, singleChoice, text, choices);
-                //System.out.println("getting multiple questions");
-            } else
-                q = new FreeTextQuestion(studyID, text);
-            questions.add(q);
-            cur.moveToNext();
+                if (qType.equals("multiple_choice")) {
+                    String[] choices = choicesTxt.split(Pattern.quote(";"));
+                    q = new MultipleChoiceQuestion(studyID, singleChoice, text, choices);
+                    //System.out.println("getting multiple questions");
+                } else
+                    q = new FreeTextQuestion(studyID, text);
+                questions.add(q);
+                cur.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cur.close();
         }
-        cur.close();
         return questions;
     }
 
+
     private Event[] getStudyEvents(long studyID) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getReadableDatabase();
+
         Cursor cur = db.rawQuery("SELECT * FROM " + EventEntry.TABLE_NAME + " WHERE " + EventEntry.COLUMN_STUDYID + " = " + studyID + " ORDER BY " + EventEntry._ID, null);
-        cur.moveToFirst();
 
         ArrayList<Event> eventsArrayList = new ArrayList<>();
-        while(!cur.isAfterLast()) {
-            long id = cur.getLong(cur.getColumnIndex(EventEntry._ID));
-            long studyId = cur.getLong(cur.getColumnIndex(EventEntry.COLUMN_STUDYID));
-            String name = cur.getString(cur.getColumnIndex(EventEntry.COLUMN_NAME));
-            int controlTime = cur.getInt(cur.getColumnIndex(EventEntry.COLUMN_CONTROLTIME));
-            String unit = cur.getString(cur.getColumnIndex(EventEntry.COLUMN_UNIT));
+        try {
+            cur.moveToFirst();
+            while (!cur.isAfterLast()) {
+                long id = cur.getLong(cur.getColumnIndex(EventEntry._ID));
+                long studyId = cur.getLong(cur.getColumnIndex(EventEntry.COLUMN_STUDYID));
+                String name = cur.getString(cur.getColumnIndex(EventEntry.COLUMN_NAME));
+                int controlTime = cur.getInt(cur.getColumnIndex(EventEntry.COLUMN_CONTROLTIME));
+                String unit = cur.getString(cur.getColumnIndex(EventEntry.COLUMN_UNIT));
 
-            Event event = new Event(id, studyId, name, controlTime, unit);
-            eventsArrayList.add(event);
-            cur.moveToNext();
+                Event event = new Event(id, studyId, name, controlTime, unit);
+                eventsArrayList.add(event);
+                cur.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cur.close();
         }
-        cur.close();
         Event[] events = new Event[eventsArrayList.size()];
         for (int i = 0; i < eventsArrayList.size(); i++) {
             events[i] = eventsArrayList.get(i);
@@ -228,23 +250,34 @@ public class DBHandler extends SQLiteOpenHelper{
     */
 
     public long insertStudy(Study study) {
-        SQLiteDatabase db = getDbInstance();
-        ContentValues values = new ContentValues();
-        values.put(ActiveStudyEntry._ID, study.getId());
-        values.put(ActiveStudyEntry.COLUMN_NAME, study.getName());
-        values.put(ActiveStudyEntry.COLUMN_BEGINDATE, calendarToString(study.getBeginDate()));
-        values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
-        values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
-        values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
-        values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());
-        values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
-        values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
-        values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
-        for(Question q : study.getQuesstionnaire().getQuestions())
-            insertQuestion(q, study.getId());
-        for (Event e : study.getEvents())
-            insertEvent(e, study.getId());
-        return db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
+        SQLiteDatabase db = getWritableDatabase();
+        long returnid = -1;
+
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(ActiveStudyEntry._ID, study.getId());
+            values.put(ActiveStudyEntry.COLUMN_NAME, study.getName());
+            values.put(ActiveStudyEntry.COLUMN_BEGINDATE, calendarToString(study.getBeginDate()));
+            values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
+            values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
+            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
+            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());
+            values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
+            values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
+            values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
+            for (Question q : study.getQuesstionnaire().getQuestions())
+                insertQuestion(q, study.getId());
+            for (Event e : study.getEvents())
+                insertEvent(e, study.getId());
+            returnid = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
+            db.setTransactionSuccessful();
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+        return returnid;
     }
 
 
@@ -255,30 +288,30 @@ public class DBHandler extends SQLiteOpenHelper{
 
 
     private long insertQuestion(Question question, long studyID) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getWritableDatabase();
+
         ContentValues values = new ContentValues();
         values.put(QuestionEntry.COLUMN_TEXT, question.getText());
-        if(question instanceof MultipleChoiceQuestion) {
+        if (question instanceof MultipleChoiceQuestion) {
             values.put(QuestionEntry.COLUMN_TYPE, "multiple_choice");
             values.put(QuestionEntry.COLUMN_SINGLECHOICE, ((MultipleChoiceQuestion) question).getSingleChoice());
             StringBuilder sb = new StringBuilder();
             String[] c = ((MultipleChoiceQuestion) question).getChoices();
-            for(int i = 0; i < c.length; i ++) {
-                if(i != c.length-1)
+            for (int i = 0; i < c.length; i++) {
+                if (i != c.length - 1)
                     sb.append(c[i]).append(";");
                 else
                     sb.append(c[i]);
             }
             values.put(QuestionEntry.COLUMN_MULTICHOICES, sb.toString());
-        }
-        else
+        } else
             values.put(QuestionEntry.COLUMN_TYPE, "free_text");
         values.put(QuestionEntry.COLUMN_STUDYID, studyID);
         return db.insert(QuestionEntry.TABLE_NAME, null, values);
     }
 
     private long insertEvent(Event event, long studyID) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(EventEntry.COLUMN_NAME, event.getName());
         values.put(EventEntry.COLUMN_STUDYID, studyID);
@@ -288,7 +321,7 @@ public class DBHandler extends SQLiteOpenHelper{
     }
 
     public long insertEventResult(long eventId, int duration) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(EventResultsEntry.COLUMN_EVENTID, eventId);
         values.put(EventResultsEntry.COLUMN_DURATION, duration);
@@ -296,7 +329,7 @@ public class DBHandler extends SQLiteOpenHelper{
     }
 
     public long insertAnswer(long studyId, String answer, String timestamp) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(AnswerEntry.COLUMN_STUDYID, studyId);
         values.put(AnswerEntry.COLUMN_ANSWER, answer); // TODO: DANGEROUS, must check input and escape characters if necessary //// ANSWER GOES IN CSV FORMAT: answer1,answer2,answer3,...
@@ -305,7 +338,7 @@ public class DBHandler extends SQLiteOpenHelper{
     }
 
     public long insertAnswer(long studyId, String[] answers, String timestamp) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(AnswerEntry.COLUMN_STUDYID, studyId);
         StringBuilder sb = new StringBuilder();
@@ -318,61 +351,68 @@ public class DBHandler extends SQLiteOpenHelper{
     }
 
     public ArrayList<String> getAnswers(long studyId) {
-        SQLiteDatabase db = getDbInstance();
+        SQLiteDatabase db = getReadableDatabase();
+
         Cursor cur = db.rawQuery("SELECT * FROM " + AnswerEntry.TABLE_NAME + " WHERE " + AnswerEntry.COLUMN_STUDYID + " = " + studyId + " ORDER BY " + AnswerEntry._ID, null);
-        cur.moveToFirst();
 
         ArrayList<String> answers = new ArrayList<>();
-        while(!cur.isAfterLast()) {
-            StringBuilder sb = new StringBuilder();
-            String timestamp = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_TIMESTAMP));
-            String answerTxt = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_ANSWER));
-            sb.append(timestamp).append(" ; ").append(answerTxt);
-            answers.add(sb.toString());
-            cur.moveToNext();
+        try {
+            cur.moveToFirst();
+            while (!cur.isAfterLast()) {
+                StringBuilder sb = new StringBuilder();
+                String timestamp = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_TIMESTAMP));
+                String answerTxt = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_ANSWER));
+                sb.append(timestamp).append(" ; ").append(answerTxt);
+                answers.add(sb.toString());
+                cur.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cur.close();
         }
-        cur.close();
         return answers;
     }
 
 
-    public int deleteStudyEntry(long studyID) {
-        SQLiteDatabase db = getDbInstance();
-        deleteQuestionEntries(studyID);
-        deleteAnswerEntries(studyID);
-        return db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[] { Long.toString(studyID) });
+    public boolean deleteStudyEntry(long studyID) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
+            db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
+            db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
+            // TODO: remove event and event result stuff also!!!!!!!
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+        return true;
     }
 
-
-    private int deleteQuestionEntries(long studyID) {
-        SQLiteDatabase db = getDbInstance();
-        return db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[] { Long.toString(studyID) });
-    }
-
-    private int deleteAnswerEntries(long studyID) {
-        SQLiteDatabase db = getDbInstance();
-        return db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[] { Long.toString(studyID) });
-    }
 
 
     public static String calendarToString(Calendar cal) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(cal.getTime());
     }
 
 
     public static Calendar stringToCalendar(String str) {
-        //only from yyyy-MM-dd HH:mm:ss format
+        //only from yyyy-MM-dd format
         Calendar cal = Calendar.getInstance();
         try {
-            String[] parts = str.split(Pattern.quote(" "));
-            String[] date = parts[0].split(Pattern.quote("-"));
-            String[] time = parts[1].split(Pattern.quote(":"));
-            cal.set(Integer.parseInt(date[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(date[2]),
-                    Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]));
+            String[] parts = str.split(Pattern.quote("-"));
+            //String[] date = parts[0].split(Pattern.quote("-"));
+            //String[] time = parts[1].split(Pattern.quote(":"));
+            //cal.set(Integer.parseInt(date[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(date[2]),
+            //        Integer.parseInt(time[0]), Integer.parseInt(time[1]), Integer.parseInt(time[2]));
+            cal.set(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]) - 1, Integer.parseInt(parts[2]));
             return cal;
         } catch (Exception e) {
-            Log.v("DBHandler class", "Wrong date format");
+            Log.i("DBHandler class", "Wrong date format - stringToCalendar");
         }
         return cal;
     }

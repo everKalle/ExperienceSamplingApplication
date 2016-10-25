@@ -54,7 +54,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(currentQType.equals("FREETEXT")){
+                if(currentQType.equals("FREETEXT")){ // REGULAR FREETEXT QUESTION
                     String answer = ((EditText)findViewById(R.id.inputText)).getText().toString();
                     if(answer.equals(""))
                         answer = "User-did-not-answer";
@@ -65,14 +65,15 @@ public class QuestionnaireActivity extends AppCompatActivity {
                     }
                     addAnswer(currentQNumber - 1, answer.trim());
 
-                } else if(currentQType.equals("MULTIPLECHOICE")) {
+                } else if(currentQType.equals("MULTIPLECHOICE")) { // REGULAR MULTICHOICE QUESTION WITH CHECKBOXES
                     CheckBoxGroupView cbgv = (CheckBoxGroupView) findViewById(R.id.checkBoxGroup);
                     StringBuilder sb = new StringBuilder();
                     int[] checked = cbgv.getCheckedBoxes();
+                    String[] multiChoices = ((MultipleChoiceQuestion) questions[currentQNumber - 1]).getChoices();
                     for(int i = 0; i < checked.length; i++) {
                         if ( (checked[i] == 1)) {
-                            String answer = ((MultipleChoiceQuestion) questions[currentQNumber - 1]).getChoices()[i];
-                            if(answer.contains(";"))
+                            String answer = multiChoices[i];
+                            if(answer.contains(";") || answer.contains(","))
                                 sb.append("\"").append(answer).append("\"").append(";");
                             else
                                 sb.append(answer).append(";");
@@ -85,16 +86,19 @@ public class QuestionnaireActivity extends AppCompatActivity {
                         addAnswer(currentQNumber-1, "User-did-not-answer");
                     }
 
-                } else if(currentQType.equals("MULTIPLECHOICE_RADIO")) {
+                } else if(currentQType.equals("MULTIPLECHOICE_RADIO")) { // RADIO BUTTON MULTICHOICE QUESTION
                     RadioGroup rg = (RadioGroup) findViewById(R.id.radioGroupSingle);
                     String answer;
-                    int checkedId = rg.getCheckedRadioButtonId();
+                    //int checkedId = rg.getCheckedRadioButtonId();
+                    int checkedId = rg.indexOfChild(findViewById(rg.getCheckedRadioButtonId()));
                     if(checkedId != -1) {
-                        answer = ((MultipleChoiceQuestion) questions[ currentQNumber-1 ]).getChoices()[ checkedId-1 ];
+                        answer = ((MultipleChoiceQuestion) questions[ currentQNumber-1 ]).getChoices()[ checkedId ];
                     } else {
                         answer = "User-did-not-answer";
                     }
-                    if(answer.contains(",")) {
+                    //Log.i("MULTICHOICE RADIOANSWER", Integer.toString(checkedId));
+                    //Log.i("MULTICHOICE RADIOANSWER", answer);
+                    if(answer.contains(",") || answer.contains(";")) {
                         StringBuilder sb = new StringBuilder();
                         sb.append("\"").append(answer).append("\"");
                         answer = sb.toString();
@@ -105,13 +109,13 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 if(currentQNumber == answers.length-1) {
                     next.setText("Submit");
                 } else if(currentQNumber == answers.length) {
-                    Log.i("ANSWERS", "saving answers");
                     DBHandler mydb = DBHandler.getInstance(getApplicationContext());
                     mydb.insertAnswer(studyId, answers, DBHandler.calendarToString(Calendar.getInstance()));
                     /*ArrayList<String> test = mydb.getAnswers(studyId);
                     for(String s : test)
                         Log.i("TESTING ANSWERS", s);
                     */
+                    Log.i("SAVING ANSWERS", Arrays.toString(answers));
                     finish();
                 }
                 if(currentQNumber != answers.length) {
