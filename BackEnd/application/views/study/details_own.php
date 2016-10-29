@@ -168,7 +168,10 @@
     Tulemused
   </div>
   <div class="panel-body">
-    <strong>TODO</strong>
+    <p><a href="<?php echo site_url('study/study_results/'.$study_details['id']); ?>">Lae alla küsimustiku vastused CSV-failina</a></p>
+    <?php if (count($events) > 0) { ?>
+    <p><a href="<?php echo site_url('study/event_results/'.$study_details['id']); ?>">Lae alla sündmuste tulemused CSV-failina</a></p>
+    <?php } ?>
   </div>
 </div>
 

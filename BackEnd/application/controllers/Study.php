@@ -444,6 +444,54 @@ class Study extends CI_Controller {
 
  }
 
+ function study_results($study_id){
+    if($this->logged_in)  //check if logged in
+    {
+      $admin_id = $this->study_model->get_author_id($this->logged_in['username']);
+      if ($this->study_model->get_admin_is_owner_of_study($study_id, $admin_id) || $this->study_model->get_user_has_access_to_study($study_id, $admin_id)){
+        $output_csv = '"Osaleja"';
+        $study_questions = $this->study_model->get_study_questions($study_id);
+        for($i = 0; $i < count($study_questions); $i++) {
+          $output_csv .= ';"' . $study_questions[$i]['question-title'] . '"';
+        }
+        $output_csv .= "\r\n";
+        $study_answers = $this->study_model->get_study_results($study_id);
+        for($i = 0; $i < count($study_answers); $i++) {
+          $output_csv .= '"' . $study_answers[$i]['email'] . '";' . $study_answers[$i]['answers'] . "\r\n";
+        }
+        header('Content-type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $this->study_model->get_study_title($study_id)['study-title'] . '.csv"');
+        echo $output_csv;
+      } else {
+      redirect('/', 'location');
+      }
+    } else {
+      $this->login_required();
+    }
+ }
+
+ function event_results($study_id){
+    if($this->logged_in)  //check if logged in
+    {
+      $admin_id = $this->study_model->get_author_id($this->logged_in['username']);
+      if ($this->study_model->get_admin_is_owner_of_study($study_id, $admin_id) || $this->study_model->get_user_has_access_to_study($study_id, $admin_id)){
+        $output_csv = '"Osaleja";"Sündmus";"Aeg"';
+        $output_csv .= "\r\n";
+        $event_results = $this->study_model->get_event_results($study_id);
+        for($i = 0; $i < count($event_results); $i++) {
+          $output_csv .= '"' . $event_results[$i]['email'] . '";"' . $event_results[$i]['event-title'] .'";"' . $event_results[$i]['event_time'] .'"' . "\r\n";
+        }
+        header('Content-type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $this->study_model->get_study_title($study_id)['study-title'] . '_events.csv"');
+        echo $output_csv;
+      } else {
+      redirect('/', 'location');
+      }
+    } else {
+      $this->login_required();
+    }
+ }
+
  private function login_required() {
 	redirect('/login');
  }

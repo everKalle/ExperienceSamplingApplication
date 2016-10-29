@@ -190,6 +190,19 @@ class Study_model extends CI_Model {
 		return $query->result_array();
 	}
 
+	function get_study_title($id) {
+		$this->db->select('study-title');
+		$this->db->from('survey');
+		$this->db->where('id', $id);
+
+		$query = $this->db->get();
+		if($query -> num_rows() == 1) {
+			return $query->row_array();
+		} else {
+			return false;
+		}
+	}
+
 	function get_study_data($id) {
 		$this->db->select('*');
 		$this->db->from('survey');
@@ -374,6 +387,26 @@ class Study_model extends CI_Model {
 
 		$query = $this->db->get();
 		
+		return $query->result_array();
+	}
+
+	function get_study_results($study_id){
+		$this->db->select('email, answers');
+		$this->db->where('survey_id',$study_id);
+		$this->db->from('view_survey_answers');
+
+		$query = $this->db->get();
+
+		return $query->result_array();
+	}
+
+	function get_event_results($study_id){
+		$this->db->select('email, event-title, event_time');
+		$this->db->where('survey_id',$study_id);
+		$this->db->from('view_event_results');
+
+		$query = $this->db->get();
+
 		return $query->result_array();
 	}
 
