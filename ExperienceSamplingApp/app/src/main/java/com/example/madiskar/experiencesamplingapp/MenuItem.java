@@ -10,4 +10,6 @@ class MenuItem {
         mSubtitle = subtitle;
         mIcon = icon;
     }
+
+
 }

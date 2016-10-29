@@ -44,7 +44,7 @@ public class NotificationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            Log.v("handling", "1 or 2");
+            //Log.v("handling", "1 or 2");
             String action = intent.getAction();
             String name = intent.getStringExtra(NOTIFICATION_NAME);
             int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
@@ -53,7 +53,13 @@ public class NotificationService extends IntentService {
             long studyId = intent.getLongExtra("studyId", 0);
 
             ArrayList<Study> studies = ResponseReceiver.studies;
-            processNotification(name, studies.get((int)studyId).getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int) studyId);
+            Study studyParam = null;
+            for (Study s: studies) {
+                if (s.getId() == (int) studyId) {
+                    studyParam = s;
+                }
+            }
+            processNotification(name, studyParam.getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int) studyId);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
@@ -75,9 +81,9 @@ public class NotificationService extends IntentService {
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
         //final MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.opa);
         if (!beepFreePeriod()) {
-            Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
-            if (ResponseReceiver.dailyNotificationCount.get(index) != notificationsPerDay) {
-                ResponseReceiver.dailyNotificationCount.set(index, ResponseReceiver.dailyNotificationCount.get(index) + 1);
+            //Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
+            if (ResponseReceiver.dailyNotificationCount.get(index) < notificationsPerDay) {
+                ResponseReceiver.dailyNotificationCount.put(index, ResponseReceiver.dailyNotificationCount.get(index) + 1);
                 ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
                 if (alarmType == 0) {
                     if (alarmTone == 0) {
@@ -100,9 +106,9 @@ public class NotificationService extends IntentService {
 
 
                 final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                String uniqueValue = index + "" + 00000;
-                String uniqueValue2 = index + "" + 00001;
-                String uniqueValue3 = index + "" + 00002;
+                String uniqueValue = (index+1) + "00000";
+                String uniqueValue2 = (index+1) + "00001";
+                String uniqueValue3 = (index+1) + "00002";
                 Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
                 Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);
                 Intent refuseIntent = new Intent(NotificationService.this, RefuseReceiver.class);
@@ -116,12 +122,13 @@ public class NotificationService extends IntentService {
                 postponeIntent.putExtra("postpone", ResponseReceiver.studies.get(index).getPostponeTime());
                 postponeIntent.putExtra("INTERVAL", ResponseReceiver.studies.get(index).getNotificationInterval());
                 postponeIntent.putExtra("notificationId", index);
+                postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
 
 
                 PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
                 //PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), Integer.valueOf(uniqueValue3), postponeIntent, 0);
+                PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), -Integer.valueOf(uniqueValue3), postponeIntent, 0);
 
                 builder.setContentTitle(name)
                         .setOngoing(true)
@@ -141,6 +148,7 @@ public class NotificationService extends IntentService {
                 builder.setContentIntent(pendingIntent);
 
                 final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+                Log.v("Unique notification", String.valueOf(index));
                 manager.notify(index, builder.build());
 
                 Handler h = new Handler(Looper.getMainLooper());
@@ -153,7 +161,18 @@ public class NotificationService extends IntentService {
                 }, delay);
             } else {
                 if (ResponseReceiver.dailyNotificationCount.get(index) == notificationsPerDay) {
-                    ResponseReceiver.dailyNotificationCount.set(index, 0);
+                    Study studyParam = null;
+                    for(Study s : ResponseReceiver.studies) {
+                        if (s.getId() == index) {
+                            studyParam = s;
+                        }
+                    }
+                    //Log.v("CANCEL ALARM", "TRUE");
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) studyParam.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                    AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                    am.cancel(pendingIntent);
+
+                    //TODO: add daily notification resets
                 }
                 if (ResponseReceiver.dailyNotificationCount.get(index) < questions.length) {
                     //ResponseReceiver.setupAlarm(getApplicationContext(), study, false);
@@ -197,5 +216,11 @@ public class NotificationService extends IntentService {
             }
         }
         return beepfree;
+    }
+
+    public static void cancelNotification(Context ctx, int notifyId) {
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
+        nMgr.cancel(notifyId);
     }
 }

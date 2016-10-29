@@ -11,6 +11,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ResponseReceiver extends WakefulBroadcastReceiver {
@@ -20,13 +22,14 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
     private static String STUDY_QUESTIONS = "QUESTIONS";
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private Study study;
-    public static ArrayList<Integer> dailyNotificationCount = new ArrayList<>();
+    public static Map<Integer, Integer> dailyNotificationCount = new HashMap<>();
     public static ArrayList<Study> studies = new ArrayList<>();
 
     public ResponseReceiver(Study study) {
         this.study = study;
         studies.add(study);
-        dailyNotificationCount.add(0);
+        if (dailyNotificationCount.get((int)study.getId()) == null)
+            dailyNotificationCount.put((int)study.getId(), 0);
     }
     public ResponseReceiver () {
     }
@@ -39,12 +42,17 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
         long id = intent.getLongExtra("studyId", 0);
 
-        Intent serviceIntent = NotificationService.createIntentNotificationService(context, interval, name, textQuestions, notificationsPerDay, studies.get((int)id));
+        Study studyParam = null;
+        for (Study s: studies) {
+            if (s.getId() == (int) id) {
+                studyParam = s;
+            }
+        }
+        Intent serviceIntent = NotificationService.createIntentNotificationService(context, interval, name, textQuestions, notificationsPerDay, studyParam);
         if (serviceIntent != null) {
             startWakefulService(context, serviceIntent);
         }
     }
-
 
     public void setupAlarm(Context context, boolean firstTime) {
         int interval = study.getNotificationInterval();
@@ -81,9 +89,13 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         }
     }
 
-    private static void cancelExistingAlarm(Context context, Intent intent, int i) {
+    public static void cancelExistingAlarm(Context context, Intent intent, int i, boolean broadcast) {
         try{
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, i, intent, 0);
+            PendingIntent pendingIntent = null;
+            if (broadcast)
+                pendingIntent = PendingIntent.getBroadcast(context, i, intent, PendingIntent.FLAG_UPDATE_CURRENT); //VB SIIN 0 PANNA VIIMASEKS FLAG.. ASEMEL
+            else
+                pendingIntent = PendingIntent.getActivity(context, i, intent, PendingIntent.FLAG_UPDATE_CURRENT); //VB SIIN 0 PANNA VIIMASEKS FLAG.. ASEMEL
             AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
             am.cancel(pendingIntent);
         }catch (Exception e){
@@ -98,6 +110,5 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
         intent.putExtra("studyId", id);
         return PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
     }
 }

@@ -62,12 +62,12 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         //Log.i("TOKEN", token);
 
 
-        mMenuItems.add(new MenuItem("My Studies", "View my current studies", R.drawable.ic_study));
-        mMenuItems.add(new MenuItem("Join Studies", "Browse and join available \nstudies", R.drawable.ic_add));
-        mMenuItems.add(new MenuItem("My Events", "View my active events", R.drawable.ic_events));
-        mMenuItems.add(new MenuItem("Settings", "Change my settings", R.drawable.ic_settings));
-        mMenuItems.add(new MenuItem("Log Out", "Log out from current account", R.drawable.ic_logout));
-        mMenuItems.add(new MenuItem("Exit", "Active studies will continue \nto run in background", R.drawable.ic_exit));
+        mMenuItems.add(new MenuItem(getString(R.string.studies), getString(R.string.viewstudies), R.drawable.ic_study));
+        mMenuItems.add(new MenuItem(getString(R.string.join), getString(R.string.browsestudies), R.drawable.ic_add));
+        mMenuItems.add(new MenuItem(getString(R.string.events), getString(R.string.activeeents), R.drawable.ic_events));
+        mMenuItems.add(new MenuItem(getString(R.string.action_settings), getString(R.string.changesettings), R.drawable.ic_settings));
+        mMenuItems.add(new MenuItem(getString(R.string.logout), getString(R.string.logcurrent), R.drawable.ic_logout));
+        mMenuItems.add(new MenuItem(getString(R.string.exit), getString(R.string.runbackground), R.drawable.ic_exit));
 
         BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
         bfpArrayList.add(bfp);
@@ -243,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .replace(R.id.mainContent, fragment)
                     .commit();
 
-
         }
 	    else if (itemName.equals("Settings")) {
        	    getFragmentManager().beginTransaction()
@@ -251,23 +250,111 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
         }
         else if (itemName.equals("Log Out")) {
-            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt("LoggedIn", 0);
-            editor.putString("username", "none");
-            editor.putString("token", "none");
-            editor.apply();
-            Intent i = new Intent(MainActivity.this, LoginActivity.class);
-            DBHandler.getInstance(getApplicationContext()).clearTables();
-            try{
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, new Intent(getApplicationContext(), ResponseReceiver.class), 0);
-                AlarmManager am=(AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                am.cancel(pendingIntent);
-            }catch (Exception e){
-                e.printStackTrace();
+            DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+            final ArrayList<Study> studylist = mydb.getAllStudies();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            boolean anyEvents = false;
+            for (Study s: studylist) {
+                if (EventDialogFragment.studyToNotificationIdMap.get((int)s.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int)s.getId()).size() < 1) {}
+                else
+                    anyEvents = true;
             }
-            finish();
-            startActivity(i);
+
+            if (anyEvents) {
+                alertDialogBuilder.setMessage("You have some active events which will be discarded. Are you sure you want to log out ?");
+                alertDialogBuilder.setNegativeButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putInt("LoggedIn", 0);
+                                editor.putString("username", "none");
+                                editor.putString("token", "none");
+                                editor.apply();
+                                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                                DBHandler.getInstance(getApplicationContext()).clearTables();
+                                try {
+                                    for (Study s : studylist) {
+                                        //Log.v("OPSTI", "olen siin");
+                                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                                        am.cancel(pendingIntent);
+                                    }
+                                    for (Study s : studylist) {
+                                        NotificationService.cancelNotification(getApplicationContext(), (int) s.getId());
+                                    }
+                                } catch (Exception e) {
+                                    //Log.v("OPSTI2", "olen siin");
+                                    e.printStackTrace();
+                                }
+
+                                try {
+                                    for (Study s : studylist) {
+                                        EventDialogFragment.cancelEvents(getApplicationContext(), (int) s.getId());
+                                    }
+                                } catch (Exception e) {
+                                    Log.v("OPSTI2", "olen siin");
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    Intent intent = new Intent(getBaseContext(), QuestionnaireActivity.class);
+                                    for (Study s : studylist) {
+                                        ResponseReceiver.cancelExistingAlarm(getBaseContext(), intent, Integer.valueOf((s.getId()+1) + "00002"), false);
+                                    }
+                                } catch (Exception e) {
+                                    Log.v("OPSTI2", "olen siin");
+                                    e.printStackTrace();
+                                }
+                                EventDialogFragment.studyToNotificationIdMap.clear();
+                                finish();
+                                startActivity(i);
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialogBuilder.setPositiveButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+            else {
+                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt("LoggedIn", 0);
+                editor.putString("username", "none");
+                editor.putString("token", "none");
+                editor.apply();
+                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                DBHandler.getInstance(getApplicationContext()).clearTables();
+                try {
+                    for (Study s : studylist) {
+                        //Log.v("OPSTI", "olen siin");
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                        am.cancel(pendingIntent);
+                    }
+                    for (Study s : studylist) {
+                        NotificationService.cancelNotification(this, (int) s.getId());
+                    }
+                } catch (Exception e) {
+                    //Log.v("OPSTI2", "olen siin");
+                    e.printStackTrace();
+                }
+
+                try {
+                    for (Study s : studylist) {
+                        EventDialogFragment.cancelEvents(this, (int) s.getId());
+                    }
+                } catch (Exception e) {
+                    Log.v("OPSTI2", "olen siin");
+                    e.printStackTrace();
+                }
+                finish();
+                startActivity(i);
+            }
         }
         else if (itemName.equals("Exit")) {
             finish();

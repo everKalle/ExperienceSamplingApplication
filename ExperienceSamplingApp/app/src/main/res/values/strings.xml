@@ -21,4 +21,15 @@
     <string name="start">Start</string>
     <string name="cancel">Cancel</string>
     <string name="choose_event">Choose the type of event and press \"Start\"</string>
+    <string name="studies">My Studies</string>
+    <string name="join">Join Studies</string>
+    <string name="events">My Events</string>
+    <string name="logout">Log Out</string>
+    <string name="exit">Exit</string>
+    <string name="viewstudies">View my current studies</string>
+    <string name="browsestudies">Browse and join available  studies</string>
+    <string name="activeeents">View my active events</string>
+    <string name="changesettings">View my active events</string>
+    <string name="logcurrent">Log out from current account</string>
+    <string name="runbackground">Active studies will continue  to run in background</string>
 </resources>

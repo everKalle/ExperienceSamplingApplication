@@ -24,6 +24,8 @@ public class PostponeReceiver extends BroadcastReceiver {
         int interval = intent.getIntExtra("INTERVAL", 0);
         int postponeTime = intent.getIntExtra("postpone", 0);
         int notificationId = intent.getIntExtra("notificationId", 0);
+        int uniqueValue = intent.getIntExtra("uniqueValue", 0);
+        Log.v("UNIQUEVALUE", String.valueOf(uniqueValue));
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
 
@@ -36,7 +38,7 @@ public class PostponeReceiver extends BroadcastReceiver {
 
         scheduledIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, scheduledIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, uniqueValue, scheduledIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 

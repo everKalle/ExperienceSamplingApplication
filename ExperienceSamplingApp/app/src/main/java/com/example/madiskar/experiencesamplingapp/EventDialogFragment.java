@@ -15,20 +15,31 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Joosep on 22.10.2016.
  */
 public class EventDialogFragment extends DialogFragment {
     String selectedItem = null;
     long elapsedTime = 0;
-    static int notificationID = 10;
     int selectedItemId = 0;
+    public static Map<Integer, ArrayList<Integer>> studyToNotificationIdMap = new HashMap<>();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         final Bundle args = getArguments();
         final Event[] events = (Event[]) args.getParcelableArray("EVENTS");
+        final long studyId = args.getLong("studyId");
+        Log.v("STUDYID", String.valueOf(studyId));
+
+        if (studyToNotificationIdMap.get((int)studyId) == null)
+            studyToNotificationIdMap.put((int)studyId, new ArrayList<Integer>());
+
         //View view = getActivity().getLayoutInflater().inflate(R.layout.event_dialog_layout, null);
         final String[] items = new String[events.length];
         for (int i = 0; i < events.length; i++) {
@@ -47,16 +58,39 @@ public class EventDialogFragment extends DialogFragment {
                 })
                 .setPositiveButton(R.string.start, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Log.v("IDDD", String.valueOf(selectedItemId));
+                        int uniqueValue = 10000 + (int) studyId;
+                        Log.v("UniqueValue", String.valueOf(uniqueValue));
+
+                        boolean unique = false;
+                        while (!unique) {
+                            unique = true;
+                            for (Map.Entry<Integer, ArrayList<Integer>> entry : studyToNotificationIdMap.entrySet()) {
+                                for (int i = 0; i < entry.getValue().size(); i++) {
+                                    if (uniqueValue == entry.getValue().get(i)) {
+                                        Log.v("SIIA EI JOUA", "jah");
+                                        unique = false;
+                                        uniqueValue += 1;
+                                    }
+                                }
+                            }
+                        }
+
+                        ArrayList<Integer> values = studyToNotificationIdMap.get((int) studyId);
+                        values.add(uniqueValue);
+                        Log.v("VALUES", Arrays.toString(values.toArray()));
+                        studyToNotificationIdMap.put((int)studyId, values);
+
+                        //Log.v("IDDD", String.valueOf(selectedItemId));
                         Intent stopIntent = new Intent(getContext(), StopReceiver.class);
 
                         long startTime = SystemClock.elapsedRealtime();
                         stopIntent.putExtra("start", startTime);
-                        stopIntent.putExtra("notificationId", notificationID);
-                        Log.v("EVENT", events[selectedItemId].getName());
+                        stopIntent.putExtra("notificationId", uniqueValue);
+                        stopIntent.putExtra("studyId", studyId);
+                        //Log.v("EVENT", events[selectedItemId].getName());
                         stopIntent.putExtra("eventId", events[selectedItemId].getId());
 
-                        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), 0, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), uniqueValue, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(getContext())
@@ -69,7 +103,8 @@ public class EventDialogFragment extends DialogFragment {
 
                         NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
                         if (selectedItem != null) {
-                            manager.notify(notificationID++, mBuilder.build());
+                            Log.v("Unique", String.valueOf(uniqueValue));
+                            manager.notify(uniqueValue, mBuilder.build());
                             int controlTime = events[selectedItemId].getControlTime();
                             String unit = events[selectedItemId].getUnit();
 
@@ -81,7 +116,7 @@ public class EventDialogFragment extends DialogFragment {
                             }
                             else if (unit.equals("m")) {
                                 multiplier = controlTime * 60 * 1000;
-                                Log.v("HERE I AM", String.valueOf(multiplier));
+                                //Log.v("HERE I AM", String.valueOf(multiplier));
                             }
                             else if (unit.equals("s")) {
                                 multiplier = controlTime * 1000;
@@ -89,7 +124,7 @@ public class EventDialogFragment extends DialogFragment {
                             }
 
                             Intent controltimeIntent = new Intent(getContext(), ControlTimeReceiver.class);
-                            controltimeIntent.putExtra("notificationId", notificationID);
+                            controltimeIntent.putExtra("notificationId", uniqueValue);
                             controltimeIntent.putExtra("eventId", events[selectedItemId].getId());
                             controltimeIntent.putExtra("controlTime", (int)(controlTime * minuteMultiplier));
 
@@ -109,5 +144,13 @@ public class EventDialogFragment extends DialogFragment {
         // Create the AlertDialog object and return it
         //builder.setView(view);
         return builder.create();
+    }
+
+    public static void cancelEvents(Context ctx, int studyId) {
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
+        ArrayList<Integer> notifIdArrayList = studyToNotificationIdMap.get(studyId);
+        for (int notifyId : notifIdArrayList)
+            nMgr.cancel(notifyId);
     }
 }
