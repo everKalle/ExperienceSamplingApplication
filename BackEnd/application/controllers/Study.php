@@ -276,6 +276,30 @@ class Study extends CI_Controller {
     }
  }
 
+ function participant_leave_study() {
+    $token = $this->input->post('token');
+    $study_id = $this->input->post('study_id');
+    if ($token != NULL && $study_id != NULL){
+      $p_id = $this->participant_model->get_id_via_token($token);
+      if ($p_id === false) {
+        echo "invalid_token";
+      } else {
+        if ($this->study_model->get_study_data($study_id) != false){
+          $success = $this->study_model->remove_participant($study_id, $p_id);
+          if ($success === TRUE){
+            echo "success";
+          } else {
+            echo $success;
+          }
+        } else {
+          echo "invalid_study";
+        }
+      }
+    } else {
+      echo "nothing";
+    }
+ }
+
  function store_study_results() {
     $token = $this->input->post('token');
     $study_id = $this->input->post('study_id');
