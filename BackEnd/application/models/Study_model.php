@@ -293,6 +293,7 @@ class Study_model extends CI_Model {
 		$this->db->select('question-title, question-type, question-multichoices, question-multichoice-single-choice');
 		$this->db->from('survey_question');
 		$this->db->where('survey_id', $id);
+		$this->db->order_by("id", "asc");
 
 		$query = $this->db->get();
 
@@ -300,7 +301,7 @@ class Study_model extends CI_Model {
 	}
 
 	function get_study_events($id) {
-		$this->db->select('event-title, event-control-time, event-control-time-unit');
+		$this->db->select('id, event-title, event-control-time, event-control-time-unit');
 		$this->db->from('survey_custom_event');
 		$this->db->where('survey_id', $id);
 
