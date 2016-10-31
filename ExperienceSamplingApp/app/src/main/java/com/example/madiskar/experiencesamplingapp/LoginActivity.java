@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -16,6 +17,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import org.json.JSONArray;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -145,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
                     return sb.toString();
 
                 } catch (Exception e) {
-                    return new String("Exception: " + e.getMessage());
+                    return "Exception: " + e.getMessage();
                 } finally {
                     if(wr != null) {
                         try {
@@ -168,26 +171,62 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onPostExecute(String result) {
+            protected void onPostExecute(final String result) {
                 //Log.i("LOGGING-IN PROCESS", result);
                 if(result.equals("nothing")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Logging in failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Logging in failed", Toast.LENGTH_LONG).show();
+
                 } else if(result.equals("invalid")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Wrong email or password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Wrong email or password", Toast.LENGTH_LONG).show();
+
                 } else if(!result.equals("Connection has not yet been established")) {
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString("token", result);
-                    editor.putInt("LoggedIn", 1);
-                    editor.putString("username", emailField.getText().toString());
-                    editor.apply();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     progressDialog.dismiss();
-                    startActivity(intent);
-                    finish();
+
+                    final ProgressDialog fetchDataDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
+                    fetchDataDialog.setIndeterminate(true);
+                    fetchDataDialog.setMessage("Please Wait, Fetching Data...");
+                    fetchDataDialog.show();
+                    GetParticipantStudiesTask task1 = new GetParticipantStudiesTask(new AsyncResponse() {
+                        @Override
+                        public void processFinish(String output) {
+                            if(output.equals("invalid_token")) {
+                                loginbtn.setEnabled(true);
+                                fetchDataDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Account authentication failed", Toast.LENGTH_LONG).show();
+                            } else if(output.equals("nothing")) {
+                                loginbtn.setEnabled(true);
+                                fetchDataDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Failed to fetch data", Toast.LENGTH_LONG).show();
+                            } else {
+                                DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+                                Log.i("LOGGING SERVER RESPONSE", output);
+                                //mydb.clearTables();
+                                JSONArray jsonArray = DBHandler.parseJsonString(output);
+                                Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
+
+                                for (Study s : studies) { // add studies to local db and also set up alarms
+                                    mydb.insertStudy(s);
+                                    ResponseReceiver rR = new ResponseReceiver(s);
+                                    rR.setupAlarm(getApplicationContext(), true);
+                                }
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("token", result);
+                                editor.putInt("LoggedIn", 1);
+                                editor.putString("username", emailField.getText().toString());
+                                editor.apply();
+                                fetchDataDialog.dismiss();
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                    });
+                    task1.execute(result);
+
                 } else {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
@@ -210,7 +249,7 @@ public class LoginActivity extends AppCompatActivity {
             isValid = false;
         }
 
-        if(pwd.isEmpty() || pwd.length() > 12 || pwd.length() < 4) {
+        if(pwd.isEmpty() || pwd.length() > 16 || pwd.length() < 6) {
             pwdField.setError("Enter valid password");
             isValid = false;
         }

@@ -20,6 +20,7 @@ public class ActiveStudyContract {
         public static final String COLUMN_MINTIMEBETWEENNOTIFICATIONS = "minTimeBetweenNotifications";
         public static final String COLUMN_POSTPONETIME = "postponeTime";
         public static final String COLUMN_POSTPONABLE = "postponable";
+        public static final String COLUMN_DEFAULTBEEPFREE = "default_beepfree";
     }
 
     public static class QuestionEntry implements  BaseColumns {

@@ -151,7 +151,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return sb.toString();
 
             } catch (Exception e) {
-                return new String("Exception: " + e.getMessage());
+                return "Exception: " + e.getMessage();
             } finally {
                 if(wr != null) {
                     try {

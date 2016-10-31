@@ -16,6 +16,7 @@ public class Event implements Parcelable{
     private int endTimeMinute;
     private int controlTime;
     private String unit;
+    // TODO: make sure all "s", "d" and "m" units are implemented and working
 
     public Event(long id, long studyId, String name, int controlTime, String unit) {
         this.id = id;

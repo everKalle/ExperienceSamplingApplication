@@ -7,9 +7,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by madiskar on 02/10/2016.
- */
+
 public class Questionnaire implements Parcelable{
 
     long studyId;

@@ -21,6 +21,7 @@ import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -59,7 +60,7 @@ public class NotificationService extends IntentService {
                     studyParam = s;
                 }
             }
-            processNotification(name, studyParam.getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int) studyId);
+            processNotification(name, studyParam.getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int)studyId); //TODO: casting long to int this way might be problematic, should switch to long
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
@@ -76,6 +77,7 @@ public class NotificationService extends IntentService {
     }
 
     private void processNotification(String name, Question[] questions, int interval, int notificationsPerDay, final int index) {
+        Study study = DBHandler.getInstance(getApplicationContext()).getStudy(index);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
@@ -113,14 +115,14 @@ public class NotificationService extends IntentService {
                 Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);
                 Intent refuseIntent = new Intent(NotificationService.this, RefuseReceiver.class);
                 refuseIntent.putExtra("notificationId",index);
-                refuseIntent.putExtra("StudyId", ResponseReceiver.studies.get(index).getId());
+                refuseIntent.putExtra("StudyId", index);
 
-                okIntent.putExtra("QUESTIONNAIRE", ResponseReceiver.studies.get(index).getQuesstionnaire());
+                okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
                 okIntent.putExtra("notificationId", index);
                 postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
-                postponeIntent.putExtra("QUESTIONNAIRE", ResponseReceiver.studies.get(index).getQuesstionnaire());
-                postponeIntent.putExtra("postpone", ResponseReceiver.studies.get(index).getPostponeTime());
-                postponeIntent.putExtra("INTERVAL", ResponseReceiver.studies.get(index).getNotificationInterval());
+                postponeIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
+                postponeIntent.putExtra("postpone", study.getPostponeTime());
+                postponeIntent.putExtra("INTERVAL", study.getNotificationInterval());
                 postponeIntent.putExtra("notificationId", index);
                 postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
 
@@ -134,7 +136,7 @@ public class NotificationService extends IntentService {
                         .setOngoing(true)
                         .setAutoCancel(true)
                         .setColor(getResources().getColor(R.color.colorAccent))
-                        .setContentText(ResponseReceiver.studies.get(index).getName() + " questionnaire")
+                        .setContentText("Questionnaire")
                         .setSmallIcon(R.drawable.ic_events)
                         .addAction(R.drawable.ic_ok, "Ok", okPendingIntent)
                         .addAction(R.drawable.ic_refuse, "Refuse", refusePendingIntent)

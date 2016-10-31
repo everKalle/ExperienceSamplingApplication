@@ -31,6 +31,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questionnaire);
+        Log.i("testingg", "siin2");
 
         Bundle extras = getIntent().getExtras();
         Questionnaire questionnaire = extras.getParcelable("QUESTIONNAIRE");

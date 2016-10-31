@@ -22,9 +22,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-/**
- * Created by madiskar on 26/09/2016.
- */
+
 public class ActiveStudyListAdapter extends BaseAdapter  {
     private Context mContext;
     private ArrayList<Study> studies;
@@ -108,16 +106,19 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                 try {
                                     NotificationService.cancelNotification(mContext, (int) studies.get(position).getId());
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                                 try {
                                     EventDialogFragment.cancelEvents(mContext, (int) studies.get(position).getId());
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                                 try {
                                     Intent intent = new Intent(mContext, QuestionnaireActivity.class);
                                     ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((studies.get(position).getId()+1) + "00002"), false);
                                     Log.v("midagi juhtus", "kden");
                                 }catch (Exception e) {
+                                    e.printStackTrace();
                                 }
                                 studies.remove(position);
                                 DBHandler.getInstance(mContext).deleteStudyEntry(position);

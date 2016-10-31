@@ -1,8 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
-/**
- * Created by joosep41 on 8.10.2016.
- */
+
 public class BeepFerePeriod {
 
     private int id;
@@ -62,6 +60,10 @@ public class BeepFerePeriod {
 
     public String toString() {
         return this.startTimeHour + "." + this.startTimeMinute + ":" + this.endTimeHour + "." + this.endTimeMinute;
+    }
+
+    public String getPeriodAsString() {
+        return startTimeHour + ":" + startTimeMinute + ":00" + " " + endTimeHour + ":" + endTimeMinute + ":00";
     }
 
 }
