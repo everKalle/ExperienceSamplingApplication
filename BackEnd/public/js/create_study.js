@@ -208,16 +208,27 @@ function comparedates(){
 	    var startDate = new Date($("#study-start-date").val());
 	    if (endDate instanceof Date && startDate instanceof Date && startDate.toString() != "Invalid Date" && endDate.toString() != "Invalid Date"){
 		    if (startDate < endDate){
-		    	$("#study-end-date").get(0).setCustomValidity("");
-		    	$("#study-start-date-group").removeClass("has-error");
-		    	$("#study-end-date-group").removeClass("has-error");
-		    	$("#study-date-help").hide();	
-				checkDuration();
+		    	var currentDate = new Date();
+		    	if (currentDate <= startDate){
+			    	$("#study-end-date").get(0).setCustomValidity("");
+			    	$("#study-start-date-group").removeClass("has-error");
+			    	$("#study-end-date-group").removeClass("has-error");
+			    	$("#study-date-help").hide();	
+			    	$("#study-date-help-too-early").hide();
+					checkDuration();
+				} else {
+					$("#study-end-date").get(0).setCustomValidity("Alguskuupäev peab olema hilisem praegusest kuupäevast.");
+			    	$("#study-start-date-group").addClass("has-error");
+			    	$("#study-end-date-group").addClass("has-error");
+			    	$("#study-date-help").hide();
+			    	$("#study-date-help-too-early").show();
+				}
 		    } else {
 		    	$("#study-end-date").get(0).setCustomValidity("Alguskuupäev peab eelnema lõppkuupäevale.");
 		    	$("#study-start-date-group").addClass("has-error");
 		    	$("#study-end-date-group").addClass("has-error");
 		    	$("#study-date-help").show();
+			    $("#study-date-help-too-early").hide();
 		    }
 	    }
 	}
@@ -339,12 +350,6 @@ function checkDuration(){
 		    if (endDate instanceof Date && startDate instanceof Date && startDate.toString() != "Invalid Date" && endDate.toString() != "Invalid Date"){
 		    	var dateDifInMinutes = ((endDate.getTime() - startDate.getTime()) / (60000));
 		    	var durationInMinutes = $("#study-duration-time").val() * $("#study-duration-time-unit").val();
-		    	console.log(endDate.getTime());
-		    	console.log(startDate.getTime());
-		    	console.log(dateDifInMinutes);
-		    	console.log(durationInMinutes);
-		    	console.log($("#study-duration-time").val());
-		    	console.log($("#study-duration-time-unit").val());
 		    	if (durationInMinutes <= dateDifInMinutes) {
 		    		$("#study-duration-time").get(0).setCustomValidity("");
 			    	$("#study-duration-group").removeClass("has-error");
