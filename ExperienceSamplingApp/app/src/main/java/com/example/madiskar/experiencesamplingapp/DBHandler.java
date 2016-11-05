@@ -73,6 +73,10 @@ public class DBHandler extends SQLiteOpenHelper {
                     + EventResultsEntry.COLUMN_EVENTID + " INTEGER NOT NULL, "
                     + EventResultsEntry.COLUMN_DURATION + " INTEGER NOT NULL, "
                     + "FOREIGN KEY (" + EventResultsEntry.COLUMN_EVENTID + ") REFERENCES " + EventEntry.TABLE_NAME + "(" + EventEntry._ID + "))";
+    public static final String SQL_CREATE_TABLE_BEEPFREE_PERIODS =
+            "CREATE TABLE IF NOT EXISTS " + BeepFreePeriodEntry.TABLE_NAME + " ("
+                    + BeepFreePeriodEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + BeepFreePeriodEntry.BEEPFREE_TIME + " TEXT NOT NULL )";
 
 
 
@@ -81,6 +85,7 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String SQL_DELETE_TABLE_ANSWERS = "DROP TABLE IF EXISTS " + AnswerEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_EVENTS = "DROP TABLE IF EXISTS " + EventEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_EVENT_RESULTS = "DROP TABLE IF EXISTS " + EventResultsEntry.TABLE_NAME;
+    public static final String SQL_DELETE_TABLE_BEEPFREE_PERIODS = "DROP TABLE IF EXISTS " + BeepFreePeriodEntry.TABLE_NAME;
 
     public static synchronized DBHandler getInstance(Context context) {
         // Use application context
@@ -108,6 +113,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_TABLE_ANSWERS);
         db.execSQL(SQL_CREATE_TABLE_EVENTS);
         db.execSQL(SQL_CREATE_TABLE_EVENT_RESULTS);
+        db.execSQL(SQL_CREATE_TABLE_BEEPFREE_PERIODS);
     }
 
 
@@ -117,6 +123,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_TABLE_ANSWERS);
         db.execSQL(SQL_DELETE_TABLE_EVENTS);
         db.execSQL(SQL_DELETE_TABLE_EVENT_RESULTS);
+        db.execSQL(SQL_DELETE_TABLE_BEEPFREE_PERIODS);
         onCreate(db);
     }
 
@@ -128,6 +135,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
         db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
         db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
+        //db.execSQL("DELETE FROM " + BeepFreePeriodEntry.TABLE_NAME);
     }
 
 
@@ -326,10 +334,54 @@ public class DBHandler extends SQLiteOpenHelper {
         return returnid;
     }
 
+    public long insertBeepFreePeriod(BeepFerePeriod bfp) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(BeepFreePeriodEntry._ID, bfp.getId());
+        values.put(BeepFreePeriodEntry.BEEPFREE_TIME, bfp.toString());
+        return db.insert(BeepFreePeriodEntry.TABLE_NAME, null, values);
+    }
 
     public long insertStudy(/*arguments here*/) {
         // TODO: Implement inserting a study using only its data, needed when database connection gets implemented
         return -1;
+    }
+
+    public ArrayList<BeepFerePeriod> getBeepFreePeriods() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        db.beginTransaction();
+        Cursor cur = db.rawQuery("SELECT * FROM " + BeepFreePeriodEntry.TABLE_NAME, null);
+        cur.moveToFirst();
+
+        ArrayList<BeepFerePeriod> beepFerePeriods = new ArrayList<>();
+
+        try {
+            while (!cur.isAfterLast()) {
+                long id = cur.getLong(cur.getColumnIndex(BeepFreePeriodEntry._ID));
+                String beepfreeTime = cur.getString(cur.getColumnIndex(BeepFreePeriodEntry.BEEPFREE_TIME));
+                //Log.v("WOOOOI", beepfreeTime);
+                String[] parts = beepfreeTime.split(":");
+                //Log.v("wot is dis", String.valueOf(parts.length));
+                BeepFerePeriod beepFerePeriod = stringToBeepFreeWithDots((int) id, parts[0], parts[1]);
+                beepFerePeriods.add(beepFerePeriod);
+                cur.moveToNext();
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            cur.close();
+        }
+        return beepFerePeriods;
+    }
+
+    public long editBeepFree(BeepFerePeriod bfp) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(BeepFreePeriodEntry.BEEPFREE_TIME, bfp.toString());
+        return db.update(BeepFreePeriodEntry.TABLE_NAME, cv, BeepFreePeriodEntry._ID + " =" +bfp.getId(), null);
     }
 
 
@@ -439,6 +491,20 @@ public class DBHandler extends SQLiteOpenHelper {
         return true;
     }
 
+    public boolean deleteBeepFreeEntry(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete(BeepFreePeriodEntry.TABLE_NAME, BeepFreePeriodEntry._ID + " =?", new String[]{Long.toString(id)});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+        return true;
+    }
+
 
 
     public static String calendarToString(Calendar cal) {
@@ -491,6 +557,20 @@ public class DBHandler extends SQLiteOpenHelper {
         return new BeepFerePeriod(id, startTimeHour, startTimeMinute, endTimeHour, endTimeMinute);
     }
 
+    public static BeepFerePeriod stringToBeepFreeWithDots(int id, String start, String end) {
+        // start and end are defined as HH:mm:ss
+        String[] startparts = start.split(Pattern.quote("."));
+        String[] endparts = end.split(Pattern.quote("."));
+
+        int startTimeHour = Integer.parseInt(startparts[0]);
+        int startTimeMinute = Integer.parseInt(startparts[1]);
+
+        int endTimeHour = Integer.parseInt(endparts[0]);
+        int endTimeMinute = Integer.parseInt(endparts[1]);
+
+        return new BeepFerePeriod(id, startTimeHour, startTimeMinute, endTimeHour, endTimeMinute);
+    }
+
 
     public static JSONArray parseJsonString(String json) {
         JSONArray jsonArray = null;
@@ -514,7 +594,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 int notificationsPerDay = jsonStudy.getInt("study-beeps-per-day");
                 int minTimeBetweenNotifications = jsonStudy.getInt("study-min-time-between-beeps");
                 String joinDate = jsonStudy.getString("join_date");
-                BeepFerePeriod defaultBeepFree = stringToBeepFree(0, jsonStudy.getString("study-beep-start-time"), jsonStudy.getString("study-beep-end-time"));
+                BeepFerePeriod defaultBeepFree = stringToBeepFree(0, jsonStudy.getString("study-beep-end-time"), jsonStudy.getString("study-beep-start-time"));
                 int postponeTime = jsonStudy.getInt("study-postpone-time");
                 boolean allowPostpone = (jsonStudy.getInt("study-allow-postpone") == 1);
                 boolean studyDurationForUser = (jsonStudy.getInt("study-duration-for-user") == 1);

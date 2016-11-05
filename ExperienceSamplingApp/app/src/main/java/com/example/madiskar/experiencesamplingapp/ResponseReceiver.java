@@ -4,11 +4,13 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,14 +24,20 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
     private static String STUDY_QUESTIONS = "QUESTIONS";
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private Study study;
-    public static Map<Integer, Integer> dailyNotificationCount = new HashMap<>();
+    private SharedPreferences sharedPref;
     public static ArrayList<Study> studies = new ArrayList<>();
 
     public ResponseReceiver(Study study) {
         this.study = study;
-        studies.add(study);
-        if (dailyNotificationCount.get((int)study.getId()) == null)
-            dailyNotificationCount.put((int)study.getId(), 0);
+        /*
+        Log.v("rorororororororroro","to");
+        for (int i = 0; i < studies.size(); i++) {
+            Log.v("studies element", String.valueOf(studies.get(i).getMinTimeBetweenNotifications()));
+        }
+        Log.v("rorororororororroro","to");
+        */
+        //if (dailyNotificationCount.get((int)study.getId()) == null)
+        //    dailyNotificationCount.put((int)study.getId(), 0);
     }
     public ResponseReceiver () {
     }
@@ -43,7 +51,8 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         long id = intent.getLongExtra("studyId", 0);
 
         Study studyParam = null;
-        for (Study s: studies) {
+        for (Study s: DBHandler.getInstance(context).getAllStudies()) {
+            Log.v("suurus2","huops");
             if (s.getId() == (int) id) {
                 studyParam = s;
             }
@@ -55,7 +64,23 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
     }
 
     public void setupAlarm(Context context, boolean firstTime) {
-        int interval = study.getNotificationInterval();
+
+        sharedPref = context.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+
+        if (sharedPref.getInt(String.valueOf(study.getId()),0) == 0) {
+            Log.v("ILMNE", "on");
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(String.valueOf(study.getId()), 0);
+            editor.apply();
+        }
+
+
+        if (studies.isEmpty()) {
+            DBHandler mydb = DBHandler.getInstance(context);
+            studies = mydb.getAllStudies();
+        }
+        Log.v("suurus", String.valueOf(studies.size()));
+        int interval = study.getMinTimeBetweenNotifications();
         String name = study.getName();
         String[] textQuestions = study.questionsAsText();
         int notificationsPerDay = study.getNotificationsPerDay();
@@ -69,8 +94,8 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (firstTime) {
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + interval * 10 * 1000,
-                    interval * 10 * 1000,
+                    SystemClock.elapsedRealtime() + interval * 60 * 1000,
+                    interval * 60 * 1000,
                     alarmIntent);
         }
         else {
@@ -85,7 +110,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
             intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
 
             PendingIntent PendingIntentD = PendingIntent.getBroadcast(context, 105, intent, 0);
-            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 10 * 1000 , PendingIntentD);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 60 * 1000 , PendingIntentD);
         }
     }
 
@@ -109,6 +134,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         intent.putExtra(STUDY_QUESTIONS, questions);
         intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
         intent.putExtra("studyId", id);
+        Log.v("Study ident", String.valueOf(id));
         return PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }

@@ -199,6 +199,15 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
 
     public static boolean checkBeepFreeOverlap(BeepFerePeriod beepFerePeriod, ArrayList<Integer> existingStartHours, ArrayList<Integer> existingEndHours, ArrayList<Integer> existingStartMinutes, ArrayList<Integer> existingEndMinutes, boolean edit) {
 
+        Log.v("aaaaaaaaaa", "a");
+        for (Integer b: existingEndHours)
+            Log.v("endHour", b.toString());
+        Log.v("aaaaaaaaaa", "a");
+        Log.v("bbbbbbbbbb", "b");
+        for (Integer b: existingEndMinutes)
+            Log.v("endMinute", b.toString());
+        Log.v("bbbbbbbbbb", "b");
+        Log.v("wut", beepFerePeriod.toString());
         boolean overlap = false;
         for (int i = 0; i < existingStartHours.size(); i++) {
 
@@ -275,7 +284,9 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                 beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour() || beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour()
                                 && beepFerePeriod.getStartTimeHour() == existingStartHours.get(i) || beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour()
                                 && beepFerePeriod.getEndTimeHour() == existingEndHours.get(i)) {
-                            if (beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i) || beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) {
+                            if (beepFerePeriod.getEndTimeHour() < existingStartHours.get(i) || beepFerePeriod.getEndTimeHour() == existingStartHours.get(i)
+                                    && beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i) || beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)
+                                    && beepFerePeriod.getStartTimeHour() == existingEndHours.get(i)) {
                             }
                             else {
                                 Log.v("lap 7", "siin");

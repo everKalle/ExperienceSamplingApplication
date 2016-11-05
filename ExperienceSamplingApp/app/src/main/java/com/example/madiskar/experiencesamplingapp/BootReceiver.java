@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,17 +24,23 @@ public class BootReceiver extends BroadcastReceiver {
         ArrayList<Study> studies = DBHandler.getInstance(context).getAllStudies();
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Log.v("OLENBOOTREC", String.valueOf(studies.size()));
         for(Study s : studies) {
-            int interval = s.getNotificationInterval();
+            /*
+            int interval = s.getMinTimeBetweenNotifications();
+            Log.v("BOOTINTERVALL", String.valueOf(interval));
             String name = s.getName();
             String[] textQuestions = s.questionsAsText();
             int notificationsPerDay = s.getNotificationsPerDay();
             PendingIntent alarmIntent = ResponseReceiver.getPendingIntent(context, intent, interval, name, textQuestions, notificationsPerDay, s.getId());
 
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + interval * 60 * 1000,
-                    interval * 60 * 1000,
+                    SystemClock.elapsedRealtime() + interval * 10 * 1000,
+                    interval * 10 * 1000,
                     alarmIntent);
+            */
+            ResponseReceiver rR = new ResponseReceiver(s);
+            rR.setupAlarm(context, true);
         }
     }
 }

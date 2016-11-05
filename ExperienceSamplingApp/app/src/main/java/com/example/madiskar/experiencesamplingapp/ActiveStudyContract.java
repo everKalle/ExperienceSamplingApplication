@@ -52,4 +52,9 @@ public class ActiveStudyContract {
         public static final String COLUMN_EVENTID = "event_id";
         public static final String COLUMN_DURATION = "event_duration";
     }
+
+    public static class BeepFreePeriodEntry implements BaseColumns {
+        public static final String TABLE_NAME = "beepfree_table";
+        public static final String BEEPFREE_TIME = "beepfree_time";
+    }
 }

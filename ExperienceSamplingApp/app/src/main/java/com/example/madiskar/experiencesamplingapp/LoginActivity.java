@@ -211,6 +211,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                 for (Study s : studies) { // add studies to local db and also set up alarms
                                     mydb.insertStudy(s);
+                                }
+                                for (Study s: studies) {
                                     ResponseReceiver rR = new ResponseReceiver(s);
                                     rR.setupAlarm(getApplicationContext(), true);
                                 }

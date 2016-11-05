@@ -32,12 +32,12 @@ public class NotificationService extends IntentService {
     private static String NOTIFICATION_INTERVAL = "INTERVAL";
     private static String STUDY_QUESTIONS = "QUESTIONS";
     private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
-    public static ArrayList<BeepFerePeriod> beepFreePeriods = new ArrayList<BeepFerePeriod>();
     private int alarmType;
     private int alarmTone;
     public static final String PREFS_NAME = "preferences";
     private boolean started = false;
-
+    private SharedPreferences sharedPref;
+    private static Context mContext = null;
     public NotificationService() {
         super(NotificationService.class.getName());
     }
@@ -53,13 +53,14 @@ public class NotificationService extends IntentService {
             int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
             long studyId = intent.getLongExtra("studyId", 0);
 
-            ArrayList<Study> studies = ResponseReceiver.studies;
+            ArrayList<Study> studies = DBHandler.getInstance(getApplicationContext()).getAllStudies();
             Study studyParam = null;
             for (Study s: studies) {
                 if (s.getId() == (int) studyId) {
                     studyParam = s;
                 }
             }
+            Log.v("Miskit toimub", studyParam.getName());
             processNotification(name, studyParam.getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int)studyId); //TODO: casting long to int this way might be problematic, should switch to long
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
@@ -77,15 +78,29 @@ public class NotificationService extends IntentService {
     }
 
     private void processNotification(String name, Question[] questions, int interval, int notificationsPerDay, final int index) {
+        mContext = getApplicationContext();
         Study study = DBHandler.getInstance(getApplicationContext()).getStudy(index);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
         //final MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.opa);
-        if (!beepFreePeriod()) {
+        // Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
+        // Log.v("SIIN", "");
+        if (!beepFreePeriod(study)) {
             //Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
-            if (ResponseReceiver.dailyNotificationCount.get(index) < notificationsPerDay) {
-                ResponseReceiver.dailyNotificationCount.put(index, ResponseReceiver.dailyNotificationCount.get(index) + 1);
+            // Log.v("COUNTER", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
+            // Log.v("ALLOWED COUNTER", String.valueOf(notificationsPerDay));
+
+
+            sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+            int dailyNotCount = sharedPref.getInt(String.valueOf(index),0);
+            Log.v("DAILYNOTS", String.valueOf(dailyNotCount));
+            if (dailyNotCount < notificationsPerDay) {
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
+                editor.apply();
+
                 ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
                 if (alarmType == 0) {
                     if (alarmTone == 0) {
@@ -150,7 +165,7 @@ public class NotificationService extends IntentService {
                 builder.setContentIntent(pendingIntent);
 
                 final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-                Log.v("Unique notification", String.valueOf(index));
+                // Log.v("Unique notification", String.valueOf(index));
                 manager.notify(index, builder.build());
 
                 Handler h = new Handler(Looper.getMainLooper());
@@ -162,9 +177,9 @@ public class NotificationService extends IntentService {
                     }
                 }, delay);
             } else {
-                if (ResponseReceiver.dailyNotificationCount.get(index) == notificationsPerDay) {
+                if (dailyNotCount == notificationsPerDay) {
                     Study studyParam = null;
-                    for(Study s : ResponseReceiver.studies) {
+                    for(Study s : DBHandler.getInstance(getApplicationContext()).getAllStudies()) {
                         if (s.getId() == index) {
                             studyParam = s;
                         }
@@ -176,35 +191,36 @@ public class NotificationService extends IntentService {
 
                     //TODO: add daily notification resets
                 }
-                if (ResponseReceiver.dailyNotificationCount.get(index) < questions.length) {
+                if (dailyNotCount < questions.length) {
                     //ResponseReceiver.setupAlarm(getApplicationContext(), study, false);
                 }
             }
         }
     }
 
-    public static void addBeepFreePeriod(BeepFerePeriod bfp) {
-        beepFreePeriods.add(bfp);
-
-    }
+    /*
     public static void modifyBeepFreePeriod(int index, BeepFerePeriod bfp) {
         beepFreePeriods.set(index, bfp);
     }
 
+    /*
     public static void removeBeepFreePeriod(int index) {
         beepFreePeriods.remove(index);
         for (int i = index; i < beepFreePeriods.size(); i++)
             beepFreePeriods.get(i).setId(beepFreePeriods.get(i).getId()-1);
     }
+    */
 
-    public static boolean beepFreePeriod() {
+    public static boolean beepFreePeriod(Study study) {
         Calendar c = Calendar.getInstance();
         int hours = c.get(Calendar.HOUR_OF_DAY);
         int minutes = c.get(Calendar.MINUTE);
         boolean beepfree = false;
-
-        for (int i = 0; i < beepFreePeriods.size(); i++) {
-            BeepFerePeriod bfp = beepFreePeriods.get(i);
+        ArrayList<BeepFerePeriod> beepFrees = new ArrayList<>(DBHandler.getInstance(mContext).getBeepFreePeriods());
+        beepFrees.add(study.getDefaultBeepFree());
+        // Log.v("SIZE", String.valueOf(beepFrees.size()));
+        for (int i = 0; i < beepFrees.size(); i++) {
+            BeepFerePeriod bfp = beepFrees.get(i);
             int startHour = bfp.getStartTimeHour();
             int startMinute = bfp.getStartTimeMinute();
             int endHour = bfp.getEndTimeHour();
@@ -217,6 +233,7 @@ public class NotificationService extends IntentService {
                 }
             }
         }
+        // Log.v("Beepfree", String.valueOf(beepfree));
         return beepfree;
     }
 

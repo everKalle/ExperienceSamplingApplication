@@ -33,8 +33,7 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements BeepfreePeriodPickerFragment.BeepFreePeriodListener{
 
-    private static int periodID = 0;
-
+    //TODO - DISALLOW CLICKING ON NOTIFICATIONS AND THUS STARTING AN EVIL ALL-DESTROYING ACTIVITY
     ListView mDrawerList;
     RelativeLayout mDrawerPane;
     ArrayList<BeepFerePeriod> bfpArrayList = new ArrayList<BeepFerePeriod>();
@@ -58,6 +57,12 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         TextView usernameField = (TextView) findViewById(R.id.userName_email);
         usernameField.setText(username);
 
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        ArrayList<BeepFerePeriod> bfps = mydb.getBeepFreePeriods();
+        Log.v("KONTROLL", String.valueOf(bfps.size()));
+        adapter = new BeepFreePeriodListAdapter(this, bfps);
+        adapter.updateAdapter(bfps);
+
 
         mMenuItems.add(new MenuItem(getString(R.string.studies), getString(R.string.viewstudies), R.drawable.ic_study));
         mMenuItems.add(new MenuItem(getString(R.string.join), getString(R.string.browsestudies), R.drawable.ic_add));
@@ -66,10 +71,10 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mMenuItems.add(new MenuItem(getString(R.string.logout), getString(R.string.logcurrent), R.drawable.ic_logout));
         mMenuItems.add(new MenuItem(getString(R.string.exit), getString(R.string.runbackground), R.drawable.ic_exit));
 
-        BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
-        bfpArrayList.add(bfp);
-        NotificationService.addBeepFreePeriod(bfp);
-        periodID = 1;
+        //BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
+        //bfpArrayList.add(bfp);
+        //DBHandler dbHandler = DBHandler.getInstance(getApplicationContext());
+        //dbHandler.insertBeepFreePeriod(bfp);
         // DrawerLayout
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -120,7 +125,94 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         //TODO: got error when logging out ~ Madis
 
         //TODO: look over db querys and maybe use asynctask with the bigger ones
+        /*
 
+        Question q4 = new FreeTextQuestion(0, "Is it easy?");
+        Question q2 = new FreeTextQuestion(0, "Is it still easy?");
+        Question q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
+        Question q1 = new MultipleChoiceQuestion(0, 1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        Question q5 = new MultipleChoiceQuestion(0, 0, "How would you rate the difficulty of this question?", new String[]{"pretty easy", "medium, I think", "hard", "impossible"});
+
+        Question[] batch1 = {q4,q2,q5,q1};
+        //Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
+
+        Question[] batch2 = {q3};
+
+        Questionnaire qnaire1 = new Questionnaire(0, batch1);
+        Questionnaire qnaire2 = new Questionnaire(1, batch2);
+
+        //yyyy-MM-dd HH:mm:ss
+        String c1s = "2016-2-10";
+        String c2s = "2016-3-10";
+        Calendar c1 = DBHandler.stringToCalendar(c1s);
+        //Log.i("BEGINDATE", DBHandler.calendarToString(c1));
+        //c1.set(2016, 2, 20, 10, 0);
+        Calendar c2 = DBHandler.stringToCalendar(c2s);
+        //Log.i("ENDDATE", DBHandler.calendarToString(c2));
+        //c2.set(2016, 3, 20, 10, 0);
+        Event event1 = new Event(0,1,"Running",5, "m");
+        Event event2 = new Event(1,1, "Cooking",5, "m");
+        Event event3 = new Event(2,1, "Swimming",5, "m");
+        Event event4 = new Event(3,1, "Dancing",7, "m");
+        Event event5 = new Event(4,1, "Sleeping",2, "m");
+        Event event6 = new Event(5,1,"Cycling",3, "m");
+        Event event7 = new Event(6,1, "Boxing",1, "m");
+        Event event8 = new Event(7,1, "Eating",4, "m");
+        Event event9 = new Event(8, 1, "Gaming", 5, "m");
+        Event event14 = new Event(13, 1, "Drinking Vodka", 5, "m");
+        Event event15 = new Event(14, 1, "Trying to get a girlfriend", 5, "m");
+
+        Event event10 = new Event(9,2, "Cooking",3, "m");
+        Event event11 = new Event(10,2, "Dancing",5, "m");
+        Event event12 = new Event(11,2, "Eating",1, "m");
+        Event event13 = new Event(12,2, "Gaming",2, "m");
+
+        Event[] eventsArray1 = {event1, event2, event3, event4, event5, event6, event7, event8, event9, event14, event15};
+        Event[] eventsArray2 = {event10, event11, event12, event13};
+
+        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 5, 1, 2, true, 2, eventsArray1, new BeepFerePeriod(1000,16,20,17,11));
+        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 6, 2, 2, true, 1, eventsArray2, new BeepFerePeriod(10001,10,10,11,11));
+
+        getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
+
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        mydb.clearTables();
+
+        try {
+            mydb.insertStudy(study1);
+            mydb.insertStudy(study2);
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            Log.i("Error", "Clicked on notification, catch error");
+        }
+
+
+        //Intent msgIntent = new Intent(this, NotificationService.class);
+        //msgIntent.putExtra(NotificationService.NOTIFICATION_TEXT, study.getNotificationInterval());
+        //startService(msgIntent);
+
+
+        /*
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        //System.out.println("lisatud");
+        ArrayList<Study> currentStudies = mydb.getAllStudies();
+        Study study1 = null;
+        for(Study s : currentStudies)
+            if(s.getName().equals("Study 1"))
+                study1 = s;
+
+
+        setTitle("My Studies");
+        loadFragment("My Studies", false);
+
+
+        ArrayList<Study> studylist = mydb.getAllStudies();
+
+        for(Study s : studylist) {
+            ResponseReceiver rR = new ResponseReceiver(s);
+            rR.setupAlarm(getApplicationContext(), true);
+        }
+
+        */
 
     }
 
@@ -261,7 +353,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     }
                 } catch (Exception e) {
                     Log.v("OPSTI2", "olen siin");
-                    e.printStackTrace();
                 }
                 startActivity(i);
                 finish();
@@ -307,7 +398,8 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     }
 
     public void setUpBeepFreePeriods(View v) {
-        adapter = new BeepFreePeriodListAdapter(this, bfpArrayList);
+        DBHandler myDb = DBHandler.getInstance(getApplicationContext());
+        adapter = new BeepFreePeriodListAdapter(this, myDb.getBeepFreePeriods());
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Set beepfree periods");
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -322,21 +414,23 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         BeepfreePeriodPickerFragment dialogFragment = new BeepfreePeriodPickerFragment();
+                        DBHandler dbHandler = DBHandler.getInstance(getApplicationContext());
+                        ArrayList<BeepFerePeriod> beepFerePeriods = dbHandler.getBeepFreePeriods();
                         Bundle b = new Bundle();
                         ArrayList<Integer> existingStartHours = new ArrayList<Integer>();
                         ArrayList<Integer> existingStartMinutes = new ArrayList<Integer>();
                         ArrayList<Integer> existingEndHours = new ArrayList<Integer>();
                         ArrayList<Integer> existingEndMinutes = new ArrayList<Integer>();
-                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
                             existingStartHours.add(bfp.getStartTimeHour());
                         }
-                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
                             existingStartMinutes.add(bfp.getStartTimeMinute());
                         }
-                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
                             existingEndHours.add(bfp.getEndTimeHour());
                         }
-                        for (BeepFerePeriod bfp: NotificationService.beepFreePeriods) {
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
                             existingEndMinutes.add(bfp.getEndTimeMinute());
                         }
                         b.putIntegerArrayList("existingStartHours", existingStartHours);
@@ -344,7 +438,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         b.putIntegerArrayList("existingEndHours", existingEndHours);
                         b.putIntegerArrayList("existingEndMinutes", existingEndMinutes);
                         b.putBoolean("new", true);
-                        b.putInt("identificator", periodID);
+                        int beepFreeId = 0;
+                        for (BeepFerePeriod beepFerePeriod: beepFerePeriods) {
+                            if (beepFreeId == (int) beepFerePeriod.getId())
+                                beepFreeId++; // TODO - Kontrollida, kas andmebaasiga ei teki jama, kui ntx pannakse mõni int mitmendat korda
+                        }
+                        Log.v("identificatior", String.valueOf(beepFreeId));
+                        b.putInt("identificator", beepFreeId);
                         dialogFragment.setArguments(b);
                         dialogFragment.show(fm, "timePicker");
                         //periods.add(dialogFragment.getCreatedBeepFreePeriod());
@@ -380,10 +480,12 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     public void onDialogPositiveClick(BeepfreePeriodPickerFragment dialog) {
         BeepFerePeriod bfp = dialog.getCreatedBeepFreePeriod();
-        bfpArrayList.add(bfp);
-        NotificationService.addBeepFreePeriod(bfp);
-        adapter.updateAdapter(bfpArrayList);
-        periodID += 1;
+        //bfpArrayList.add(bfp);
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        mydb.insertBeepFreePeriod(bfp);
+        Log.v("MUUTUS", String.valueOf(mydb.getBeepFreePeriods().size()));
+        //NotificationService.addBeepFreePeriod(bfp);
+        adapter.updateAdapter(mydb.getBeepFreePeriods());
     }
 
     @Override
@@ -391,14 +493,16 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     }
 
     public static void removeItem(int position) {
-        periodID -= 1;
-        NotificationService.removeBeepFreePeriod(position);
+        //NotificationService.removeBeepFreePeriod(position);
     }
 
     @Override
     public void onDialogUpdateObject(BeepfreePeriodPickerFragment dialog) {
         BeepFerePeriod bfp = dialog.getEditedBeepFreePeriod();
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        mydb.editBeepFree(bfp);
         adapter.indexBasedUpdateAdapter(bfp.getId(), bfp);
-        NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
+
+        //  NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
     }
 }
