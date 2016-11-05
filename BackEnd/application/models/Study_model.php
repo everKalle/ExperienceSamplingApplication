@@ -402,7 +402,7 @@ class Study_model extends CI_Model {
 	}
 
 	function get_event_results($study_id){
-		$this->db->select('email, event-title, event_time');
+		$this->db->select('email, event-title, start_time, end_time');
 		$this->db->where('survey_id',$study_id);
 		$this->db->from('view_event_results');
 
@@ -425,11 +425,12 @@ class Study_model extends CI_Model {
 		}
 	}
 
-	function save_event_time($event_id, $target_user, $time) {
+	function save_event_time($event_id, $target_user, $startTime, $endTime) {
 		$data = array(
 		   'participant_id' => $target_user ,
 		   'event_id' => $event_id ,
-		   'event_time' => $time
+		   'start_time' => $startTime ,
+		   'end_time' => $endTime
 		);
 
 		if ($this->db->insert('event_results', $data)){

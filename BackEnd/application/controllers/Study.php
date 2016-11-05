@@ -328,23 +328,21 @@ class Study extends CI_Controller {
  function store_event_results() {
     $token = $this->input->post('token');
     $event_id = $this->input->post('event_id');
-    $time = $this->input->post('time');
-    if ($token != NULL && $event_id != NULL && $time != NULL){
+    $startTime = $this->input->post('start_time');
+    $endTime = $this->input->post('end_time');
+    if ($token != NULL && $event_id != NULL && $startTime != NULL && $endTime != NULL){
       $p_id = $this->participant_model->get_id_via_token($token);
       if ($p_id === false) {
         echo "invalid_token";
       } else {
         if ($this->study_model->get_event_exists($event_id)){
-          if (intval($time)>0){
-            $success = $this->study_model->save_event_time($event_id, $p_id, $time);
-            if ($success === TRUE){
-              echo "success";
-            } else {
-              echo $success;
-            }
+          $success = $this->study_model->save_event_time($event_id, $p_id, $startTime, $endTime);
+          if ($success === TRUE){
+            echo "success";
           } else {
-            echo "invalid_time";
+            echo $success;
           }
+          
         } else {
           echo "invalid_event";
         }
@@ -499,11 +497,11 @@ class Study extends CI_Controller {
     {
       $admin_id = $this->study_model->get_author_id($this->logged_in['username']);
       if ($this->study_model->get_admin_is_owner_of_study($study_id, $admin_id) || $this->study_model->get_user_has_access_to_study($study_id, $admin_id)){
-        $output_csv = '"Osaleja";"Sündmus";"Aeg"';
+        $output_csv = '"Osaleja";"Sündmus";"Algusaeg";"Lõppaeg"';
         $output_csv .= "\r\n";
         $event_results = $this->study_model->get_event_results($study_id);
         for($i = 0; $i < count($event_results); $i++) {
-          $output_csv .= '"' . $event_results[$i]['email'] . '";"' . $event_results[$i]['event-title'] .'";"' . $event_results[$i]['event_time'] .'"' . "\r\n";
+          $output_csv .= '"' . $event_results[$i]['email'] . '";"' . $event_results[$i]['event-title'] .'";"' . $event_results[$i]['start_time'] .'";"' . $event_results[$i]['end_time'] .'"' . "\r\n";
         }
         header('Content-type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $this->study_model->get_study_title($study_id)['study-title'] . '_events.csv"');
