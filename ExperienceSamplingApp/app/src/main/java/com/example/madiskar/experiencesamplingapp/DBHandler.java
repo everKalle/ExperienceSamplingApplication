@@ -431,7 +431,7 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(AnswerEntry.COLUMN_STUDYID, studyId);
-        values.put(AnswerEntry.COLUMN_ANSWER, answer); // TODO: DANGEROUS, must check input and escape characters if necessary //// ANSWER GOES IN CSV FORMAT: answer1,answer2,answer3,...
+        values.put(AnswerEntry.COLUMN_ANSWER, answer);
         values.put(AnswerEntry.COLUMN_TIMESTAMP, timestamp);
         return db.insert(AnswerEntry.TABLE_NAME, null, values);
     }
@@ -442,8 +442,8 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(AnswerEntry.COLUMN_STUDYID, studyId);
         StringBuilder sb = new StringBuilder();
         for(String s : answers)
-            sb.append(s).append(",");
-        sb.deleteCharAt(sb.lastIndexOf(","));
+            sb.append(s).append(";");
+        sb.deleteCharAt(sb.lastIndexOf(";"));
         values.put(AnswerEntry.COLUMN_ANSWER, sb.toString());
         values.put(AnswerEntry.COLUMN_TIMESTAMP, timestamp);
         return db.insert(AnswerEntry.TABLE_NAME, null, values);
@@ -558,7 +558,6 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     public static BeepFerePeriod stringToBeepFreeWithDots(int id, String start, String end) {
-        // start and end are defined as HH:mm:ss
         String[] startparts = start.split(Pattern.quote("."));
         String[] endparts = end.split(Pattern.quote("."));
 
