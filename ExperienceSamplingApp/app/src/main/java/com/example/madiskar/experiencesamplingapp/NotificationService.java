@@ -38,6 +38,8 @@ public class NotificationService extends IntentService {
     private boolean started = false;
     private SharedPreferences sharedPref;
     private static Context mContext = null;
+    private final static int MAX_VOLUME = 100;
+    private MediaPlayer mediaPlayer;
     public NotificationService() {
         super(NotificationService.class.getName());
     }
@@ -83,7 +85,7 @@ public class NotificationService extends IntentService {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
-        //final MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.opa);
+
         // Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
         // Log.v("SIIN", "");
         if (!beepFreePeriod(study)) {
@@ -94,33 +96,58 @@ public class NotificationService extends IntentService {
 
             sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
             int dailyNotCount = sharedPref.getInt(String.valueOf(index),0);
-            Log.v("DAILYNOTS", String.valueOf(dailyNotCount));
+            int soundVolume = sharedPref.getInt("volume",0);
+            //Log.v("sound vol", String.valueOf(soundVolume));
+            Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
+
+            Calendar rightNow = Calendar.getInstance();
+            int hour = rightNow.get(Calendar.HOUR_OF_DAY);
+            int minutes = rightNow.get(Calendar.MINUTE);
+
+            String time = sharedPref.getString("TIME" + String.valueOf(study.getId()), "");
+            if (!time.equals("")) {
+                String[] parts = time.split(":");
+                int hourPart = Integer.valueOf(parts[0]);
+                int minutePart = Integer.valueOf(parts[1]);
+
+                if (hour < hourPart) {
+                    ResponseReceiver rr = new ResponseReceiver(study);
+                    rr.setupAlarm(mContext, false);
+                }
+            }
+
+
+            SharedPreferences.Editor editor = sharedPref.edit(); // STORE THE TIME OF THE NOTIFICATION
+            editor.putString("TIME" + String.valueOf(study.getId()), hour + ":" + minutes);
+            editor.apply();
+
             if (dailyNotCount < notificationsPerDay) {
 
-                SharedPreferences.Editor editor = sharedPref.edit();
+                editor = sharedPref.edit();
                 editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
                 editor.apply();
 
-                ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
                 if (alarmType == 0) {
                     if (alarmTone == 0) {
-                        toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 300);
-                        if (!started) {
-                            //mediaPlayer.start();
-                            started = true;
-                        }
+                        mediaPlayer = MediaPlayer.create(this, R.raw.chime_1);
                     }
                     else if (alarmTone == 1)
-                        toneG.startTone(ToneGenerator.TONE_PROP_BEEP, 300);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
                     else
-                        toneG.startTone(ToneGenerator.TONE_PROP_PROMPT, 300);
+                        mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
+                    if (!started) {
+                        float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
+                        Log.v("helitugevus", String.valueOf(volume));
+                        mediaPlayer.setVolume(volume, volume);
+                        mediaPlayer.start();
+                        started = true;
+                    }
                 }
                 else if (alarmType == 1) {
                     Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
                     // Vibrate for 1000 milliseconds
                     v.vibrate(1000);
                 }
-
 
                 final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                 String uniqueValue = (index+1) + "00000";
@@ -177,26 +204,20 @@ public class NotificationService extends IntentService {
                     }
                 }, delay);
             } else {
-                if (dailyNotCount == notificationsPerDay) {
-                    Study studyParam = null;
-                    for(Study s : DBHandler.getInstance(getApplicationContext()).getAllStudies()) {
-                        if (s.getId() == index) {
-                            studyParam = s;
-                        }
-                    }
-                    //Log.v("CANCEL ALARM", "TRUE");
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) studyParam.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
-                    AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                    am.cancel(pendingIntent);
 
-                    //TODO: add daily notification resets
-                }
-                if (dailyNotCount < questions.length) {
-                    //ResponseReceiver.setupAlarm(getApplicationContext(), study, false);
-                }
+                //Log.v("CANCEL ALARM", "TRUE");
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                am.cancel(pendingIntent);
+
+                ResponseReceiver rr = new ResponseReceiver(study);
+                rr.setupAlarm(mContext, false);
+
+                //TODO: add daily notification resets
             }
         }
     }
+
 
     /*
     public static void modifyBeepFreePeriod(int index, BeepFerePeriod bfp) {
@@ -233,7 +254,7 @@ public class NotificationService extends IntentService {
                 }
             }
         }
-        // Log.v("Beepfree", String.valueOf(beepfree));
+        Log.v("Beepfree", String.valueOf(beepfree));
         return beepfree;
     }
 

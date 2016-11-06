@@ -102,15 +102,15 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
             Calendar calendar = Calendar.getInstance();
             Calendar now = Calendar.getInstance();
             calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
-            intent.putExtra(NOTIFICATION_INTERVAL, interval);
-            intent.putExtra(NOTIFICATION_NAME, name);
-            intent.putExtra(STUDY_QUESTIONS, textQuestions);
-            intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
 
-            PendingIntent PendingIntentD = PendingIntent.getBroadcast(context, 105, intent, 0);
-            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, calendar.getTimeInMillis(), interval * 60 * 1000 , PendingIntentD);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(String.valueOf(study.getId()), 0);
+            editor.apply();
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(), interval * 60 * 1000 , alarmIntent);
         }
     }
 
