@@ -50,7 +50,8 @@ public class ActiveStudyContract {
     public static class EventResultsEntry implements BaseColumns {
         public static final String TABLE_NAME = "event_results_table";
         public static final String COLUMN_EVENTID = "event_id";
-        public static final String COLUMN_DURATION = "event_duration";
+        public static final String COLUMN_STARTTIME = "event_starttime";
+        public static final String COLUMN_ENDTIME = "event_endtime";
     }
 
     public static class BeepFreePeriodEntry implements BaseColumns {

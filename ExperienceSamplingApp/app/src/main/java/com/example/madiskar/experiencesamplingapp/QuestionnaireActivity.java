@@ -158,11 +158,13 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 } else if (output.equals("invalid_token")) {
                     Toast.makeText(getApplicationContext(), "Account authentication failed", Toast.LENGTH_LONG).show();
                 } else if (output.equals("nothing")) {
-                    Toast.makeText(getApplicationContext(), "Faulty query", Toast.LENGTH_LONG).show();
+                    Log.i("Answers to server: ", "Faulty query");
                 } else if (output.equals("success")) {
                     Log.i("Answers to server: ", "Success");
                 } else if (output.equals("saved-to-local")) {
                     Log.i("Answers to server: ", "Internet connection unavailable, saving to local storage");
+                } else {
+                    Log.i("Answers to server: ", "Something bad happened");
                 }
             }
         }, isNetworkAvailable(), mydb);

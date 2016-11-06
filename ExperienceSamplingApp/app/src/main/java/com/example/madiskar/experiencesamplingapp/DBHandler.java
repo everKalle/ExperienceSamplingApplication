@@ -71,7 +71,8 @@ public class DBHandler extends SQLiteOpenHelper {
             "CREATE TABLE IF NOT EXISTS " + EventResultsEntry.TABLE_NAME + " ("
                     + EventResultsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + EventResultsEntry.COLUMN_EVENTID + " INTEGER NOT NULL, "
-                    + EventResultsEntry.COLUMN_DURATION + " INTEGER NOT NULL, "
+                    + EventResultsEntry.COLUMN_STARTTIME + " TEXT NOT NULL, "
+                    + EventResultsEntry.COLUMN_ENDTIME + " TEXT NOT NULL, "
                     + "FOREIGN KEY (" + EventResultsEntry.COLUMN_EVENTID + ") REFERENCES " + EventEntry.TABLE_NAME + "(" + EventEntry._ID + "))";
     public static final String SQL_CREATE_TABLE_BEEPFREE_PERIODS =
             "CREATE TABLE IF NOT EXISTS " + BeepFreePeriodEntry.TABLE_NAME + " ("
@@ -334,6 +335,30 @@ public class DBHandler extends SQLiteOpenHelper {
         return returnid;
     }
 
+
+    public ArrayList<String> getAllEventResults() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cur = db.rawQuery("SELECT * FROM " + EventResultsEntry.TABLE_NAME, null);
+
+        // save to array as "eventId,startTime,endTime"
+        ArrayList<String> results = new ArrayList<>();
+        try {
+            while (!cur.isAfterLast()) {
+                long id = cur.getLong(cur.getColumnIndex(EventResultsEntry.COLUMN_EVENTID));
+                String startTime = cur.getString(cur.getColumnIndex(EventResultsEntry.COLUMN_STARTTIME));
+                String endTime = cur.getString(cur.getColumnIndex(EventResultsEntry.COLUMN_ENDTIME));
+                results.add(id + "," + startTime + "," + endTime);
+                cur.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cur.close();
+        }
+        return results;
+    }
+
+
     public long insertBeepFreePeriod(BeepFerePeriod bfp) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -342,15 +367,12 @@ public class DBHandler extends SQLiteOpenHelper {
         return db.insert(BeepFreePeriodEntry.TABLE_NAME, null, values);
     }
 
-    public long insertStudy(/*arguments here*/) {
-        // TODO: Implement inserting a study using only its data, needed when database connection gets implemented
-        return -1;
-    }
+
 
     public ArrayList<BeepFerePeriod> getBeepFreePeriods() {
         SQLiteDatabase db = getReadableDatabase();
 
-        db.beginTransaction();
+        //db.beginTransaction();
         Cursor cur = db.rawQuery("SELECT * FROM " + BeepFreePeriodEntry.TABLE_NAME, null);
         cur.moveToFirst();
 
@@ -367,11 +389,11 @@ public class DBHandler extends SQLiteOpenHelper {
                 beepFerePeriods.add(beepFerePeriod);
                 cur.moveToNext();
             }
-            db.setTransactionSuccessful();
+            //db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            db.endTransaction();
+            //db.endTransaction();
             cur.close();
         }
         return beepFerePeriods;
@@ -419,11 +441,12 @@ public class DBHandler extends SQLiteOpenHelper {
         return db.insert(EventEntry.TABLE_NAME, null, values);
     }
 
-    public long insertEventResult(long eventId, int duration) {
+    public long insertEventResult(long eventId, String startTime, String endTime) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(EventResultsEntry.COLUMN_EVENTID, eventId);
-        values.put(EventResultsEntry.COLUMN_DURATION, duration);
+        values.put(EventResultsEntry.COLUMN_STARTTIME, startTime);
+        values.put(EventResultsEntry.COLUMN_ENDTIME, endTime);
         return db.insert(EventResultsEntry.TABLE_NAME, null, values);
     }
 

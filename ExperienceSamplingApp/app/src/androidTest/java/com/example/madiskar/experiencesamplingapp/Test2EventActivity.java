@@ -41,7 +41,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
 
-@RunWith(AndroidJUnit4.class)
+//@RunWith(AndroidJUnit4.class)
 public class Test2EventActivity {
 /*
     @Rule

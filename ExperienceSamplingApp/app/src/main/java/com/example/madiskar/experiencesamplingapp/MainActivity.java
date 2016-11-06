@@ -122,8 +122,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
         //TODO: Check for problems in dbhandler methods
 
-        //TODO: got error when logging out ~ Madis
-
         //TODO: look over db querys and maybe use asynctask with the bigger ones
         /*
 

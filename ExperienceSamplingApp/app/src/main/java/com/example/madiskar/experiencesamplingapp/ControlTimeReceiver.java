@@ -19,10 +19,12 @@ public class ControlTimeReceiver extends BroadcastReceiver {
         int notificationId = intent.getIntExtra("notificationId", 0);
         int controlTime = intent.getIntExtra("controlTime", 0);
 
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(notificationId);
-        DBHandler mydb = DBHandler.getInstance(context);
-        mydb.insertEventResult(eventId, controlTime);
+        //NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        //manager.cancel(notificationId);
+        //DBHandler mydb = DBHandler.getInstance(context);
+        //mydb.insertEventResult(eventId, controlTime);
+
+        //TODO: Send a chime or something, to the user to notify him/her that the event has reached its control time
     }
 
 }

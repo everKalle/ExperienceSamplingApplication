@@ -17,6 +17,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,8 +84,7 @@ public class EventDialogFragment extends DialogFragment {
                         //Log.v("IDDD", String.valueOf(selectedItemId));
                         Intent stopIntent = new Intent(getContext(), StopReceiver.class);
 
-                        long startTime = SystemClock.elapsedRealtime();
-                        stopIntent.putExtra("start", startTime);
+                        stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
                         stopIntent.putExtra("notificationId", uniqueValue);
                         stopIntent.putExtra("studyId", studyId);
                         //Log.v("EVENT", events[selectedItemId].getName());
@@ -99,7 +99,8 @@ public class EventDialogFragment extends DialogFragment {
                                         .setContentText(selectedItem)
                                         .setWhen(System.currentTimeMillis())
                                         .setUsesChronometer(true)
-                                        .addAction(R.drawable.ic_stop, "Stop", stopPendingIntent);
+                                        .addAction(R.drawable.ic_stop, "Stop", stopPendingIntent)
+                                        .setOngoing(true);
 
                         NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
                         if (selectedItem != null) {
