@@ -93,6 +93,10 @@ public class Test2EventActivity {
         UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
         assertTrue(eventStopButton.exists());
         eventStopButton.click();
+
+        //Make sure that notifications are closed
+        if (mDevice.hasObject(By.pkg("com.android.systemui")))
+            mDevice.pressBack();
     }
 
     /*
