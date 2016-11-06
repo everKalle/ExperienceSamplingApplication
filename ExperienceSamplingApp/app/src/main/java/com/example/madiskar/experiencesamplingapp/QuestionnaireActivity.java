@@ -50,13 +50,14 @@ public class QuestionnaireActivity extends AppCompatActivity {
         manager.cancel(notificationId);
 
         studyId = questionnaire.getStudyId();
-        ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
+        //ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
 
-        answers = new String[questionsArr.size()];
-        questions = new Question[questionsArr.size()];
+        questions = questionnaire.getQuestions();
+        answers = new String[questions.length];
+        //questions = new Question[questionsArr.size()];
 
-        for(int j = 0; j < questionsArr.size(); j++) {
-            questions[j] = questionsArr.get(j);
+        for(int j = 0; j < questions.length; j++) {
+            //questions[j] = questionsArr.get(j);
             answers[j] = "-";
         }
 
