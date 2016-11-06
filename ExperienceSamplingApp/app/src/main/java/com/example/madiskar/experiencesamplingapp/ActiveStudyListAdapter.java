@@ -6,6 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -26,10 +29,13 @@ import java.util.ArrayList;
 public class ActiveStudyListAdapter extends BaseAdapter  {
     private Context mContext;
     private ArrayList<Study> studies;
+    String token;
 
     public ActiveStudyListAdapter(Context context, ArrayList<Study> studies) {
         this.mContext = context;
         this.studies = studies;
+        SharedPreferences spref = mContext.getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+        token = spref.getString("token", "none");
     }
 
     @Override
@@ -88,58 +94,75 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
             @Override
             public void onClick(View v) {
                 // quit study here //
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-                //alertDialog.setCanceledOnTouchOutside(false);
-                Study studyRef = (Study) getItem(position);
-                if (EventDialogFragment.studyToNotificationIdMap.get((int)studyRef.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int)studyRef.getId()).size() < 1 )
-                    alertDialogBuilder.setMessage("Are you sure you want to quit \"" + ((Study)getItem(position)).getName() + "\"?");
-                else
-                    alertDialogBuilder.setMessage("You have an active event which will be discarded. Are you sure you want to quit\n \"" + ((Study)getItem(position)).getName() + "\"?");
-                alertDialogBuilder.setNegativeButton("OK",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                if(isNetworkAvailable()) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                    //alertDialog.setCanceledOnTouchOutside(false);
+                    final Study studyRef = studies.get(position);
+                    //Log.i("QUITTING THIS @#!$", studyRef.getName());
+                    if (EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()).size() < 1)
+                        alertDialogBuilder.setMessage("You might lose un-synced data, are you sure you want to quit \"" + studyRef.getName() + "\"?");
+                    else
+                        alertDialogBuilder.setMessage("You have an active event which will be discarded and you might lose un-synced data, are you sure you want to quit\n \"" + studyRef.getName() + "\"?");
+                    alertDialogBuilder.setNegativeButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
 
-                                PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, (int) studies.get(position).getId(), new Intent(mContext, ResponseReceiver.class), 0);
-                                AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-                                am.cancel(pendingIntent);
+                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, (int) studyRef.getId(), new Intent(mContext, ResponseReceiver.class), 0);
+                                    AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+                                    am.cancel(pendingIntent);
 
-                                try {
-                                    NotificationService.cancelNotification(mContext, (int) studies.get(position).getId());
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                                    try {
+                                        NotificationService.cancelNotification(mContext, (int) studyRef.getId());
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    try {
+                                        EventDialogFragment.cancelEvents(mContext, (int) studyRef.getId());
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    try {
+                                        Intent intent = new Intent(mContext, QuestionnaireActivity.class);
+                                        ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((studyRef.getId() + 1) + "00002"), false);
+                                        //Log.v("midagi juhtus", "kden");
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    DBHandler mydb = DBHandler.getInstance(mContext);
+                                    LeaveStudyTask leaveStudyTask = new LeaveStudyTask(new AsyncResponse() {
+                                        @Override
+                                        public void processFinish(String output) {
+                                            Log.i("QUITTING STUDY", output);
+                                        }
+                                    }, mydb);
+                                    leaveStudyTask.execute(token, Long.toString(studyRef.getId()));
+                                    studies.remove(position);
+                                    Toast.makeText(mContext, "Study left", Toast.LENGTH_SHORT).show();
+                                    notifyDataSetChanged();
+                                    dialog.dismiss();
                                 }
-                                try {
-                                    EventDialogFragment.cancelEvents(mContext, (int) studies.get(position).getId());
-                                } catch (Exception e) {
-                                    e.printStackTrace();
+                            });
+                    alertDialogBuilder.setPositiveButton("Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
                                 }
-                                try {
-                                    Intent intent = new Intent(mContext, QuestionnaireActivity.class);
-                                    ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((studies.get(position).getId()+1) + "00002"), false);
-                                    Log.v("midagi juhtus", "kden");
-                                }catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                studies.remove(position);
-                                DBHandler.getInstance(mContext).deleteStudyEntry(position);
-                                Toast.makeText(mContext, "Study left", Toast.LENGTH_SHORT).show();
-                                notifyDataSetChanged();
-                                dialog.dismiss();
-
-                            }
-                        });
-                alertDialogBuilder.setPositiveButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                            });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                } else {
+                    Toast.makeText(mContext, "Network connection unavailable. You can leave the study, if connection is restored.", Toast.LENGTH_LONG).show();
+                }
             }
         });
-
         return view;
+    }
+
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
     }
 
 

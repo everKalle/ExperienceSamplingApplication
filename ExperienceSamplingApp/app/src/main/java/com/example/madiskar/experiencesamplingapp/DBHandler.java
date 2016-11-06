@@ -131,12 +131,43 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public void clearTables() {
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + ActiveStudyEntry.TABLE_NAME);
-        db.execSQL("DELETE FROM " + QuestionEntry.TABLE_NAME);
+        db.beginTransaction();
+        try {
+            db.execSQL("DELETE FROM " + ActiveStudyEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + QuestionEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
+            //db.execSQL("DELETE FROM " + BeepFreePeriodEntry.TABLE_NAME);
+            db.setTransactionSuccessful();
+        } catch(Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public void clearStudyAnswers(long studyId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyId)});
+    }
+
+
+    public void clearAnswersTable() {
+        SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
-        db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
+    }
+
+
+    public void clearEventResults(long eventId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(EventResultsEntry.TABLE_NAME, EventResultsEntry.COLUMN_EVENTID + " = ? ", new String[]{Long.toString(eventId)});
+    }
+
+
+    public void clearEventResultsTable() {
+        SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
-        //db.execSQL("DELETE FROM " + BeepFreePeriodEntry.TABLE_NAME);
     }
 
 
@@ -263,7 +294,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    private Event[] getStudyEvents(long studyID) {
+    public Event[] getStudyEvents(long studyID) {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cur = db.rawQuery("SELECT * FROM " + EventEntry.TABLE_NAME + " WHERE " + EventEntry.COLUMN_STUDYID + " = " + studyID + " ORDER BY " + EventEntry._ID, null);
@@ -459,24 +490,12 @@ public class DBHandler extends SQLiteOpenHelper {
         return db.insert(AnswerEntry.TABLE_NAME, null, values);
     }
 
-    public long insertAnswer(long studyId, String[] answers, String timestamp) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(AnswerEntry.COLUMN_STUDYID, studyId);
-        StringBuilder sb = new StringBuilder();
-        for(String s : answers)
-            sb.append(s).append(";");
-        sb.deleteCharAt(sb.lastIndexOf(";"));
-        values.put(AnswerEntry.COLUMN_ANSWER, sb.toString());
-        values.put(AnswerEntry.COLUMN_TIMESTAMP, timestamp);
-        return db.insert(AnswerEntry.TABLE_NAME, null, values);
-    }
-
-    public ArrayList<String> getAnswers(long studyId) {
+    public ArrayList<String> getStudyAnswers(long studyId) {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cur = db.rawQuery("SELECT * FROM " + AnswerEntry.TABLE_NAME + " WHERE " + AnswerEntry.COLUMN_STUDYID + " = " + studyId + " ORDER BY " + AnswerEntry._ID, null);
 
+        // studyId,timestamp,answertxt
         ArrayList<String> answers = new ArrayList<>();
         try {
             cur.moveToFirst();
@@ -484,7 +503,34 @@ public class DBHandler extends SQLiteOpenHelper {
                 StringBuilder sb = new StringBuilder();
                 String timestamp = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_TIMESTAMP));
                 String answerTxt = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_ANSWER));
-                sb.append(timestamp).append(" ; ").append(answerTxt);
+                sb.append(studyId).append(timestamp).append(",").append(answerTxt);
+                answers.add(sb.toString());
+                cur.moveToNext();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cur.close();
+        }
+        return answers;
+    }
+
+
+    public ArrayList<String> getAllAnswers() {
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cur = db.rawQuery("SELECT * FROM " + AnswerEntry.TABLE_NAME + " ORDER BY " + AnswerEntry._ID, null);
+
+        // studyId,timestamp,answertxt
+        ArrayList<String> answers = new ArrayList<>();
+        try {
+            cur.moveToFirst();
+            while (!cur.isAfterLast()) {
+                StringBuilder sb = new StringBuilder();
+                String timestamp = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_TIMESTAMP));
+                long studyId = cur.getLong(cur.getColumnIndex(AnswerEntry.COLUMN_STUDYID));
+                String answerTxt = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_ANSWER));
+                sb.append(studyId).append(timestamp).append(",").append(answerTxt);
                 answers.add(sb.toString());
                 cur.moveToNext();
             }
@@ -503,16 +549,22 @@ public class DBHandler extends SQLiteOpenHelper {
         try {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
+            db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
+            Event[] studyEvents = getStudyEvents(studyID);
+            for(Event e : studyEvents) {
+                clearEventResults(e.getId());
+            }
             db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
-            // TODO: remove event and event result stuff also!!!!!!!
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         } finally {
             db.endTransaction();
         }
         return true;
     }
+
 
     public boolean deleteBeepFreeEntry(long id) {
         SQLiteDatabase db = getWritableDatabase();
@@ -522,6 +574,7 @@ public class DBHandler extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         } finally {
             db.endTransaction();
         }
