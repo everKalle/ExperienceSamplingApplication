@@ -24,7 +24,7 @@ public class VolumeControlActivity extends FragmentActivity {
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.x = -20;
         params.height = 550;
-        params.width = 1050;
+        params.width = 900;
         params.y = -10;
 
         this.getWindow().setAttributes(params);

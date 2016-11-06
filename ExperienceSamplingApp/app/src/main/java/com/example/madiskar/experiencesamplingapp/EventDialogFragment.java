@@ -113,22 +113,19 @@ public class EventDialogFragment extends DialogFragment {
                                 String unit = events[selectedItemId].getUnit();
 
                                 int multiplier = 0;
-                                double minuteMultiplier = 1;
                                 if (unit.equals("h")) {
                                     multiplier = controlTime * 60 * 60 * 1000;
-                                    minuteMultiplier = 60;
                                 } else if (unit.equals("m")) {
                                     multiplier = controlTime * 60 * 1000;
-                                } else if (unit.equals("s")) {
-                                    multiplier = controlTime * 1000;
-                                    minuteMultiplier = 1 / 60.0;
+                                } else if (unit.equals("d")) {
+                                    multiplier = controlTime * 24 * 60 * 60 * 1000;
                                 }
-                                Log.v("controlTimeMillis", String.valueOf(multiplier * minuteMultiplier));
+                                Log.v("controlTimeMillis", String.valueOf(multiplier));
 
                                 Intent controltimeIntent = new Intent(getContext(), ControlTimeReceiver.class);
                                 controltimeIntent.putExtra("notificationId", uniqueValue);
                                 controltimeIntent.putExtra("eventId", events[selectedItemId].getId());
-                                controltimeIntent.putExtra("controlTime", (int) (controlTime * minuteMultiplier));
+                                controltimeIntent.putExtra("controlTime", (int) controlTime);
                                 controltimeIntent.putExtra("eventName", events[selectedItemId].getName());
 
 

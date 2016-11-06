@@ -95,9 +95,15 @@ public class NotificationService extends IntentService {
 
             sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
             int dailyNotCount = sharedPref.getInt(String.valueOf(index),0);
-            int soundVolume = sharedPref.getInt("volume",0);
-            //Log.v("sound vol", String.valueOf(soundVolume));
-            Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
+            int soundVolume = sharedPref.getInt("volume",-1);
+            if (soundVolume == -1) {
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt("volume", 50);
+                editor.apply();
+                soundVolume = 50;
+            }
+            Log.v("sound vol", String.valueOf(soundVolume));
+            //Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
 
             Calendar rightNow = Calendar.getInstance();
             int hour = rightNow.get(Calendar.HOUR_OF_DAY);
