@@ -82,16 +82,16 @@ public class Test2EventActivity {
 
 
         UiObject eventText = mDevice.findObject(new UiSelector().text("Active Event"));
-        assertTrue(eventText.exists());
+        assertTrue("'Active Event' exists", eventText.exists());
 
         UiObject eventName = mDevice.findObject(new UiSelector().text("Running"));
-        assertTrue(eventName.exists());
+        assertTrue("Event 'Running' is the active event", eventName.exists());
 
         UiObject eventFalseName = mDevice.findObject(new UiSelector().text("Short Event"));
-        assertFalse(eventFalseName.exists());
+        assertFalse("Event 'Short Event' is NOT the active event", eventFalseName.exists());
 
         UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
-        assertTrue(eventStopButton.exists());
+        assertTrue("Event stop button exists", eventStopButton.exists());
         eventStopButton.click();
 
         //Make sure that notifications are closed
