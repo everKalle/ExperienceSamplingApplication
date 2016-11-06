@@ -47,7 +47,7 @@ public class RefuseReceiver extends BroadcastReceiver {
                     Log.i("Answers to server: ", "Internet connection unavailable, saving to local storage");
                 }
             }
-        }, (activeNetworkInfo != null), mydb);
+        }, (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb);
         saveAnswersTask.execute(token, Integer.toString(studyId), "user-refused-this-questionnaire");
     }
 

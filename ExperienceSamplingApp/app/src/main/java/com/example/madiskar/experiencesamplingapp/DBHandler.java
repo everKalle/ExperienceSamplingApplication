@@ -147,9 +147,9 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
-    public void clearStudyAnswers(long studyId) {
+    public long clearStudyAnswers(long studyId) {
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyId)});
+        return db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyId)});
     }
 
 
@@ -158,10 +158,20 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
     }
 
-
-    public void clearEventResults(long eventId) {
+    public long deleteAnswerEntry(long id) {
         SQLiteDatabase db = getWritableDatabase();
-        db.delete(EventResultsEntry.TABLE_NAME, EventResultsEntry.COLUMN_EVENTID + " = ? ", new String[]{Long.toString(eventId)});
+        return db.delete(AnswerEntry.TABLE_NAME, AnswerEntry._ID + " = ? ", new String[]{Long.toString(id)});
+    }
+
+    public long deleteEventResultEntry(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        return db.delete(EventResultsEntry.TABLE_NAME, EventResultsEntry._ID + " = ? ", new String[]{Long.toString(id)});
+    }
+
+
+    public long clearEventResults(long eventId) {
+        SQLiteDatabase db = getWritableDatabase();
+        return db.delete(EventResultsEntry.TABLE_NAME, EventResultsEntry.COLUMN_EVENTID + " = ? ", new String[]{Long.toString(eventId)});
     }
 
 
@@ -218,7 +228,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    private ArrayList<Question> getStudyQuestions(long studyID) {
+    public ArrayList<Question> getStudyQuestions(long studyID) {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cur = db.rawQuery("SELECT * FROM " + QuestionEntry.TABLE_NAME + " WHERE " + QuestionEntry.COLUMN_STUDYID + " = " + studyID + " ORDER BY " + QuestionEntry._ID, null);
@@ -326,13 +336,6 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    /*
-    public ArrayList<Question> getStudyQuestions(int studyID) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor query = db.rawQuery("SELECT * FROM " + QuestionEntry.TABLE_NAME + " WHERE " + QuestionEntry.COLUMN_STUDYID + " = " + studyID, null);
-        TODO: Implement separate public getStudyQuestions
-    }
-    */
 
     public long insertStudy(Study study) {
         SQLiteDatabase db = getWritableDatabase();
@@ -367,18 +370,25 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    public ArrayList<String> getAllEventResults() {
+    public ArrayList<String[]> getAllEventResults() {
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cur = db.rawQuery("SELECT * FROM " + EventResultsEntry.TABLE_NAME, null);
+        Cursor cur = db.rawQuery("SELECT * FROM " + EventResultsEntry.TABLE_NAME + " ORDER BY " + EventResultsEntry._ID, null);
 
-        // save to array as "eventId,startTime,endTime"
-        ArrayList<String> results = new ArrayList<>();
+        cur.moveToFirst();
+        // save to array as "id,eventId,startTime,endTime"
+        ArrayList<String[]> results = new ArrayList<>();
         try {
             while (!cur.isAfterLast()) {
-                long id = cur.getLong(cur.getColumnIndex(EventResultsEntry.COLUMN_EVENTID));
+                String[] elems = new String[4];
+                long id = cur.getLong(cur.getColumnIndex(EventResultsEntry._ID));
+                long eventId = cur.getLong(cur.getColumnIndex(EventResultsEntry.COLUMN_EVENTID));
                 String startTime = cur.getString(cur.getColumnIndex(EventResultsEntry.COLUMN_STARTTIME));
                 String endTime = cur.getString(cur.getColumnIndex(EventResultsEntry.COLUMN_ENDTIME));
-                results.add(id + "," + startTime + "," + endTime);
+                elems[0] = Long.toString(id);
+                elems[1] = Long.toString(eventId);
+                elems[2] = startTime;
+                elems[3] = endTime;
+                results.add(elems);
                 cur.moveToNext();
             }
         } catch (Exception e) {
@@ -516,22 +526,26 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    public ArrayList<String> getAllAnswers() {
+    public ArrayList<String[]> getAllAnswers() {
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cur = db.rawQuery("SELECT * FROM " + AnswerEntry.TABLE_NAME + " ORDER BY " + AnswerEntry._ID, null);
 
-        // studyId,timestamp,answertxt
-        ArrayList<String> answers = new ArrayList<>();
+        // id,studyId,timestamp,answertxt
+        ArrayList<String[]> answers = new ArrayList<>();
         try {
             cur.moveToFirst();
             while (!cur.isAfterLast()) {
-                StringBuilder sb = new StringBuilder();
+                String[] elems = new String[4];
+                long id = cur.getLong(cur.getColumnIndex(AnswerEntry._ID));
                 String timestamp = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_TIMESTAMP));
                 long studyId = cur.getLong(cur.getColumnIndex(AnswerEntry.COLUMN_STUDYID));
                 String answerTxt = cur.getString(cur.getColumnIndex(AnswerEntry.COLUMN_ANSWER));
-                sb.append(studyId).append(timestamp).append(",").append(answerTxt);
-                answers.add(sb.toString());
+                elems[0] = Long.toString(id);
+                elems[1] = Long.toString(studyId);
+                elems[2] = timestamp;
+                elems[3] = answerTxt;
+                answers.add(elems);
                 cur.moveToNext();
             }
         } catch (Exception e) {
@@ -720,7 +734,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
 
                 studyArray[i] = new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
-                        minTimeBetweenNotifications + 1, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree);
+                        minTimeBetweenNotifications, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree);
                 //TODO: currently notificationinterval = minTimeBetweenNotifications, redo this system.
             }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -72,7 +73,14 @@ public class SaveAnswersTask extends AsyncTask<String, Void, String> {
                 }
                 return sb.toString();
             } catch (Exception e) {
-                return "Exception: " + e.getMessage();
+                e.printStackTrace();
+                Log.d("SaveAnswersTask", "Error while trying to send data to server, saving to local instead");
+                if(!params[0].equals("none")) {
+                    mydb.insertAnswer(Integer.parseInt(params[1]), escapeChars(params[2]), DBHandler.calendarToString(Calendar.getInstance()));
+                    return "saved-to-local";
+                } else {
+                    return "invalid_token";
+                }
             } finally {
                 if (wr != null) {
                     try {
@@ -93,8 +101,11 @@ public class SaveAnswersTask extends AsyncTask<String, Void, String> {
                 }
             }
         } else {
-            mydb.insertAnswer(Integer.parseInt(params[1]), params[2], DBHandler.calendarToString(Calendar.getInstance()));
-            return "saved-to-local";
+            if(!params[0].equals("none")) {
+                mydb.insertAnswer(Integer.parseInt(params[1]), escapeChars(params[2]), DBHandler.calendarToString(Calendar.getInstance()));
+                return "saved-to-local";
+            } else
+                return "invalid_token";
         }
     }
 

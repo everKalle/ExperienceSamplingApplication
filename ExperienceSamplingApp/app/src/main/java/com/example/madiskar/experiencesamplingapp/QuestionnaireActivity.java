@@ -39,24 +39,27 @@ public class QuestionnaireActivity extends AppCompatActivity {
         setContentView(R.layout.activity_questionnaire);
 
         mydb = DBHandler.getInstance(getApplicationContext());
-
         SharedPreferences spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         token = spref.getString("token", "none");
 
         Bundle extras = getIntent().getExtras();
-        Questionnaire questionnaire = extras.getParcelable("QUESTIONNAIRE");
-        //TODO: get questions from database instead of Bundle
+        Questionnaire questionnaire = extras.getParcelable("QUESTIONNAIRE"); //TODO: remove this, and instead put studyId as parcelable
 
         final int notificationId = extras.getInt("notificationId");
         NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
 
         studyId = questionnaire.getStudyId();
-        questions = questionnaire.getQuestions();
+        ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
 
-        answers = new String[questions.length];
-        for(int i = 0; i < questions.length; i++)
-            answers[i] = "-";
+        answers = new String[questionsArr.size()];
+        questions = new Question[questionsArr.size()];
+
+        for(int j = 0; j < questionsArr.size(); j++) {
+            questions[j] = questionsArr.get(j);
+            answers[j] = "-";
+        }
+
 
         fragmentManager = getFragmentManager();
 
@@ -252,7 +255,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 

@@ -49,8 +49,8 @@ public class StopReceiver extends BroadcastReceiver {
         SaveEventResultTask saveEventResultTask = new SaveEventResultTask(new AsyncResponse() {
             @Override
             public void processFinish(String output) {
-                if (output.equals("invalid_study")) {
-                    Log.i("Events to server: ", "Faulty query");
+                if (output.equals("invalid_event")) {
+                    Log.i("Events to server: ", "This event does not exists");
                 } else if (output.equals("invalid_token")) {
                     Log.i("Events to server: ", "Account authentication failed");
                 } else if (output.equals("nothing")) {
@@ -63,7 +63,7 @@ public class StopReceiver extends BroadcastReceiver {
                     Log.i("Events to server: ", "Something bad happened");
                 }
             }
-        }, (activeNetworkInfo != null), mydb);
+        }, (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb);
         saveEventResultTask.execute(token, Long.toString(eventId), startTime, endTime);
         Log.i("SAVING EVENTS", "START_TIME: " + startTime + ", END_TIME: " + endTime);
 

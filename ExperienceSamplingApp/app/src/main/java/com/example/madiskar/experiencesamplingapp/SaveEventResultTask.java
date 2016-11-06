@@ -2,6 +2,7 @@ package com.example.madiskar.experiencesamplingapp;
 
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -69,7 +70,14 @@ public class SaveEventResultTask extends AsyncTask<String, Void, String> {
                 }
                 return sb.toString();
             } catch (Exception e) {
-                return "Exception: " + e.getMessage();
+                e.printStackTrace();
+                Log.d("SaveEventResultTask", "Error while trying to send data to server, saving to local instead");
+                if(!params[0].equals("none")) {
+                    mydb.insertEventResult(Long.parseLong(params[1]), params[2], (params[3]));
+                    return "saved-to-local";
+                } else {
+                    return "invalid_token";
+                }
             } finally {
                 if (wr != null) {
                     try {
@@ -90,8 +98,12 @@ public class SaveEventResultTask extends AsyncTask<String, Void, String> {
                 }
             }
         } else {
-            mydb.insertEventResult(Long.parseLong(params[1]), params[2], (params[3]));
-            return "saved-to-local";
+            if(!params[0].equals("none")) {
+                mydb.insertEventResult(Long.parseLong(params[1]), params[2], (params[3]));
+                return "saved-to-local";
+            } else {
+                return "invalid_token";
+            }
         }
     }
 
