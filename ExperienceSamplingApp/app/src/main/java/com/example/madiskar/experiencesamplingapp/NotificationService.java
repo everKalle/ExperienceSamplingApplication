@@ -62,7 +62,6 @@ public class NotificationService extends IntentService {
                     studyParam = s;
                 }
             }
-            Log.v("Miskit toimub", studyParam.getName());
             processNotification(name, studyParam.getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int)studyId); //TODO: casting long to int this way might be problematic, should switch to long
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
@@ -137,7 +136,6 @@ public class NotificationService extends IntentService {
                         mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
                     if (!started) {
                         float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
-                        Log.v("helitugevus", String.valueOf(volume));
                         mediaPlayer.setVolume(volume, volume);
                         mediaPlayer.start();
                         started = true;
@@ -167,7 +165,6 @@ public class NotificationService extends IntentService {
                 postponeIntent.putExtra("INTERVAL", study.getNotificationInterval());
                 postponeIntent.putExtra("notificationId", index);
                 postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
-
 
                 PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
@@ -239,20 +236,31 @@ public class NotificationService extends IntentService {
         ArrayList<BeepFerePeriod> beepFrees = new ArrayList<>(DBHandler.getInstance(mContext).getBeepFreePeriods());
         beepFrees.add(study.getDefaultBeepFree());
         // Log.v("SIZE", String.valueOf(beepFrees.size()));
+        Log.v("jajajajajajajajaj", "ei");
         for (int i = 0; i < beepFrees.size(); i++) {
             BeepFerePeriod bfp = beepFrees.get(i);
             int startHour = bfp.getStartTimeHour();
             int startMinute = bfp.getStartTimeMinute();
             int endHour = bfp.getEndTimeHour();
             int endMinute = bfp.getEndTimeMinute();
+            Log.v("kontroll", String.valueOf(hours) + " >= " + String.valueOf(startHour) + " && " + String.valueOf(hours) + " <= " + String.valueOf(endHour));
             if (hours >= startHour && hours <= endHour) {
+                Log.v("kontroll2_1", String.valueOf(hours) + " == " + String.valueOf(startHour) + " && " + String.valueOf(minutes) + " < " + String.valueOf(startMinute));
+                Log.v("kontroll2_2", String.valueOf(hours) + " == " + String.valueOf(endHour) + " && " + String.valueOf(minutes) + " > " + String.valueOf(endMinute));
                 if ((hours == startHour && minutes < startMinute) || (hours == endHour && minutes > endMinute)) {
                 }
                 else {
                     beepfree = true;
                 }
             }
+            else if (hours >= startHour && hours >= endHour && startHour > endHour) {
+                beepfree = true;
+            }
+            else if (hours <= startHour && hours <= endHour && startHour > endHour) {
+                beepfree = true;
+            }
         }
+        Log.v("jajajajajajajajaj", "ei");
         Log.v("Beepfree", String.valueOf(beepfree));
         return beepfree;
     }

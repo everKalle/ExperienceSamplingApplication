@@ -52,7 +52,6 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
 
         Study studyParam = null;
         for (Study s: DBHandler.getInstance(context).getAllStudies()) {
-            Log.v("suurus2","huops");
             if (s.getId() == (int) id) {
                 studyParam = s;
             }
@@ -68,7 +67,6 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         sharedPref = context.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
 
         if (sharedPref.getInt(String.valueOf(study.getId()),0) == 0) {
-            Log.v("ILMNE", "on");
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putInt(String.valueOf(study.getId()), 0);
             editor.apply();
@@ -79,7 +77,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
             DBHandler mydb = DBHandler.getInstance(context);
             studies = mydb.getAllStudies();
         }
-        Log.v("suurus", String.valueOf(studies.size()));
+
         int interval = study.getMinTimeBetweenNotifications();
         String name = study.getName();
         String[] textQuestions = study.questionsAsText();
@@ -100,7 +98,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         }
         else {
             Calendar calendar = Calendar.getInstance();
-            Calendar now = Calendar.getInstance();
+            calendar.add(Calendar.DATE, 1);
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
@@ -134,7 +132,6 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
         intent.putExtra(STUDY_QUESTIONS, questions);
         intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
         intent.putExtra("studyId", id);
-        Log.v("Study ident", String.valueOf(id));
         return PendingIntent.getBroadcast(context, (int) id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 }

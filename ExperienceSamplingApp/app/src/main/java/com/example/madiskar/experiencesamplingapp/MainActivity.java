@@ -306,6 +306,14 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                     Log.v("OPSTI2", "olen siin");
                                     e.printStackTrace();
                                 }
+                                try {
+                                    for (Study s : studylist) {
+                                        Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
+                                        ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+                                    }
+                                }catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                                 EventDialogFragment.studyToNotificationIdMap.clear();
                                 dialog.dismiss();
                                 startActivity(i);
@@ -351,6 +359,14 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     }
                 } catch (Exception e) {
                     Log.v("OPSTI2", "olen siin");
+                }
+                try {
+                    for (Study s : studylist) {
+                        Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
+                        ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+                    }
+                }catch (Exception e) {
+                    e.printStackTrace();
                 }
                 startActivity(i);
                 finish();
