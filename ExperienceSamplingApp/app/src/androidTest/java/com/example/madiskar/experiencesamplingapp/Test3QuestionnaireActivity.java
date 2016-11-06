@@ -42,7 +42,7 @@ import static org.hamcrest.Matchers.is;
 
 
 @RunWith(AndroidJUnit4.class)
-public class Test2EventActivity {
+public class Test3QuestionnaireActivity {
 
     @Rule
     public ActivityTestRule<LoginActivity> mActivityTestRule = new ActivityTestRule<>(LoginActivity.class);
@@ -56,83 +56,58 @@ public class Test2EventActivity {
     }
 
     @Test
-    public void eventActivityTest() throws Exception {
-
-        ViewInteraction appCompatButton2 = onView(
-                allOf(withId(R.id.event_button), withText("Event"),
-                        withParent(childAtPosition(
-                                withId(android.R.id.list),
-                                0)),
-                        isDisplayed()));
-        appCompatButton2.perform(click());
-
-        ViewInteraction appCompatCheckedTextView = onView(
-                allOf(withId(android.R.id.text1), withText("Running"),
-
-                        isDisplayed()));
-        appCompatCheckedTextView.perform(click());
-
-        ViewInteraction appCompatButton3 = onView(
-                allOf(withId(android.R.id.button1), withText("Start")));
-        appCompatButton3.perform(click());
-
-
+    public void questionnaireActivityTest() throws Exception {
         mDevice.openNotification();
         mDevice.wait(Until.hasObject(By.pkg("com.android.systemui")), 10000);
 
-
-        UiObject eventText = mDevice.findObject(new UiSelector().text("Active Event"));
+        mDevice.wait(Until.hasObject(By.text("Android UI testing 1")), 130000);   //Wait for notification
+        UiObject eventText = mDevice.findObject(new UiSelector().text("Questionnaire"));
         assertTrue(eventText.exists());
 
-        UiObject eventName = mDevice.findObject(new UiSelector().text("Running"));
-        assertTrue(eventName.exists());
+        UiObject postponeButton = mDevice.findObject(new UiSelector().textMatches("POSTPONE|Postpone|postpone"));
+        assertTrue(postponeButton.exists());
 
-        UiObject eventFalseName = mDevice.findObject(new UiSelector().text("Short Event"));
-        assertFalse(eventFalseName.exists());
+        UiObject refuseButton = mDevice.findObject(new UiSelector().textMatches("REFUSE|Refuse|refuse"));
+        assertTrue(refuseButton.exists());
 
-        UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
-        assertTrue(eventStopButton.exists());
-        eventStopButton.click();
-    }
+        UiObject okButton = mDevice.findObject(new UiSelector().textMatches("OK|Ok|ok"));
+        assertTrue(okButton.exists());
+        okButton.click();
 
-    @Test
-    public void eventControlTimeTest() throws Exception{
+        ViewInteraction appCompatEditText5 = onView(
+                withId(R.id.inputText));
+        appCompatEditText5.perform(scrollTo(), click());
+
+        ViewInteraction appCompatEditText6 = onView(
+                withId(R.id.inputText));
+        appCompatEditText6.perform(scrollTo(), replaceText("automatic answer"), closeSoftKeyboard());
+
         ViewInteraction appCompatButton2 = onView(
-                allOf(withId(R.id.event_button), withText("Event"),
-                        withParent(childAtPosition(
-                                withId(android.R.id.list),
-                                0)),
-                        isDisplayed()));
+                allOf(withId(R.id.nextquestionbutton), withText("Next"), isDisplayed()));
         appCompatButton2.perform(click());
 
-        ViewInteraction appCompatCheckedTextView = onView(
-                allOf(withId(android.R.id.text1), withText("Short Event"),
-
-                        isDisplayed()));
-        appCompatCheckedTextView.perform(click());
+        ViewInteraction radioButton = onView(
+                allOf(withText("1 - Valik 2"),
+                        withParent(withId(R.id.radioGroupSingle))));
+        radioButton.perform(scrollTo(), click());
 
         ViewInteraction appCompatButton3 = onView(
-                allOf(withId(android.R.id.button1), withText("Start")));
+                allOf(withId(R.id.nextquestionbutton), withText("Next"), isDisplayed()));
         appCompatButton3.perform(click());
 
+        ViewInteraction checkBox = onView(
+                allOf(withText("Mitu - Valik 1"),
+                        withParent(withId(R.id.checkBoxGroup))));
+        checkBox.perform(scrollTo(), click());
 
-        mDevice.openNotification();
-        mDevice.wait(Until.hasObject(By.pkg("com.android.systemui")), 10000);
+        ViewInteraction checkBox2 = onView(
+                allOf(withText("Mitu - Valik 4"),
+                        withParent(withId(R.id.checkBoxGroup))));
+        checkBox2.perform(scrollTo(), click());
 
-
-        mDevice.wait(Until.hasObject(By.text("Controltime has passed")), 70000);
-        UiObject eventText = mDevice.findObject(new UiSelector().text("Controltime for event \"Short Event\" has passed"));
-        assertTrue(eventText.exists());
-
-        UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
-        if (!eventStopButton.exists()){
-            UiObject expandButton = mDevice.findObject(new UiSelector().textMatches(".*01.*"));
-            expandButton.click();
-            eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
-            eventStopButton.click();
-        } else {
-            eventStopButton.click();
-        }
+        ViewInteraction appCompatButton5 = onView(
+                allOf(withId(R.id.nextquestionbutton), withText("Submit"), isDisplayed()));
+        appCompatButton5.perform(click());
     }
 
     private static Matcher<View> childAtPosition(
