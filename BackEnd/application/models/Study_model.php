@@ -385,6 +385,7 @@ class Study_model extends CI_Model {
 		$this->db->select('id, study-title, study-start-date, study-end-date, study-duration-for-user, study-beeps-per-day, study-min-time-between-beeps, study-postpone-time, study-allow-postpone, study-language, study-is-public, study-beep-start-time, study-beep-end-time, study-duration-time, join_date');
 		$this->db->from('view_participant_surveys');
 		$this->db->where('p_id', $p_id);
+		$this->db->where('study-end-date >=', date("y-m-d H:i:s"));
 
 		$query = $this->db->get();
 		
