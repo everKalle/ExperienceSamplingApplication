@@ -176,7 +176,6 @@ public class NotificationService extends IntentService {
 
                 builder.setContentTitle(name)
                         .setOngoing(true)
-                        .setAutoCancel(true)
                         .setColor(getResources().getColor(R.color.colorAccent))
                         .setContentText("Questionnaire")
                         .setSmallIcon(R.drawable.ic_events)
@@ -187,7 +186,7 @@ public class NotificationService extends IntentService {
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(this,
                         index,
-                        new Intent(this, MainActivity.class),
+                        new Intent(),
                         PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setContentIntent(pendingIntent);
 

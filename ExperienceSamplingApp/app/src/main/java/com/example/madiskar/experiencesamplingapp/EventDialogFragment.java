@@ -76,65 +76,68 @@ public class EventDialogFragment extends DialogFragment {
                             }
                         }
 
-                        ArrayList<Integer> values = studyToNotificationIdMap.get((int) studyId);
-                        values.add(uniqueValue);
-                        Log.v("VALUES", Arrays.toString(values.toArray()));
-                        studyToNotificationIdMap.put((int)studyId, values);
+                        try {
+                            ArrayList<Integer> values = studyToNotificationIdMap.get((int) studyId);
+                            values.add(uniqueValue);
+                            Log.v("VALUES", Arrays.toString(values.toArray()));
+                            studyToNotificationIdMap.put((int)studyId, values);
 
-                        //Log.v("IDDD", String.valueOf(selectedItemId));
-                        Intent stopIntent = new Intent(getContext(), StopReceiver.class);
+                            //Log.v("IDDD", String.valueOf(selectedItemId));
+                            Intent stopIntent = new Intent(getContext(), StopReceiver.class);
 
-                        stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
-                        stopIntent.putExtra("notificationId", uniqueValue);
-                        stopIntent.putExtra("studyId", studyId);
-                        //Log.v("EVENT", events[selectedItemId].getName());
-                        stopIntent.putExtra("eventId", events[selectedItemId].getId());
+                            stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
+                            stopIntent.putExtra("notificationId", uniqueValue);
+                            stopIntent.putExtra("studyId", studyId);
+                            //Log.v("EVENT", events[selectedItemId].getName());
+                            stopIntent.putExtra("eventId", events[selectedItemId].getId());
 
-                        PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), uniqueValue, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), uniqueValue, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                        NotificationCompat.Builder mBuilder =
-                                new NotificationCompat.Builder(getContext())
-                                        .setSmallIcon(R.drawable.ic_events)
-                                        .setContentTitle("Active Event")
-                                        .setContentText(selectedItem)
-                                        .setWhen(System.currentTimeMillis())
-                                        .setUsesChronometer(true)
-                                        .addAction(R.drawable.ic_stop, "Stop", stopPendingIntent)
-                                        .setOngoing(true);
+                            NotificationCompat.Builder mBuilder =
+                                    new NotificationCompat.Builder(getContext())
+                                            .setSmallIcon(R.drawable.ic_events)
+                                            .setContentTitle("Active Event")
+                                            .setContentText(selectedItem)
+                                            .setWhen(System.currentTimeMillis())
+                                            .setUsesChronometer(true)
+                                            .addAction(R.drawable.ic_stop, "Stop", stopPendingIntent)
+                                            .setOngoing(true);
 
-                        NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                        if (selectedItem != null) {
-                            Log.v("Unique", String.valueOf(uniqueValue));
-                            manager.notify(uniqueValue, mBuilder.build());
-                            int controlTime = events[selectedItemId].getControlTime();
-                            String unit = events[selectedItemId].getUnit();
+                            NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                            if (selectedItem != null) {
+                                //Log.v("Unique", String.valueOf(uniqueValue));
+                                manager.notify(uniqueValue, mBuilder.build());
+                                int controlTime = events[selectedItemId].getControlTime();
+                                Log.v("controlTime", String.valueOf(controlTime));
+                                Log.v("unit", String.valueOf(events[selectedItemId].getUnit()));
+                                String unit = events[selectedItemId].getUnit();
 
-                            int multiplier = 0;
-                            double minuteMultiplier = 1;
-                            if (unit.equals("h")) {
-                                multiplier = controlTime * 60 * 60 * 1000;
-                                minuteMultiplier = 60;
+                                int multiplier = 0;
+                                double minuteMultiplier = 1;
+                                if (unit.equals("h")) {
+                                    multiplier = controlTime * 60 * 60 * 1000;
+                                    minuteMultiplier = 60;
+                                } else if (unit.equals("m")) {
+                                    multiplier = controlTime * 60 * 1000;
+                                } else if (unit.equals("s")) {
+                                    multiplier = controlTime * 1000;
+                                    minuteMultiplier = 1 / 60.0;
+                                }
+                                Log.v("controlTimeMillis", String.valueOf(multiplier * minuteMultiplier));
+
+                                Intent controltimeIntent = new Intent(getContext(), ControlTimeReceiver.class);
+                                controltimeIntent.putExtra("notificationId", uniqueValue);
+                                controltimeIntent.putExtra("eventId", events[selectedItemId].getId());
+                                controltimeIntent.putExtra("controlTime", (int) (controlTime * minuteMultiplier));
+                                controltimeIntent.putExtra("eventName", events[selectedItemId].getName());
+
+
+                                int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
+                                PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), uniqueId, controltimeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                                alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + multiplier, pendingIntent);
                             }
-                            else if (unit.equals("m")) {
-                                multiplier = controlTime * 60 * 1000;
-                                //Log.v("HERE I AM", String.valueOf(multiplier));
-                            }
-                            else if (unit.equals("s")) {
-                                multiplier = controlTime * 1000;
-                                minuteMultiplier = 1/60.0;
-                            }
-
-                            Intent controltimeIntent = new Intent(getContext(), ControlTimeReceiver.class);
-                            controltimeIntent.putExtra("notificationId", uniqueValue);
-                            controltimeIntent.putExtra("eventId", events[selectedItemId].getId());
-                            controltimeIntent.putExtra("controlTime", (int)(controlTime * minuteMultiplier));
-
-
-                            int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
-                            PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), uniqueId, controltimeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                            AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + multiplier, pendingIntent);
-                        }
+                        } catch (Exception e) {}
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

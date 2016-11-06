@@ -34,7 +34,8 @@ public class VolumeControlActivity extends FragmentActivity {
 
         spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
 
-        seekBar.setProgress(spref.getInt("volume",0));
+        if (spref.getInt("volume",-1) != -1)
+            seekBar.setProgress(spref.getInt("volume",0));
         highText.setText(String.valueOf(seekBar.getProgress()));
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
