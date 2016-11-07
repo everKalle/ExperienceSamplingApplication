@@ -1,73 +1,20 @@
 <div class="page-header">
   <h2><?php echo $study_details['study-title']; ?></h2>
+  <h4 class="text-muted">Omanik: <?php echo $owner_name; ?></h4>
 </div>
 
 
-<div class="panel panel-info">
-  <div class="panel-heading">
-    Uuringu jagamine
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-sm-6">
-        <p><strong>Uuring on jagatud järgnevate inimestega: </strong></p>
-          <ul class="list-group">
-            <?php foreach ($shared_with as $sw):
-              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $sw['username'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_share/'.$study_details['id'].'/'.$sw['users_id']) . '" class="text-danger">Eemalda</a></div></div></li>';
-            endforeach; ?>
-          </ul>
-      </div>
-      <div class="col-sm-6">
-  			<?php echo form_open('study/share/'.$study_details['id']); ?>
-        <div class="form-group">
-          <label class="control-label" for="share-study-username">Sisesta nimi:</label>
-          <input class="form-control" list="usernames" id="share-study-username" name="share-study-username" placeholder="Nimi" required>
-          <datalist id="usernames">
-            <?php foreach ($other_users as $ou):
-              echo '<option value="' . $ou['username'] . '">';
-            endforeach; ?>
-          </datalist>
-        </div>
-        <input class="btn btn-primary" type="submit" name="submit" id="submit-button" value="Jaga uuring"/>
-  			</form>
-      </div>
-    </div>
-  </div>
-</div>
 <?php if (!$study_details['study-is-public']) { ?>
 <div class="panel panel-success">
   <div class="panel-heading">
     Uuringusse osalejate lisamine
   </div>
   <div class="panel-body">
-    <div class="row">
-      <div class="col-sm-6">
-        <p><strong>Uuringus osalejad:: </strong></p>
-          <ul class="list-group">
-            <?php foreach ($participants as $p):
-              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $p['email'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_participant/'.$study_details['id'].'/'.$p['participant_id']) . '" class="text-danger">Eemalda</a></div></div></li>';
-            endforeach; ?>
-          </ul>
-      </div>
-      <div class="col-sm-6">
-        <?php echo form_open('study/add_participant/'.$study_details['id']); ?>
-        <div class="form-group">
-          <label class="control-label" for="add-participant-username">Sisesta e-maili aadress:</label>
-          <input class="form-control" list="partic" id="add-participant-username" name="add-participant-username" placeholder="E-Mail" required>
-          <datalist id="partic">
-            <?php foreach ($all_participants as $ou):
-              echo '<option value="' . $ou['email'] . '">';
-            endforeach; ?>
-          </datalist>
-        </div>
-        <input class="btn btn-primary" type="submit" name="submit" id="submit-button" value="Jaga uuring"/>
-        </form>
-      </div>
-    </div>
+    <strong>TODO</strong>
   </div>
 </div>
-<?php } ?>
 <br><br>
+<?php } ?>
 
 <div class="panel panel-info">
   <div class="panel-heading">
@@ -172,29 +119,5 @@
     <?php if (count($events) > 0) { ?>
     <p><a href="<?php echo site_url('study/event_results/'.$study_details['id']); ?>">Lae alla sündmuste tulemused CSV-failina</a></p>
     <?php } ?>
-  </div>
-</div>
-
-<a href="<?php echo site_url('study/modify/'.$study_details['id']); ?>" type="button" class="btn btn-lg btn-warning">Muuda</a>
-<button type="button" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#deleteModal">Kustuta</button>
-
-<div id="deleteModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Palun kinnitata uuringu kustutamine</h4>
-      </div>
-      <div class="modal-body">
-        <p>Kas oled kindel, et soovid kustutada uuringu "<?php echo $study_details['study-title']; ?>"</p>
-        <p class="small text-danger">Seda tegevust ei saa tagasi võtta!</p>
-      </div>
-      <div class="modal-footer">
-        <a href="<?php echo site_url('study/delete/'.$study_details['id']); ?>" class="btn btn-danger">Kustuta</a>
-        <button type="button" class="btn btn-default" data-dismiss="modal">Tühista</button>
-      </div>
-    </div>
-
   </div>
 </div>

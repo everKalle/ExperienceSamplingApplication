@@ -25,6 +25,7 @@
         <div class="col-sm-7">
           <input class="form-control" type="text" id="study-end-date" name="gen[study-end-date]" size="30" placeholder="yyyy-mm-dd" required/><br>
           <span style="display: none;" id="study-date-help" class="help-block">Alguskuupäev peab eelnema lõppkuupäevale!</span>
+          <span style="display: none;" id="study-date-help-too-early" class="help-block">Alguskuupäev ei saa eelneda praegusele kuupäevale!</span>
         </div>
       </div>
       <div class="form-group">

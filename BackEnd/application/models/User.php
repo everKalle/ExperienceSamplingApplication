@@ -22,6 +22,28 @@ class User extends CI_Model {
 		$this->db->update('users', array('password' => hash('sha256',$password)));
 		return true;
 	}
+
+	function get_other_usernames($self_username) {
+		$this->db->select('username');
+		$this->db->from('users');
+		$this->db->where('username !=', $self_username);
+		$query = $this->db->get();
+
+		return $query->result_array();
+	}
+
+	function get_username_via_id($id) {
+		$this->db->select('username');
+		$this->db->from('users');
+		$this->db->where('id', $id);
+		$this->db->limit(1);
+		$query = $this->db->get();
+		if($query -> num_rows() == 1) {
+			return $query->row_array();
+		} else {
+			return false;
+		}
+	}
 }
 
 ?>
