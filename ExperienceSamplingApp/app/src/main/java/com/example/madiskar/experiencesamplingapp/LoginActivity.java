@@ -204,7 +204,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Failed to fetch data", Toast.LENGTH_LONG).show();
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
-                                Log.i("LOGGING SERVER RESPONSE", output);
+                                //Log.i("LOGGING SERVER RESPONSE", output);
                                 //mydb.clearTables();
                                 JSONArray jsonArray = DBHandler.parseJsonString(output);
                                 Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
