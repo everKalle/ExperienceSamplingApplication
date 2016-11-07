@@ -3,9 +3,7 @@ package com.example.madiskar.experiencesamplingapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by Joosep on 25.09.2016.
- */
+
 public abstract class Question implements Parcelable{
 
     private long studyId;

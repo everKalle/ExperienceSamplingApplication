@@ -13,9 +13,23 @@
         <item name="android:background">#263238</item>
     </style>
 
+    <style name="AppTheme_Dark_Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/buttonTextAccent</item>
+        <item name="android:textColorPrimary">@color/buttonTextAccent</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.UserDialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

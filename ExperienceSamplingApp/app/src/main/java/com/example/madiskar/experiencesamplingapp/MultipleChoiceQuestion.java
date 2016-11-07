@@ -5,9 +5,7 @@ import android.os.Parcelable;
 
 import java.util.Arrays;
 
-/**
- * Created by Joosep on 25.09.2016.
- */
+
 public class MultipleChoiceQuestion extends Question {
 
     private String[] choices;

@@ -1,9 +1,15 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.PendingIntent;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteReadOnlyDatabaseException;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -19,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.preference.PreferenceManager;
 import java.util.ArrayList;
@@ -26,9 +33,7 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements BeepfreePeriodPickerFragment.BeepFreePeriodListener{
 
-    private static int periodID = 0;
-    private static String TAG = MainActivity.class.getSimpleName();
-
+    //TODO - DISALLOW CLICKING ON NOTIFICATIONS AND THUS STARTING AN EVIL ALL-DESTROYING ACTIVITY
     ListView mDrawerList;
     RelativeLayout mDrawerPane;
     ArrayList<BeepFerePeriod> bfpArrayList = new ArrayList<BeepFerePeriod>();
@@ -41,21 +46,35 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-	PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         setContentView(R.layout.activity_main);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mMenuItems.add(new MenuItem("My Studies", "View my current studies", R.drawable.ic_study));
-        mMenuItems.add(new MenuItem("My Events", "View active events", R.drawable.ic_events));
-        mMenuItems.add(new MenuItem("Join Studies", "Browse and join available \nstudies", R.drawable.ic_add));
-        mMenuItems.add(new MenuItem("Log Out", "Log out from current account", R.drawable.ic_logout));
-        mMenuItems.add(new MenuItem("Exit", "Active studies will continue \nto run in background", R.drawable.ic_exit));
+        SharedPreferences spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+        String username = spref.getString("username", "none");
+        TextView usernameField = (TextView) findViewById(R.id.userName_email);
+        usernameField.setText(username);
 
-        BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
-        bfpArrayList.add(bfp);
-        NotificationService.addBeepFreePeriod(bfp);
-        periodID = 1;
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        ArrayList<BeepFerePeriod> bfps = mydb.getBeepFreePeriods();
+        Log.v("KONTROLL", String.valueOf(bfps.size()));
+        adapter = new BeepFreePeriodListAdapter(this, bfps);
+        adapter.updateAdapter(bfps);
+
+
+        mMenuItems.add(new MenuItem(getString(R.string.studies), getString(R.string.viewstudies), R.drawable.ic_study));
+        mMenuItems.add(new MenuItem(getString(R.string.join), getString(R.string.browsestudies), R.drawable.ic_add));
+        mMenuItems.add(new MenuItem(getString(R.string.events), getString(R.string.activeeents), R.drawable.ic_events));
+        mMenuItems.add(new MenuItem(getString(R.string.action_settings), getString(R.string.changesettings), R.drawable.ic_settings));
+        mMenuItems.add(new MenuItem(getString(R.string.logout), getString(R.string.logcurrent), R.drawable.ic_logout));
+        mMenuItems.add(new MenuItem(getString(R.string.exit), getString(R.string.runbackground), R.drawable.ic_exit));
+
+        //BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
+        //bfpArrayList.add(bfp);
+        //DBHandler dbHandler = DBHandler.getInstance(getApplicationContext());
+        //dbHandler.insertBeepFreePeriod(bfp);
         // DrawerLayout
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -88,19 +107,29 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                Log.d(TAG, "onDrawerClosed: " + getTitle());
+                //Log.d(TAG, "onDrawerClosed: " + getTitle());
 
                 invalidateOptionsMenu();
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
-        FreeTextQuestion q4 = new FreeTextQuestion(0, "Is it easy?");
-        FreeTextQuestion q2 = new FreeTextQuestion(0, "Is it still easy?");
-        FreeTextQuestion q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
-        MultipleChoiceQuestion q1 = new MultipleChoiceQuestion(0, 1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
-        MultipleChoiceQuestion q5 = new MultipleChoiceQuestion(0, 0, "How would you rate the difficulty of this question now huh?", new String[]{"pretty easy", "medium, I think", "hard", "impossible"});
+
+        setTitle("My Studies");
+        loadFragment("My Studies", false);
+
+
+        //TODO: Check for problems in dbhandler methods
+
+        //TODO: look over db querys and maybe use asynctask with the bigger ones
+        /*
+
+        Question q4 = new FreeTextQuestion(0, "Is it easy?");
+        Question q2 = new FreeTextQuestion(0, "Is it still easy?");
+        Question q3 = new FreeTextQuestion(1, "Is it easy or is it easy?");
+        Question q1 = new MultipleChoiceQuestion(0, 1, "How would you rate the difficulty of this question?", new String[]{"easy", "medium", "hard"});
+        Question q5 = new MultipleChoiceQuestion(0, 0, "How would you rate the difficulty of this question?", new String[]{"pretty easy", "medium, I think", "hard", "impossible"});
 
         Question[] batch1 = {q4,q2,q5,q1};
         //Log.v("TESTING", String.valueOf(q4 instanceof FreeTextQuestion));
@@ -110,17 +139,42 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         Questionnaire qnaire1 = new Questionnaire(0, batch1);
         Questionnaire qnaire2 = new Questionnaire(1, batch2);
 
-        Calendar c1 = Calendar.getInstance();
-        c1.set(2016, 2, 20);
-        Calendar c2 = Calendar.getInstance();
-        c2.set(2016, 3, 20);
-        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 3, 1, 5, true, 1);
-        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 3, 1, 5, true, 1);
+        //yyyy-MM-dd HH:mm:ss
+        String c1s = "2016-2-10";
+        String c2s = "2016-3-10";
+        Calendar c1 = DBHandler.stringToCalendar(c1s);
+        //Log.i("BEGINDATE", DBHandler.calendarToString(c1));
+        //c1.set(2016, 2, 20, 10, 0);
+        Calendar c2 = DBHandler.stringToCalendar(c2s);
+        //Log.i("ENDDATE", DBHandler.calendarToString(c2));
+        //c2.set(2016, 3, 20, 10, 0);
+        Event event1 = new Event(0,1,"Running",5, "m");
+        Event event2 = new Event(1,1, "Cooking",5, "m");
+        Event event3 = new Event(2,1, "Swimming",5, "m");
+        Event event4 = new Event(3,1, "Dancing",7, "m");
+        Event event5 = new Event(4,1, "Sleeping",2, "m");
+        Event event6 = new Event(5,1,"Cycling",3, "m");
+        Event event7 = new Event(6,1, "Boxing",1, "m");
+        Event event8 = new Event(7,1, "Eating",4, "m");
+        Event event9 = new Event(8, 1, "Gaming", 5, "m");
+        Event event14 = new Event(13, 1, "Drinking Vodka", 5, "m");
+        Event event15 = new Event(14, 1, "Trying to get a girlfriend", 5, "m");
+
+        Event event10 = new Event(9,2, "Cooking",3, "m");
+        Event event11 = new Event(10,2, "Dancing",5, "m");
+        Event event12 = new Event(11,2, "Eating",1, "m");
+        Event event13 = new Event(12,2, "Gaming",2, "m");
+
+        Event[] eventsArray1 = {event1, event2, event3, event4, event5, event6, event7, event8, event9, event14, event15};
+        Event[] eventsArray2 = {event10, event11, event12, event13};
+
+        Study study1 = new Study(0, "Study 1", qnaire1, c1, c2, 30, 5, 1, 2, true, 2, eventsArray1, new BeepFerePeriod(1000,16,20,17,11));
+        Study study2 = new Study(1, "Study 2", qnaire2, c1, c2, 30, 6, 2, 2, true, 1, eventsArray2, new BeepFerePeriod(10001,10,10,11,11));
 
         getApplicationContext().deleteDatabase("ActiveStudies.db"); // recreate database every time for testing purposes
 
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
-        //mydb.clearTables();
+        mydb.clearTables();
 
         try {
             mydb.insertStudy(study1);
@@ -143,12 +197,20 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         for(Study s : currentStudies)
             if(s.getName().equals("Study 1"))
                 study1 = s;
-        */
+
 
         setTitle("My Studies");
         loadFragment("My Studies", false);
 
-        ResponseReceiver.setupAlarm(getApplicationContext(), study1, true);
+
+        ArrayList<Study> studylist = mydb.getAllStudies();
+
+        for(Study s : studylist) {
+            ResponseReceiver rR = new ResponseReceiver(s);
+            rR.setupAlarm(getApplicationContext(), true);
+        }
+
+        */
 
     }
 
@@ -161,14 +223,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerPane);
         String itemName = mMenuItems.get(position).mTitle;
-        setTitle(itemName);
         loadFragment(itemName, true);
-
     }
 
     private void loadFragment(String itemName, boolean from_menu) {
         FragmentManager fragmentManager = getFragmentManager();
-        if(itemName == "My Studies") {
+        if(itemName.equals("My Studies")) {
+        	setTitle(itemName);
             Fragment fragment = new StudyFragment();
             Bundle args = new Bundle();
             args.putBoolean("fromNav", from_menu);
@@ -183,14 +244,143 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .replace(R.id.mainContent, fragment)
                     .commit();
 
-
         }
-	else if (itemName.equals("Settings")) {
+	    else if (itemName.equals("Settings")) {
        	    getFragmentManager().beginTransaction()
                     .replace(R.id.mainContent, new SettingsFragment())
                     .commit();
         }
-        // TODO: other fragments here
+        else if (itemName.equals("Log Out")) {
+            DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+            final ArrayList<Study> studylist = mydb.getAllStudies();
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            boolean anyEvents = false;
+            for (Study s: studylist) {
+                if (EventDialogFragment.studyToNotificationIdMap.get((int)s.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int)s.getId()).size() < 1) {}
+                else
+                    anyEvents = true;
+            }
+
+            if (anyEvents) {
+                alertDialogBuilder.setMessage("You have some active events which will be discarded. Are you sure you want to log out?");
+                alertDialogBuilder.setNegativeButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putInt("LoggedIn", 0);
+                                editor.putString("username", "none");
+                                editor.putString("token", "none");
+                                editor.apply();
+                                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                                DBHandler.getInstance(getApplicationContext()).clearTables();
+                                try {
+                                    for (Study s : studylist) {
+                                        //Log.v("OPSTI", "olen siin");
+                                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                                        am.cancel(pendingIntent);
+                                    }
+                                    for (Study s : studylist) {
+                                        NotificationService.cancelNotification(getApplicationContext(), (int) s.getId());
+                                    }
+                                } catch (Exception e) {
+                                    //Log.v("OPSTI2", "olen siin");
+                                    e.printStackTrace();
+                                }
+
+                                try {
+                                    for (Study s : studylist) {
+                                        EventDialogFragment.cancelEvents(getApplicationContext(), (int) s.getId());
+                                    }
+                                } catch (Exception e) {
+                                    Log.v("OPSTI2", "olen siin");
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    Intent intent = new Intent(getBaseContext(), QuestionnaireActivity.class);
+                                    for (Study s : studylist) {
+                                        ResponseReceiver.cancelExistingAlarm(getBaseContext(), intent, Integer.valueOf((s.getId()+1) + "00002"), false);
+                                    }
+                                } catch (Exception e) {
+                                    Log.v("OPSTI2", "olen siin");
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    for (Study s : studylist) {
+                                        Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
+                                        ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+                                    }
+                                }catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                EventDialogFragment.studyToNotificationIdMap.clear();
+                                dialog.dismiss();
+                                startActivity(i);
+                                finish();
+                            }
+                        });
+                alertDialogBuilder.setPositiveButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+            else {
+                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt("LoggedIn", 0);
+                editor.putString("username", "none");
+                editor.putString("token", "none");
+                editor.apply();
+                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                DBHandler.getInstance(getApplicationContext()).clearTables();
+                try {
+                    for (Study s : studylist) {
+                        //Log.v("OPSTI", "olen siin");
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                        am.cancel(pendingIntent);
+                    }
+                    for (Study s : studylist) {
+                        NotificationService.cancelNotification(this, (int) s.getId());
+                    }
+                } catch (Exception e) {
+                    //Log.v("OPSTI2", "olen siin");
+                    e.printStackTrace();
+                }
+
+                try {
+                    for (Study s : studylist) {
+                        EventDialogFragment.cancelEvents(this, (int) s.getId());
+                    }
+                } catch (Exception e) {
+                    Log.v("OPSTI2", "olen siin");
+                }
+                try {
+                    for (Study s : studylist) {
+                        Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
+                        ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+                    }
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+                startActivity(i);
+                finish();
+            }
+        }
+        else if (itemName.equals("Exit")) {
+            finish();
+        }
+        else if(itemName.equals("Join Studies")) {
+            //TODO: launch study join activity here
+        }
+        else if(itemName.equals("My Events")) {
+            //TODO: launch activity where one can see active events and press stop
+        }
     }
 
 
@@ -214,11 +404,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             return true;
         }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         if (id == R.id.menu_settings) {
             setUpBeepFreePeriods(getWindow().getDecorView().getRootView());
         }
@@ -227,7 +412,8 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     }
 
     public void setUpBeepFreePeriods(View v) {
-        adapter = new BeepFreePeriodListAdapter(this, bfpArrayList);
+        DBHandler myDb = DBHandler.getInstance(getApplicationContext());
+        adapter = new BeepFreePeriodListAdapter(this, myDb.getBeepFreePeriods());
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Set beepfree periods");
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -242,9 +428,37 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         BeepfreePeriodPickerFragment dialogFragment = new BeepfreePeriodPickerFragment();
+                        DBHandler dbHandler = DBHandler.getInstance(getApplicationContext());
+                        ArrayList<BeepFerePeriod> beepFerePeriods = dbHandler.getBeepFreePeriods();
                         Bundle b = new Bundle();
+                        ArrayList<Integer> existingStartHours = new ArrayList<Integer>();
+                        ArrayList<Integer> existingStartMinutes = new ArrayList<Integer>();
+                        ArrayList<Integer> existingEndHours = new ArrayList<Integer>();
+                        ArrayList<Integer> existingEndMinutes = new ArrayList<Integer>();
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
+                            existingStartHours.add(bfp.getStartTimeHour());
+                        }
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
+                            existingStartMinutes.add(bfp.getStartTimeMinute());
+                        }
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
+                            existingEndHours.add(bfp.getEndTimeHour());
+                        }
+                        for (BeepFerePeriod bfp: beepFerePeriods) {
+                            existingEndMinutes.add(bfp.getEndTimeMinute());
+                        }
+                        b.putIntegerArrayList("existingStartHours", existingStartHours);
+                        b.putIntegerArrayList("existingStartMinutes", existingStartMinutes);
+                        b.putIntegerArrayList("existingEndHours", existingEndHours);
+                        b.putIntegerArrayList("existingEndMinutes", existingEndMinutes);
                         b.putBoolean("new", true);
-                        b.putInt("identificator", periodID);
+                        int beepFreeId = 0;
+                        for (BeepFerePeriod beepFerePeriod: beepFerePeriods) {
+                            if (beepFreeId == (int) beepFerePeriod.getId())
+                                beepFreeId++; // TODO - Kontrollida, kas andmebaasiga ei teki jama, kui ntx pannakse mõni int mitmendat korda
+                        }
+                        Log.v("identificatior", String.valueOf(beepFreeId));
+                        b.putInt("identificator", beepFreeId);
                         dialogFragment.setArguments(b);
                         dialogFragment.show(fm, "timePicker");
                         //periods.add(dialogFragment.getCreatedBeepFreePeriod());
@@ -280,10 +494,12 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     public void onDialogPositiveClick(BeepfreePeriodPickerFragment dialog) {
         BeepFerePeriod bfp = dialog.getCreatedBeepFreePeriod();
-        bfpArrayList.add(bfp);
-        NotificationService.addBeepFreePeriod(bfp);
-        adapter.updateAdapter(bfpArrayList);
-        periodID += 1;
+        //bfpArrayList.add(bfp);
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        mydb.insertBeepFreePeriod(bfp);
+        Log.v("MUUTUS", String.valueOf(mydb.getBeepFreePeriods().size()));
+        //NotificationService.addBeepFreePeriod(bfp);
+        adapter.updateAdapter(mydb.getBeepFreePeriods());
     }
 
     @Override
@@ -291,14 +507,16 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     }
 
     public static void removeItem(int position) {
-        periodID -= 1;
-        NotificationService.removeBeepFreePeriod(position);
+        //NotificationService.removeBeepFreePeriod(position);
     }
 
     @Override
     public void onDialogUpdateObject(BeepfreePeriodPickerFragment dialog) {
         BeepFerePeriod bfp = dialog.getEditedBeepFreePeriod();
+        DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+        mydb.editBeepFree(bfp);
         adapter.indexBasedUpdateAdapter(bfp.getId(), bfp);
-        NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
+
+        //  NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
     }
 }

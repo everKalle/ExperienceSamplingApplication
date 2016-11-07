@@ -21,6 +21,11 @@
         android:entries="@array/LanguageEntries"
         android:entryValues="@array/LanguageValues"
         android:defaultValue="0"/>
-
-
+    <Preference android:title="@string/pref_alarm_volume"
+        android:key="changeVolume"
+        android:summary="@string/change_volume">
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.madiskar.experiencesamplingapp"
+            android:targetClass="com.example.madiskar.experiencesamplingapp.VolumeControlActivity"/>
+    </Preference>
 </PreferenceScreen>

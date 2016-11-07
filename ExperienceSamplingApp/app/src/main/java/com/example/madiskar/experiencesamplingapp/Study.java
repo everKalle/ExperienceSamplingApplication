@@ -3,15 +3,17 @@ package com.example.madiskar.experiencesamplingapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.regex.Pattern;
 
-/**
- * Created by Joosep on 25.09.2016.
- */
+
 public class Study {
     private long id;
     private Questionnaire qBatch;
@@ -20,12 +22,16 @@ public class Study {
     private Calendar endDate;
     private int studyLength;
     private int notificationsPerDay;
-    private int notificationInterval;
+    private int notificationInterval; // TODO: REMOVE THIS, CURRENTLY  notificationInterval = minTimeBetweenNotifications
     private int minTimeBetweenNotifications;
     private int postponeTime;
     private boolean postponable;
+    private Event[] events;
+    private BeepFerePeriod defaultBeepFree;
 
-    public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength, int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable, int minTimeBetweenNotifications){
+    public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength,
+                 int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable,
+                 int minTimeBetweenNotifications, Event[] events, BeepFerePeriod defaultBeepFree){
         this.id = id;
         this.name = name;
         this.qBatch = qBatch;
@@ -37,7 +43,10 @@ public class Study {
         this.postponeTime = postponeTime;
         this.postponable = postponable;
         this.minTimeBetweenNotifications = minTimeBetweenNotifications;
+        this.events = events;
+        this.defaultBeepFree = defaultBeepFree;
     }
+
 
     public String[] questionsAsText() {
 
@@ -87,5 +96,13 @@ public class Study {
         return postponable;
     }
 
+    public BeepFerePeriod getDefaultBeepFree() {
+        return this.defaultBeepFree;
+    }
+
     public int getMinTimeBetweenNotifications() { return minTimeBetweenNotifications; }
+
+    public Event[] getEvents() {
+        return events;
+    }
 }

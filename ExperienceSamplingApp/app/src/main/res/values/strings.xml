@@ -17,4 +17,21 @@
     <string name="pref_alarm_type">Alarm type</string>
     <string name="pref_alarm_tone">Alarm tone</string>
     <string name="pref_language">Language</string>
+    <string name="new_event">Active Event</string>
+    <string name="start">Start</string>
+    <string name="cancel">Cancel</string>
+    <string name="choose_event">Choose the type of event and press \"Start\"</string>
+    <string name="studies">My Studies</string>
+    <string name="join">Join Studies</string>
+    <string name="events">My Events</string>
+    <string name="logout">Log Out</string>
+    <string name="exit">Exit</string>
+    <string name="viewstudies">View my current studies</string>
+    <string name="browsestudies">Browse and join available  studies</string>
+    <string name="activeeents">View my active events</string>
+    <string name="changesettings">View my active events</string>
+    <string name="logcurrent">Log out from current account</string>
+    <string name="runbackground">Active studies will continue  to run in background</string>
+    <string name="pref_alarm_volume">Alarm volume</string>
+    <string name="change_volume">Change the volume of the alarms</string>
 </resources>

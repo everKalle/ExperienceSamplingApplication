@@ -48,13 +48,23 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back"
-        android:id="@+id/previousquestionbutton"
+        android:text="Cancel"
+        android:id="@+id/cancel_questionnaire_button"
         android:layout_alignTop="@+id/nextquestionbutton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:background="@color/colorPrimary"
         android:textColor="@color/buttonTextAccent" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:id="@+id/previousquestionbutton"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/buttonTextAccent"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

@@ -4,9 +4,6 @@ import android.app.ListFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -47,5 +44,6 @@ public class StudyFragment extends ListFragment {
         }.execute();
 
     }
+
 
 }

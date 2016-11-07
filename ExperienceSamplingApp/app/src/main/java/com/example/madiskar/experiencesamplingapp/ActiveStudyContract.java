@@ -20,6 +20,7 @@ public class ActiveStudyContract {
         public static final String COLUMN_MINTIMEBETWEENNOTIFICATIONS = "minTimeBetweenNotifications";
         public static final String COLUMN_POSTPONETIME = "postponeTime";
         public static final String COLUMN_POSTPONABLE = "postponable";
+        public static final String COLUMN_DEFAULTBEEPFREE = "default_beepfree";
     }
 
     public static class QuestionEntry implements  BaseColumns {
@@ -36,5 +37,25 @@ public class ActiveStudyContract {
         public static final String COLUMN_STUDYID = "study_id";
         public static final String COLUMN_ANSWER = "answer";
         public static final String COLUMN_TIMESTAMP = "timestamp";
+    }
+
+    public static class EventEntry implements BaseColumns {
+        public static final String TABLE_NAME = "event_table";
+        public static final String COLUMN_STUDYID = "study_id";
+        public static final String COLUMN_NAME = "event_title";
+        public static final String COLUMN_CONTROLTIME = "event_control_time";
+        public static final String COLUMN_UNIT = "event_unit";
+    }
+
+    public static class EventResultsEntry implements BaseColumns {
+        public static final String TABLE_NAME = "event_results_table";
+        public static final String COLUMN_EVENTID = "event_id";
+        public static final String COLUMN_STARTTIME = "event_starttime";
+        public static final String COLUMN_ENDTIME = "event_endtime";
+    }
+
+    public static class BeepFreePeriodEntry implements BaseColumns {
+        public static final String TABLE_NAME = "beepfree_table";
+        public static final String BEEPFREE_TIME = "beepfree_time";
     }
 }

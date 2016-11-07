@@ -76,6 +76,8 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
         //View mainView = inflater.inflate(R.layout.beepfree_period_container,null);
         //LinearLayout linearLayout = (LinearLayout) mainView.findViewById(R.id.newLayout);
 
+        DBHandler myDb = DBHandler.getInstance(mContext);
+        final ArrayList<BeepFerePeriod> bfps = myDb.getBeepFreePeriods();
 
         TextView durationView = (TextView) convertView.findViewById(R.id.beepfree_duration);
 
@@ -126,7 +128,7 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 DialogFragment dialogFragment = new BeepfreePeriodPickerFragment();
                 dialogFragment.setTargetFragment(dialogFragment, 1);
                 BeepFerePeriod bfp = beepFerePeriods.get(position);
-                Log.v("bfp IDDDDD", String.valueOf(bfp.getId()));
+                // Log.v("bfp IDDDDD", String.valueOf(bfp.getId()));
                 Bundle b = new Bundle();
                 b.putBoolean("new", false);
                 b.putInt("id", bfp.getId());
@@ -134,6 +136,27 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 b.putInt("startMinute", bfp.getStartTimeMinute());
                 b.putInt("endHour", bfp.getEndTimeHour());
                 b.putInt("endMinute", bfp.getEndTimeMinute());
+
+                ArrayList<Integer> existingStartHours = new ArrayList<Integer>();
+                ArrayList<Integer> existingStartMinutes = new ArrayList<Integer>();
+                ArrayList<Integer> existingEndHours = new ArrayList<Integer>();
+                ArrayList<Integer> existingEndMinutes = new ArrayList<Integer>();
+                for (BeepFerePeriod bfp2: bfps) {
+                    existingStartHours.add(bfp2.getStartTimeHour());
+                }
+                for (BeepFerePeriod bfp2: bfps) {
+                    existingStartMinutes.add(bfp2.getStartTimeMinute());
+                }
+                for (BeepFerePeriod bfp2: bfps) {
+                    existingEndHours.add(bfp2.getEndTimeHour());
+                }
+                for (BeepFerePeriod bfp2: bfps) {
+                    existingEndMinutes.add(bfp2.getEndTimeMinute());
+                }
+                b.putIntegerArrayList("existingStartHours", existingStartHours);
+                b.putIntegerArrayList("existingStartMinutes", existingStartMinutes);
+                b.putIntegerArrayList("existingEndHours", existingEndHours);
+                b.putIntegerArrayList("existingEndMinutes", existingEndMinutes);
                 dialogFragment.setArguments(b);
                 dialogFragment.show(fm, "timePicker");
 
@@ -159,10 +182,8 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                                 notifyDataSetChanged();
                                 for (int i = 0; i < beepFerePeriods.size(); i++)
                                     Log.v("BeepFreePeriod prst - ", String.valueOf(beepFerePeriods.get(i).getId()));
-                               // DBHandler.getInstance(mContext).deleteStudyEntry(position);
-                                MainActivity.removeItem(position);
+                                DBHandler.getInstance(mContext).deleteBeepFreeEntry(position);
                                 Toast.makeText(mContext, "Beepfree period removed", Toast.LENGTH_SHORT).show();
-                               // notifyDataSetChanged();
                                 dialog.dismiss();
                             }
                         });
