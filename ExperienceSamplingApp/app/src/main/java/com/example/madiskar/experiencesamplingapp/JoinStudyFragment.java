@@ -1,6 +1,7 @@
 package com.example.madiskar.experiencesamplingapp;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,7 +36,7 @@ public class JoinStudyFragment extends Fragment {
     private CheckBox endDateCheckBox;
     private Button searchButton;
     private ArrayList<Study> studies;
-    private ArrayList<Study> filteredStudies;
+    public static ArrayList<Study> filteredStudies;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,6 +73,14 @@ public class JoinStudyFragment extends Fragment {
                     Log.v("filtered", study.getName());
                 if (filteredStudies.isEmpty())
                     Toast.makeText(getActivity().getApplicationContext(), "No such studies found", Toast.LENGTH_SHORT).show();
+                else {
+                    FragmentManager fragmentManager = getFragmentManager();
+                    Fragment fragment = new SearchFragment();
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.mainContent, fragment)
+                            .commit();
+                }
+
             }
         });
 
@@ -125,7 +134,7 @@ public class JoinStudyFragment extends Fragment {
         int day = startDatePicker.getDayOfMonth();
 
         if (!keywordsCheckbox.isChecked() || keywordsEditText.getText().toString().equals(""))
-            filteredStudies = studies;
+            filteredStudies = new ArrayList<>(studies);
 
         ArrayList<Study> filteredStudiesClone = new ArrayList<>(filteredStudies);
 
@@ -146,7 +155,7 @@ public class JoinStudyFragment extends Fragment {
     private void filterEndDate() {
 
         if (!keywordsCheckbox.isChecked() && !startDateCheckBox.isChecked() || !keywordsEditText.getText().toString().equals("") && !startDateCheckBox.isChecked())
-            filteredStudies = studies;
+            filteredStudies = new ArrayList<>(studies);
 
         int year = endDatePicker.getYear();
         int month = endDatePicker.getMonth();
@@ -173,7 +182,7 @@ public class JoinStudyFragment extends Fragment {
     private void filterDate() {
 
         if (!keywordsCheckbox.isChecked() || keywordsEditText.getText().toString().equals(""))
-            filteredStudies = studies;
+            filteredStudies = new ArrayList<>(studies);
 
         Calendar startCalendar = Calendar.getInstance();
         Calendar endCalendar = Calendar.getInstance();

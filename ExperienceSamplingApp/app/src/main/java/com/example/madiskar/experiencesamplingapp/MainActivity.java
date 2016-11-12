@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
         }
 	    else if (itemName.equals("Settings")) {
+            setTitle(itemName);
        	    getFragmentManager().beginTransaction()
                     .replace(R.id.mainContent, new SettingsFragment())
                     .commit();
@@ -375,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             finish();
         }
         else if(itemName.equals("Join Studies")) {
+            setTitle(itemName);
             Fragment fragment = new JoinStudyFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
