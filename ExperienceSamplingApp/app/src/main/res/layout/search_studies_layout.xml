@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp">
+         <LinearLayout
+             android:id="@+id/linearLayout"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:paddingLeft="24dp"
+             android:paddingRight="24dp">
+
+             <TextView
+                 android:id="@+id/search_keywords"
+                 android:text="Search by keywords"
+                 android:layout_marginTop="20dp"
+                 android:textAppearance="?android:attr/textAppearanceLarge"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="3dp">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:hint="@string/searchExample"
+                    android:id="@+id/keywords_input" />
+            </android.support.design.widget.TextInputLayout>
+
+             <RelativeLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+             <CheckBox
+                 android:id="@+id/keywordsCheckBox"
+                 android:text="Enable search"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_marginRight="50dp"
+                 android:layout_marginBottom="12dp"
+                 android:checked="true"/>
+
+             <CheckBox
+                 android:id="@+id/keywordsCheckBoxAll"
+                 android:text="Must match all"
+                 android:layout_alignBaseline="@+id/keywordsCheckBox"
+                 android:layout_toRightOf="@+id/keywordsCheckBox"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_marginBottom="12dp"
+                 android:checked="false"/>
+             </RelativeLayout>
+
+        <TextView
+            android:id="@+id/date_filter_textview"
+            android:text="Date filters"
+            android:layout_marginBottom="15dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <DatePicker
+            android:id="@+id/startDatePicker"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:datePickerMode="spinner"
+            android:calendarViewShown="false">
+
+        </DatePicker>
+
+        <DatePicker
+            android:id="@+id/endDatePicker"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:datePickerMode="spinner"
+            android:calendarViewShown="false">
+        </DatePicker>
+
+        <RelativeLayout
+            android:id="@+id/dateCheckBoxesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <CheckBox
+                android:id="@+id/startDateCheckBox"
+                android:text="Filter by start date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:layout_marginRight="20dp"
+                android:checked="true"/>
+
+            <CheckBox
+                android:id="@+id/endDateCheckBox"
+                android:text="Filter by end date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:layout_alignBaseline="@id/startDateCheckBox"
+                android:layout_toRightOf="@id/startDateCheckBox"
+                android:checked="true"/>
+        </RelativeLayout>
+
+             <android.support.v7.widget.AppCompatButton
+            android:id="@+id/button_search"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:text="Search"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/buttonTextAccent" />
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

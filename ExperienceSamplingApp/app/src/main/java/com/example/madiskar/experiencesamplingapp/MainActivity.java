@@ -243,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
                     .commit();
-
         }
 	    else if (itemName.equals("Settings")) {
        	    getFragmentManager().beginTransaction()
@@ -376,7 +375,10 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             finish();
         }
         else if(itemName.equals("Join Studies")) {
-            //TODO: launch study join activity here
+            Fragment fragment = new JoinStudyFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.mainContent, fragment)
+                    .commit();
         }
         else if(itemName.equals("My Events")) {
             //TODO: launch activity where one can see active events and press stop
