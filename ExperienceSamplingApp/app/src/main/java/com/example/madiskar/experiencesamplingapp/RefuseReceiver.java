@@ -30,7 +30,8 @@ public class RefuseReceiver extends BroadcastReceiver {
 
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        SaveAnswersTask saveAnswersTask = new SaveAnswersTask(new AsyncResponse() {
+        SaveAnswersTask saveAnswersTask = new SaveAnswersTask(token, Long.toString(studyId), "user-refused-this-questionnaire",
+                (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
                 //Log.i("SERVER SAVE RESPONSE", output);
@@ -47,8 +48,8 @@ public class RefuseReceiver extends BroadcastReceiver {
                     Log.i("Answers to server: ", "Internet connection unavailable, saving to local storage");
                 }
             }
-        }, (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb);
-        saveAnswersTask.execute(token, Integer.toString(studyId), "user-refused-this-questionnaire");
+        });
+        ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveAnswersTask);
     }
 
 

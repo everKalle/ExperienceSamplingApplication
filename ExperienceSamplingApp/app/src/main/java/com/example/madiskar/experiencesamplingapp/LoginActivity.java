@@ -191,7 +191,7 @@ public class LoginActivity extends AppCompatActivity {
                     fetchDataDialog.setIndeterminate(true);
                     fetchDataDialog.setMessage("Please Wait, Fetching Data...");
                     fetchDataDialog.show();
-                    GetParticipantStudiesTask task1 = new GetParticipantStudiesTask(new AsyncResponse() {
+                    GetParticipantStudiesTask task1 = new GetParticipantStudiesTask(result, new RunnableResponse() {
                         @Override
                         public void processFinish(String output) {
                             if(output.equals("invalid_token")) {
@@ -204,8 +204,8 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Failed to fetch data", Toast.LENGTH_LONG).show();
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
-                                //Log.i("LOGGING SERVER RESPONSE", output);
-                                //mydb.clearTables();
+                                Log.i("LOGGING SERVER RESPONSE", output);
+                                mydb.clearTables();
                                 JSONArray jsonArray = DBHandler.parseJsonString(output);
                                 Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
 
@@ -228,7 +228,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                     });
-                    task1.execute(result);
+                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(task1);
 
                 } else {
                     loginbtn.setEnabled(true);

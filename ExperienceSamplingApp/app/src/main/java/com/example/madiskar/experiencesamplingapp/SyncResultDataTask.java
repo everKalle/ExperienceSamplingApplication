@@ -1,8 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.os.AsyncTask;
 import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,36 +10,36 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
 
-public class SyncAllDataTask extends AsyncTask<String, Void, String> {
+public class SyncResultDataTask implements Runnable {
 
-    private AsyncResponse response = null;
+    private RunnableResponse response = null;
     private DBHandler mydb;
     private boolean networkAvailable;
     private String eventLink = "https://experiencesampling.herokuapp.com/index.php/study/store_event_results";
     private String answerLink = "https://experiencesampling.herokuapp.com/index.php/study/store_study_results";
+    private String token;
 
-    public SyncAllDataTask(AsyncResponse response, boolean networkAvailable, DBHandler mydb) {
+    public SyncResultDataTask(boolean networkAvailable, DBHandler mydb, String token, RunnableResponse response) {
         this.response = response;
         this.mydb = mydb;
         this.networkAvailable = networkAvailable;
+        this.token = token;
     }
 
     @Override
-    public String doInBackground(String... params) {
+    public void run() {
 
         ArrayList<String[]> answers = mydb.getAllAnswers();
         ArrayList<String[]> eventResults = mydb.getAllEventResults();
 
         StringBuilder sb = new StringBuilder();
 
-        if(!params[0].equals("none")) {
+        if(!token.equals("none")) {
             for (String[] s : answers) {
                 Log.i("SyncAllDataTask", "ANSWER:" + Arrays.asList(s).toString());
                 String id = s[0];
@@ -49,7 +47,7 @@ public class SyncAllDataTask extends AsyncTask<String, Void, String> {
                 String answerTxt = s[3];
                 String data = null;
                 try {
-                    data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(params[0], "UTF-8");
+                    data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
                     data += "&" + URLEncoder.encode("study_id", "UTF-8") + "=" + URLEncoder.encode(studyId, "UTF-8");
                     data += "&" + URLEncoder.encode("answers", "UTF-8") + "=" + URLEncoder.encode(answerTxt, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
@@ -79,7 +77,7 @@ public class SyncAllDataTask extends AsyncTask<String, Void, String> {
                 String endTime = s[3];
                 String data = null;
                 try {
-                    data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(params[0], "UTF-8");
+                    data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
                     data += "&" + URLEncoder.encode("event_id", "UTF-8") + "=" + URLEncoder.encode(eventId, "UTF-8");
                     data += "&" + URLEncoder.encode("start_time", "UTF-8") + "=" + URLEncoder.encode(startTime, "UTF-8");
                     data += "&" + URLEncoder.encode("end_time", "UTF-8") + "=" + URLEncoder.encode(endTime, "UTF-8");
@@ -103,12 +101,7 @@ public class SyncAllDataTask extends AsyncTask<String, Void, String> {
         }
         if(sb.length() != 0)
             sb.deleteCharAt(sb.lastIndexOf(","));
-        return sb.toString();
-    }
-
-    @Override
-    public void onPostExecute(String result) {
-        response.processFinish(result);
+        response.processFinish(sb.toString());
     }
 
 
@@ -148,8 +141,8 @@ public class SyncAllDataTask extends AsyncTask<String, Void, String> {
                 returnVal = sb.toString();
             } catch (Exception e) {
                 e.printStackTrace();
-                returnVal = "skipped-this-row";
                 Log.i("SyncAllDataTask", "Error while trying to send data to server, skipping this row");
+                return "skipped-this-row";
             } finally {
                 if (wr != null) {
                     try {

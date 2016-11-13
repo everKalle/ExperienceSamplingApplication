@@ -153,7 +153,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
             answersAsString = alternative;
         }
 
-        SaveAnswersTask saveAnswersTask = new SaveAnswersTask(new AsyncResponse() {
+        SaveAnswersTask saveAnswersTask = new SaveAnswersTask(token, Long.toString(studyId), answersAsString, isNetworkAvailable(), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
                 //Log.i("SERVER SAVE RESPONSE", output);
@@ -171,8 +171,8 @@ public class QuestionnaireActivity extends AppCompatActivity {
                     Log.i("Answers to server: ", "Something bad happened");
                 }
             }
-        }, isNetworkAvailable(), mydb);
-        saveAnswersTask.execute(token, Long.toString(studyId), answersAsString);
+        });
+        ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveAnswersTask);
         Log.i("SAVING ANSWERS", answersAsString);
     }
 

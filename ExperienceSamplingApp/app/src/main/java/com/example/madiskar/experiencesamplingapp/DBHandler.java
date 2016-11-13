@@ -89,19 +89,10 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String SQL_DELETE_TABLE_BEEPFREE_PERIODS = "DROP TABLE IF EXISTS " + BeepFreePeriodEntry.TABLE_NAME;
 
     public static synchronized DBHandler getInstance(Context context) {
-        // Use application context
         if (mInstance == null)
             mInstance = new DBHandler(context.getApplicationContext());
         return mInstance;
     }
-
-    /*
-    private synchronized SQLiteDatabase getDbInstance() {
-        //if (db == null)
-        //    db = mInstance.getWritableDatabase();
-        return this.getWritableDatabase();
-    }
-    */
 
     private DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -178,6 +169,15 @@ public class DBHandler extends SQLiteOpenHelper {
     public void clearEventResultsTable() {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
+    }
+
+
+    public boolean isStudyInDb(Study s) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cur = db.rawQuery("SELECT * FROM " + ActiveStudyEntry.TABLE_NAME + " WHERE " + ActiveStudyEntry._ID + " = " + s.getId() + " ORDER BY " + ActiveStudyEntry._ID, null);
+        boolean returnVal = cur.getCount() > 0;
+        cur.close();
+        return returnVal;
     }
 
 
@@ -339,7 +339,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public long insertStudy(Study study) {
         SQLiteDatabase db = getWritableDatabase();
-        long returnid = -1;
+        long returnValue = -1;
 
         db.beginTransaction();
         try {
@@ -359,14 +359,57 @@ public class DBHandler extends SQLiteOpenHelper {
                 insertQuestion(q, study.getId());
             for (Event e : study.getEvents())
                 insertEvent(e, study.getId());
-            returnid = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
+            returnValue = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e){
             e.printStackTrace();
         } finally {
             db.endTransaction();
         }
-        return returnid;
+        return returnValue;
+    }
+
+
+    public long updateStudyEntry(Study study) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        long returnValue = -1;
+
+        db.beginTransaction();
+        try {
+            values.put(ActiveStudyEntry.COLUMN_NAME, study.getName());
+            values.put(ActiveStudyEntry.COLUMN_BEGINDATE, calendarToString(study.getBeginDate()));
+            values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
+            values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
+            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
+            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());
+            values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
+            values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
+            values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
+            values.put(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE, (study.getDefaultBeepFree().getPeriodAsString()));
+            db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(study.getId())});
+            for (Question q : study.getQuesstionnaire().getQuestions())
+                insertQuestion(q, study.getId());
+            for (Event e : study.getEvents())
+                updateEventEntry(e);
+            returnValue = db.update(ActiveStudyEntry.TABLE_NAME, values, ActiveStudyEntry._ID + "=" + study.getId(), null);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+        return returnValue;
+    }
+
+
+    private long updateEventEntry(Event event) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(EventEntry.COLUMN_NAME, event.getName());
+        values.put(EventEntry.COLUMN_CONTROLTIME, event.getControlTime());
+        values.put(EventEntry.COLUMN_UNIT, event.getUnit());
+        return db.update(EventEntry.TABLE_NAME, values, EventEntry._ID + "=" + event.getId(), null);
     }
 
 

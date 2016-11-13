@@ -128,14 +128,15 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-                                    DBHandler mydb = DBHandler.getInstance(mContext);
-                                    LeaveStudyTask leaveStudyTask = new LeaveStudyTask(new AsyncResponse() {
+
+                                    LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(studyRef.getId()), DBHandler.getInstance(mContext), new RunnableResponse() {
                                         @Override
                                         public void processFinish(String output) {
                                             Log.i("QUITTING STUDY", output);
                                         }
-                                    }, mydb);
-                                    leaveStudyTask.execute(token, Long.toString(studyRef.getId()));
+                                    });
+                                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(leaveStudyTask);
+
                                     studies.remove(position);
                                     Toast.makeText(mContext, "Study left", Toast.LENGTH_SHORT).show();
                                     notifyDataSetChanged();

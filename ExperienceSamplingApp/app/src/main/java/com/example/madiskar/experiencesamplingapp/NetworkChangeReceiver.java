@@ -8,7 +8,9 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -17,7 +19,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     private DBHandler mydb;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
         Log.i("NETWORK STATE CHANGED", "CHECK IF CONNECTION IS AVAILABLE");
 
         mydb = DBHandler.getInstance(context);
@@ -31,16 +33,34 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if (networkInfo != null && networkInfo.isConnected()) {
             Log.i("NETWORK STATE CHANGED", "TRY TO SYNC DATA");
 
-            SyncAllDataTask syncAllDataTask = new SyncAllDataTask(new AsyncResponse() {
+            SyncResultDataTask syncResultDataTask = new SyncResultDataTask(true, mydb, token, new RunnableResponse() {
                 @Override
                 public void processFinish(String output) {
-                    //String[] parts = output.split(Pattern.quote(","));
-                    Log.i("LOG SYNC OUTPUT", output);
-                    //TODO: Sync study object data also
+                    Log.i("UPLOADED DATA:", output);
+                    Log.i("STARTING SYNC:", "Study info");
+                    SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, new StudyDataSyncResponse() {
+                        @Override
+                        public void processFinish(String output, ArrayList<Study> newStudies) {
+                            if(output.equals("invalid_token")) {
+                                Toast.makeText(context.getApplicationContext(), "Account authentication failed, sync failed", Toast.LENGTH_LONG).show();
+                            } else if(output.equals("nothing")) {
+                                Toast.makeText(context.getApplicationContext(), "Failed to fetch data, sync failed", Toast.LENGTH_LONG).show();
+                            } else {
+                                Log.i("FINISHED SYNC:", "Study info");
+                                for(Study s : newStudies) {
+                                    Log.i("NetworkChangeReceiver", "Setting up alarms for " + newStudies.size() + "studies");
+                                    ResponseReceiver rR = new ResponseReceiver(s);
+                                    rR.setupAlarm(context.getApplicationContext(), true);
+                                }
+                            }
+                        }
+                    });
+                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
                 }
-            }, true, mydb);
+            });
 
-            syncAllDataTask.execute(token);
+            ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncResultDataTask);
+
 
         } else {
             Log.i("NETWORK STATE CHANGED", "NO CONNECTION AVAILABLE");

@@ -46,7 +46,8 @@ public class StopReceiver extends BroadcastReceiver {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
-        SaveEventResultTask saveEventResultTask = new SaveEventResultTask(new AsyncResponse() {
+        SaveEventResultTask saveEventResultTask = new SaveEventResultTask(token, Long.toString(eventId), startTime, endTime,
+                (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
                 if (output.equals("invalid_event")) {
@@ -63,8 +64,8 @@ public class StopReceiver extends BroadcastReceiver {
                     Log.i("Events to server: ", "Something bad happened");
                 }
             }
-        }, (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb);
-        saveEventResultTask.execute(token, Long.toString(eventId), startTime, endTime);
+        });
+        ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveEventResultTask);
         Log.i("SAVING EVENTS", "START_TIME: " + startTime + ", END_TIME: " + endTime);
 
     }

@@ -13,25 +13,28 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
 
-public class GetParticipantStudiesTask extends AsyncTask<String, Void, String> {
+public class GetParticipantStudiesTask implements Runnable {
 
-    private AsyncResponse response = null;
+    private RunnableResponse response = null;
     private String link = "https://experiencesampling.herokuapp.com/index.php/study/get_participant_studies";
+    private String token;
 
-    public GetParticipantStudiesTask(AsyncResponse response) {
+
+    public GetParticipantStudiesTask(String token, RunnableResponse response) {
         this.response = response;
+        this.token = token;
     }
 
 
     @Override
-    protected String doInBackground(String... params) {
+    public void run() {
 
         HttpsURLConnection connection = null;
         OutputStreamWriter wr = null;
         BufferedReader reader = null;
 
         try {
-            String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(params[0], "UTF-8");
+            String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
 
             connection = (HttpsURLConnection) new URL(link).openConnection();
             SSLContext sc;
@@ -58,10 +61,11 @@ public class GetParticipantStudiesTask extends AsyncTask<String, Void, String> {
                 sb.append(line);
                 //break;
             }
-            return sb.toString();
+            response.processFinish(sb.toString());
         }
         catch (Exception e) {
-            return "Exception: " + e.getMessage();
+            e.printStackTrace();
+            response.processFinish("Exception: " + e.getMessage());
         } finally {
             if(wr != null) {
                 try {
@@ -83,10 +87,5 @@ public class GetParticipantStudiesTask extends AsyncTask<String, Void, String> {
         }
     }
 
-
-    @Override
-    protected void onPostExecute(String result) {
-        response.processFinish(result);
-    }
 
 }

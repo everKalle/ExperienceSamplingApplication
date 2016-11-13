@@ -41,7 +41,7 @@ public class StudyFragment extends ListFragment {
                     setListAdapter(asla);
                 }
             }
-        }.execute();
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 
