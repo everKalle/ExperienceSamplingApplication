@@ -9,7 +9,18 @@ class Settings extends CI_Controller {
         if($this->session->userdata('logged_in')) {
             $this->logged_in = $this->session->userdata('logged_in');   
         }
+        $currentLang = 'estonian';
+      if ($this->session->userdata('language')){
+        $currentLang = $this->session->userdata('language');
+      }
+      $this->load->helper('language');
+      $this->lang->load('navigation', $currentLang);
   		$this->load->library('form_validation');
+    }
+
+    function set_language($lang){
+      $this->session->set_userdata('language', $lang);
+      redirect('/', 'location');
     }
 
     function index() {

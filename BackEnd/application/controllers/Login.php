@@ -7,6 +7,13 @@ class Login extends CI_Controller {
 
 	function __construct() {
 		parent::__construct();
+		$this->load->helper('language');
+		$currentLang = 'estonian';
+	    if ($this->session->userdata('language')){
+	      $currentLang = $this->session->userdata('language');
+	    }
+		$this->lang->load('navigation', $currentLang);
+		$this->lang->load('login', $currentLang);
 	}
 
 	function index() {

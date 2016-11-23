@@ -7,6 +7,13 @@ class VerifyLogin extends CI_Controller {
  {
    parent::__construct();
    $this->load->model('user','',TRUE);
+   $this->load->helper('language');
+   $currentLang = 'estonian';
+    if ($this->session->userdata('language')){
+      $currentLang = $this->session->userdata('language');
+    }
+   $this->lang->load('navigation', $currentLang);
+   $this->lang->load('login', $currentLang);
  }
 
  function index()

@@ -41,16 +41,31 @@
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
 <?php if ($logged_in != FALSE) { ?>
-              <li <?php if ($active_page == "own_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php">Minu uuringud</a></li>
-              <li <?php if ($active_page == "shared_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/shared/">Minuga jagatud uuringud</a></li>
-              <li <?php if ($active_page == "create_study") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/create/">Uus uuring</a></li>
+              <li <?php if ($active_page == "own_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php"><?php echo $this->lang->line('my-studies'); ?></a></li>
+              <li <?php if ($active_page == "shared_studies") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/shared/"><?php echo $this->lang->line('shared-studies'); ?></a></li>
+              <li <?php if ($active_page == "create_study") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/study/create/"><?php echo $this->lang->line('create-study'); ?></a></li>
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-              <li <?php if ($active_page == "account_settings") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/settings">Konto seaded</a></li>
-	      <li><a href="<?php echo base_url(); ?>index.php/login/logout">Logi välja</a></li>
+              <li <?php if ($active_page == "account_settings") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/settings"><?php echo $this->lang->line('account-settings'); ?></a></li>
+               <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-globe"></span> <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo base_url(); ?>index.php/settings/set_language/estonian">Eesti</a></li>
+                  <li><a href="<?php echo base_url(); ?>index.php/settings/set_language/english">English</a></li>
+                </ul>
+              </li>
+	      <li><a href="<?php echo base_url(); ?>index.php/login/logout"><?php echo $this->lang->line('log-out'); ?></a></li>
 <?php } else { ?>
-	      <li><a href="<?php echo base_url(); ?>index.php/login">Logi sisse</a></li>
+	      <li><a href="<?php echo base_url(); ?>index.php/login"><?php echo $this->lang->line('log-in'); ?></a></li>
+
+        <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-globe"></span> <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="<?php echo base_url(); ?>index.php/settings/set_language/estonian">Eesti</a></li>
+                  <li><a href="<?php echo base_url(); ?>index.php/settings/set_language/english">English</a></li>
+                </ul>
+              </li>
 <?php } ?>
             </ul>
           </div><!--/.nav-collapse -->
