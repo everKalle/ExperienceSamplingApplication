@@ -28,10 +28,14 @@ public class EventDialogFragment extends DialogFragment {
     String selectedItem = null;
     long elapsedTime = 0;
     int selectedItemId = 0;
+    public static ArrayList<Event> activeEvents = new ArrayList<>();
+    public static Map<Integer, Integer> uniqueValueMap = new HashMap<>();
     public static Map<Integer, ArrayList<Integer>> studyToNotificationIdMap = new HashMap<>();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+        Log.v("activeEvents", String.valueOf(activeEvents.size()));
 
         final Bundle args = getArguments();
         final Event[] events = (Event[]) args.getParcelableArray("EVENTS");
@@ -79,6 +83,7 @@ public class EventDialogFragment extends DialogFragment {
                         try {
                             ArrayList<Integer> values = studyToNotificationIdMap.get((int) studyId);
                             values.add(uniqueValue);
+                            uniqueValueMap.put((int) events[selectedItemId].getId(), uniqueValue);
                             Log.v("VALUES", Arrays.toString(values.toArray()));
                             studyToNotificationIdMap.put((int)studyId, values);
 
@@ -90,6 +95,14 @@ public class EventDialogFragment extends DialogFragment {
                             stopIntent.putExtra("studyId", studyId);
                             //Log.v("EVENT", events[selectedItemId].getName());
                             stopIntent.putExtra("eventId", events[selectedItemId].getId());
+                            Calendar calendar = Calendar.getInstance();
+                            events[selectedItemId].setStartYear(calendar.get(calendar.YEAR));
+                            events[selectedItemId].setStartMonth(calendar.get(calendar.MONTH));
+                            events[selectedItemId].setStartDayOfMonth(calendar.get(calendar.DAY_OF_MONTH));
+                            events[selectedItemId].setStartTimeHour(calendar.get(calendar.HOUR_OF_DAY));
+                            events[selectedItemId].setStartTimeMinute(calendar.get(calendar.MINUTE));
+                            events[selectedItemId].setStartTimeInMillis(calendar.getTimeInMillis());
+                            activeEvents.add(events[selectedItemId]);
 
                             PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), uniqueValue, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

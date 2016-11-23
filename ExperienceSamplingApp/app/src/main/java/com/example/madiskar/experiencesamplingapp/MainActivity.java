@@ -239,7 +239,9 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
         }
         else if (itemName.equals("Beepfree period")) {
+            Log.v("wotm8", "m9");
             Fragment fragment = new BeepFreeFragment();
+
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
                     .commit();
@@ -383,7 +385,11 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
         }
         else if(itemName.equals("My Events")) {
-            //TODO: launch activity where one can see active events and press stop
+            setTitle(itemName);
+            Fragment fragment = new EventFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.mainContent, fragment)
+                    .commit();
         }
     }
 

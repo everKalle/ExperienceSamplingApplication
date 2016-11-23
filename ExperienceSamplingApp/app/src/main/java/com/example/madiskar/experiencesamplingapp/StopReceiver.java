@@ -33,6 +33,8 @@ public class StopReceiver extends BroadcastReceiver {
         long eventId = intent.getLongExtra("eventId", 0);
         long studyId = intent.getLongExtra("studyId", 0);
 
+        EventFragment.removeEvent(eventId);
+
         ArrayList<Integer> values = EventDialogFragment.studyToNotificationIdMap.get((int) studyId);
         Log.v("BEFORE", Arrays.toString(values.toArray()));
         values.remove(new Integer(notificationId));
