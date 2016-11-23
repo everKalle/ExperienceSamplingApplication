@@ -47,7 +47,7 @@ class Participant extends CI_Controller {
     $token = $this->input->post('token');
     $new_password = $this->input->post('new_password');
     $old_password = $this->input->post('old_password');
-    if($email != NULL && $new_password != NULL && $old_password != NULL){
+    if($token != NULL && $new_password != NULL && $old_password != NULL){
       if ($this->participant_model->validate_change($token, $old_password)){
         $this->participant_model->change_password($token, $old_password);
         echo "success";
