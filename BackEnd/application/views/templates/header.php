@@ -47,6 +47,9 @@
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
+              <?php if ($logged_in['superuser'] == 1) { ?>
+                <li <?php if ($active_page == "account_creation") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/superuser"><?php echo $this->lang->line('create-account'); ?></a></li>
+              <?php } ?>
               <li <?php if ($active_page == "account_settings") echo 'class="active"'; ?>><a href="<?php echo base_url(); ?>index.php/settings"><?php echo $this->lang->line('account-settings'); ?></a></li>
                <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-globe"></span> <span class="caret"></span></a>

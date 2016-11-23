@@ -31,7 +31,7 @@ class Study extends CI_Controller {
    {
      $data['active_studies'] = $this->study_model->get_active_studies($this->study_model->get_author_id($this->logged_in['username']));
      $data['ended_studies'] = $this->study_model->get_ended_studies($this->study_model->get_author_id($this->logged_in['username']));
-     $data['title'] = "Minu uuringud";
+     $data['title'] = $this->lang->line('my-studies');
      $data['active_page'] = "own_studies";
      $data['logged_in'] = $this->logged_in;
      $this->load->view('templates/header', $data);
@@ -52,7 +52,7 @@ class Study extends CI_Controller {
    {
      $data['active_studies'] = $this->study_model->get_active_shared_studies($this->study_model->get_author_id($this->logged_in['username']));
      $data['ended_studies'] = $this->study_model->get_ended_shared_studies($this->study_model->get_author_id($this->logged_in['username']));
-     $data['title'] = "Minuga jagatud uuringud";
+     $data['title'] = $this->lang->line('shared-studies');
      $data['active_page'] = "shared_studies";
      $data['logged_in'] = $this->logged_in;
      $this->load->view('templates/header', $data);
@@ -380,7 +380,7 @@ class Study extends CI_Controller {
      $this->load->library('form_validation');
       $this->form_validation->set_rules('gen[study-title]', 'Pealkiri', 'required');
      if ($this->form_validation->run() === FALSE){
-      $data['title'] = "Uuringu loomine";
+      $data['title'] = $this->lang->line('create-study');
       $data['active_page'] = "create_study";
       $data['logged_in'] = $this->logged_in;
       $this->load->view('templates/header', $data);

@@ -17,6 +17,28 @@ class Participant_model extends CI_Model {
 		}
 	}
 
+	function validate_change($token, $password) {
+		$this->db->select('id');
+		$this->db->from('participants');
+		$this->db->where('token', $token);
+		$this->db->where('password', $password);
+		$this->db->limit(1);
+
+		$query = $this->db->get();
+		
+		if($query -> num_rows() == 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function change_password($token, $password) {
+		$this->db->where('token', $token);
+		$this->db->update('participants', array('password' => $password));
+		return true;
+	}
+
 	function create_account($email, $password, $token) {
 		$data = array(
 		   'email' => $email ,

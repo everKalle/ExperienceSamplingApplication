@@ -26,7 +26,7 @@ class VerifyLogin extends CI_Controller {
    if($this->form_validation->run() == FALSE)
    {
     //Field validation failed.  User redirected to login page
-     $data['title'] = "Logi sisse";
+     $data['title'] = $this->lang->line('log-in');
      $data['active_page'] = "login";
      $data['logged_in'] = FALSE;
      $this->load->view('templates/header.php', $data);
@@ -57,8 +57,8 @@ class VerifyLogin extends CI_Controller {
        $sess_array = array(
          'id' => $row->id,
          'username' => $row->username,
-	 'acc_activated' => $row->acc_activated,
-	 'superuser' => $row->superuser
+      	 'acc_activated' => $row->acc_activated,
+      	 'superuser' => $row->superuser
        );
        $this->session->set_userdata('logged_in', $sess_array);
      }
