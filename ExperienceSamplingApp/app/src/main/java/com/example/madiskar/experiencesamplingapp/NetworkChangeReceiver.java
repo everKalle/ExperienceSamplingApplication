@@ -42,9 +42,9 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                         @Override
                         public void processFinish(String output, ArrayList<Study> newStudies) {
                             if(output.equals("invalid_token")) {
-                                Toast.makeText(context.getApplicationContext(), "Account authentication failed, sync failed", Toast.LENGTH_LONG).show();
+                                Toast.makeText(context.getApplicationContext(), R.string.auth_sync_fail, Toast.LENGTH_LONG).show();
                             } else if(output.equals("nothing")) {
-                                Toast.makeText(context.getApplicationContext(), "Failed to fetch data, sync failed", Toast.LENGTH_LONG).show();
+                                Toast.makeText(context.getApplicationContext(), R.string.fetch_sync_fail, Toast.LENGTH_LONG).show();
                             } else {
                                 Log.i("FINISHED SYNC:", "Study info");
                                 for(Study s : newStudies) {

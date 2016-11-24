@@ -116,8 +116,8 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mDrawerLayout.addDrawerListener(mDrawerToggle);
 
 
-        setTitle("My Studies");
-        loadFragment("My Studies", false);
+        setTitle(getString(R.string.studies));
+        loadFragment(getString(R.string.studies), false);
 
 
         //TODO: Check for problems in dbhandler methods
@@ -264,8 +264,8 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             }
 
             if (anyEvents) {
-                alertDialogBuilder.setMessage("You have some active events which will be discarded. Are you sure you want to log out?");
-                alertDialogBuilder.setNegativeButton("OK",
+                alertDialogBuilder.setMessage(R.string.events_log_out);
+                alertDialogBuilder.setNegativeButton(getString(R.string.ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
@@ -278,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                 DBHandler.getInstance(getApplicationContext()).clearTables();
                                 try {
                                     for (Study s : studylist) {
-                                        //Log.v("OPSTI", "olen siin");
                                         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
                                         AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                                         am.cancel(pendingIntent);
@@ -287,7 +286,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                         NotificationService.cancelNotification(getApplicationContext(), (int) s.getId());
                                     }
                                 } catch (Exception e) {
-                                    //Log.v("OPSTI2", "olen siin");
                                     e.printStackTrace();
                                 }
 
@@ -296,8 +294,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                         EventDialogFragment.cancelEvents(getApplicationContext(), (int) s.getId());
                                     }
                                 } catch (Exception e) {
-                                    Log.v("OPSTI2", "olen siin");
-                                    e.printStackTrace();
                                 }
                                 try {
                                     Intent intent = new Intent(getBaseContext(), QuestionnaireActivity.class);
@@ -305,8 +301,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                         ResponseReceiver.cancelExistingAlarm(getBaseContext(), intent, Integer.valueOf((s.getId()+1) + "00002"), false);
                                     }
                                 } catch (Exception e) {
-                                    Log.v("OPSTI2", "olen siin");
-                                    e.printStackTrace();
                                 }
                                 try {
                                     for (Study s : studylist) {
@@ -322,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                 finish();
                             }
                         });
-                alertDialogBuilder.setPositiveButton("Cancel",
+                alertDialogBuilder.setPositiveButton(getString(R.string.cancel),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -342,7 +336,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                 DBHandler.getInstance(getApplicationContext()).clearTables();
                 try {
                     for (Study s : studylist) {
-                        //Log.v("OPSTI", "olen siin");
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
                         AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                         am.cancel(pendingIntent);
@@ -351,8 +344,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         NotificationService.cancelNotification(this, (int) s.getId());
                     }
                 } catch (Exception e) {
-                    //Log.v("OPSTI2", "olen siin");
-                    e.printStackTrace();
                 }
 
                 try {
@@ -360,7 +351,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         EventDialogFragment.cancelEvents(this, (int) s.getId());
                     }
                 } catch (Exception e) {
-                    Log.v("OPSTI2", "olen siin");
                 }
                 try {
                     for (Study s : studylist) {
@@ -368,7 +358,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
                     }
                 }catch (Exception e) {
-                    e.printStackTrace();
                 }
                 startActivity(i);
                 finish();
@@ -425,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         DBHandler myDb = DBHandler.getInstance(getApplicationContext());
         adapter = new BeepFreePeriodListAdapter(this, myDb.getBeepFreePeriods());
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Set beepfree periods");
+        builder.setTitle(getString(R.string.set_beepfrees));
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
 
@@ -433,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         });
         FragmentActivity activity = (FragmentActivity)(this);
         final android.support.v4.app.FragmentManager fm = activity.getSupportFragmentManager();
-        builder.setPositiveButton("Add new",
+        builder.setPositiveButton(R.string.add_new,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -465,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         int beepFreeId = 0;
                         for (BeepFerePeriod beepFerePeriod: beepFerePeriods) {
                             if (beepFreeId == (int) beepFerePeriod.getId())
-                                beepFreeId++; // TODO - Kontrollida, kas andmebaasiga ei teki jama, kui ntx pannakse mõni int mitmendat korda
+                                beepFreeId++;
                         }
                         Log.v("identificatior", String.valueOf(beepFreeId));
                         b.putInt("identificator", beepFreeId);
@@ -476,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         dialog.dismiss();
                     }
                 });
-        builder.setNegativeButton("Cancel",
+        builder.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

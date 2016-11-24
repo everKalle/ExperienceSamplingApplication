@@ -24,7 +24,6 @@ public class BootReceiver extends BroadcastReceiver {
         ArrayList<Study> studies = DBHandler.getInstance(context).getAllStudies();
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Log.v("OLENBOOTREC", String.valueOf(studies.size()));
         for(Study s : studies) {
             /*
             int interval = s.getMinTimeBetweenNotifications();

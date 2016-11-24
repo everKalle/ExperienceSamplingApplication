@@ -1,6 +1,8 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +31,7 @@ public class StopReceiver extends BroadcastReceiver {
         String startTime = intent.getStringExtra("start");
         String endTime = DBHandler.calendarToString(Calendar.getInstance());
         int notificationId = intent.getIntExtra("notificationId", 0);
+        int controlNotificationId = intent.getIntExtra("controlNotificationId",0);
         Log.v("NOTIFI_ID", String.valueOf(notificationId));
         long eventId = intent.getLongExtra("eventId", 0);
         long studyId = intent.getLongExtra("studyId", 0);
@@ -44,6 +47,14 @@ public class StopReceiver extends BroadcastReceiver {
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
+
+        Intent i = new Intent(context, ControlTimeReceiver.class);
+        PendingIntent sender = PendingIntent.getBroadcast(context, controlNotificationId, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        alarmManager.cancel(sender);
+
+
         DBHandler mydb = DBHandler.getInstance(context);
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();

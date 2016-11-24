@@ -53,14 +53,9 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // Verify that the host activity implements the callback interface
         try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
             mListener = (BeepFreePeriodListener) activity;
         } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
         }
     }
 
@@ -153,10 +148,10 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
 
         builder.setView(view);
 
-        builder.setTitle("Set beepfree period");
+        builder.setTitle(R.string.set_beepfree);
 
 
-        builder.setNegativeButton("Cancel",
+        builder.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton) {
                         mListener.onDialogNegativeClick(BeepfreePeriodPickerFragment.this);
@@ -164,7 +159,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                     }
                 }
         );
-        builder.setPositiveButton("Set",
+        builder.setPositiveButton(R.string.set,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -179,7 +174,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                 getDialog().dismiss();
                             }
                             else
-                                Toast.makeText(getContext(), "Overlapping beepfree period!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), R.string.overlap, Toast.LENGTH_LONG).show();
                         }
                         else {
                            boolean overlap = checkBeepFreeOverlap(beepFerePeriod, existingStartHours, existingEndHours, existingStartMinutes, existingEndMinutes, false);
@@ -188,7 +183,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                 getDialog().dismiss();
                             }
                             else
-                                Toast.makeText(getContext(), "Overlapping beepfree period!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), R.string.overlap, Toast.LENGTH_LONG).show();
                         }
                     }
                 });

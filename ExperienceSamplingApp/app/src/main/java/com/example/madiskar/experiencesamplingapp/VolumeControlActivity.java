@@ -19,13 +19,14 @@ public class VolumeControlActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.seekbar_layout);
 
         WindowManager.LayoutParams params = getWindow().getAttributes();
-        params.x = -20;
-        params.height = 550;
+        params.x = -38;
+        params.height = 450;
         params.width = 900;
-        params.y = -10;
+        params.y = -20;
+
+        setContentView(R.layout.seekbar_layout);
 
         this.getWindow().setAttributes(params);
 
@@ -36,6 +37,12 @@ public class VolumeControlActivity extends FragmentActivity {
 
         if (spref.getInt("volume",-1) != -1)
             seekBar.setProgress(spref.getInt("volume",0));
+        else {
+            seekBar.setProgress(50);
+            SharedPreferences.Editor editor = spref.edit();
+            editor.putInt("volume", 50);
+            editor.apply();
+        }
         highText.setText(String.valueOf(seekBar.getProgress()));
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

@@ -60,19 +60,17 @@ public class ControlTimeReceiver extends BroadcastReceiver {
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
-        builder.setContentTitle("Controltime has passed")
+        builder.setContentTitle(context.getString(R.string.controltime))
                 .setOngoing(false)
                 .setAutoCancel(true)
                 .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setContentText("Controltime for event "  + "\"" + eventName + "\"" + " has passed")
+                .setContentText(R.string.control_event  + " \"" + eventName + "\" " + R.string.passed)
                 .setSmallIcon(R.drawable.ic_events);
 
         final NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         // Log.v("Unique notification", String.valueOf(index));
         manager.notify(index, builder.build());
         index--;
-
-        //TODO: Send a chime or something, to the user to notify him/her that the event has reached its control time
     }
 
 }

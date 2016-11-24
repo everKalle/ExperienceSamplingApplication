@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
@@ -14,11 +15,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v4.content.WakefulBroadcastReceiver;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
 import android.os.Vibrator;
 import android.util.Log;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +52,6 @@ public class NotificationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            //Log.v("handling", "1 or 2");
             String action = intent.getAction();
             String name = intent.getStringExtra(NOTIFICATION_NAME);
             int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
@@ -85,7 +89,7 @@ public class NotificationService extends IntentService {
         alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
 
-        // Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
+        Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
         // Log.v("SIIN", "");
         if (!beepFreePeriod(study)) {
             //Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
@@ -102,6 +106,7 @@ public class NotificationService extends IntentService {
                 editor.apply();
                 soundVolume = 50;
             }
+
             Log.v("sound vol", String.valueOf(soundVolume));
             //Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
 
@@ -132,7 +137,19 @@ public class NotificationService extends IntentService {
                 editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
                 editor.apply();
 
+
                 if (alarmType == 0) {
+
+                    AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                    int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    Log.v("praegu", String.valueOf(currentVolume));
+
+                    if (currentVolume == 0) {
+                        Intent intent = new Intent(this, VolumeDialog.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+
                     if (alarmTone == 0) {
                         mediaPlayer = MediaPlayer.create(this, R.raw.chime_1);
                     }
@@ -174,17 +191,16 @@ public class NotificationService extends IntentService {
 
                 PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
-                //PendingIntent postponePendingIntent = PendingIntent.getActivity(this, 1, postponeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), -Integer.valueOf(uniqueValue3), postponeIntent, 0);
 
                 builder.setContentTitle(name)
                         .setOngoing(true)
                         .setColor(getResources().getColor(R.color.colorAccent))
-                        .setContentText("Questionnaire")
+                        .setContentText(getString(R.string.questionnaire))
                         .setSmallIcon(R.drawable.ic_events)
-                        .addAction(R.drawable.ic_ok, "Ok", okPendingIntent)
-                        .addAction(R.drawable.ic_refuse, "Refuse", refusePendingIntent)
-                        .addAction(R.drawable.ic_postpone, "Postpone", postponePendingIntent).build();
+                        .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
+                        .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent)
+                        .addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent).build();
                 ;
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(this,
@@ -194,7 +210,6 @@ public class NotificationService extends IntentService {
                 builder.setContentIntent(pendingIntent);
 
                 final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-                // Log.v("Unique notification", String.valueOf(index));
                 manager.notify(index, builder.build());
 
                 Handler h = new Handler(Looper.getMainLooper());
@@ -207,7 +222,6 @@ public class NotificationService extends IntentService {
                 }, delay);
             } else {
 
-                //Log.v("CANCEL ALARM", "TRUE");
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
                 AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 am.cancel(pendingIntent);
@@ -253,17 +267,27 @@ public class NotificationService extends IntentService {
             if (hours >= startHour && hours <= endHour) {
                 Log.v("kontroll2_1", String.valueOf(hours) + " == " + String.valueOf(startHour) + " && " + String.valueOf(minutes) + " < " + String.valueOf(startMinute));
                 Log.v("kontroll2_2", String.valueOf(hours) + " == " + String.valueOf(endHour) + " && " + String.valueOf(minutes) + " > " + String.valueOf(endMinute));
-                if ((hours == startHour && minutes < startMinute) || (hours == endHour && minutes > endMinute)) {
+                if ((hours == startHour && minutes < startMinute && hours != endHour) || (hours == endHour && minutes > endMinute && hours != startHour)) {
+                }
+                else if (hours == startHour && hours == endHour && startMinute > endMinute && minutes > endMinute && minutes < startMinute) {
+                }
+                else if (hours == startHour && hours == endHour && startMinute < endMinute && (minutes < startMinute || minutes > endMinute)) {
                 }
                 else {
                     beepfree = true;
                 }
             }
-            else if (hours >= startHour && hours >= endHour && startHour > endHour) {
-                beepfree = true;
+            else if (hours >= startHour && startHour > endHour) {
+                if (hours == startHour && minutes < startMinute) {
+                }
+                else
+                 beepfree = true;
             }
-            else if (hours <= startHour && hours <= endHour && startHour > endHour) {
-                beepfree = true;
+            else if (hours < startHour && hours <= endHour && startHour > endHour) {
+                if (hours == endHour && minutes > endMinute) {
+                }
+                else
+                 beepfree = true;
             }
         }
         Log.v("jajajajajajajajaj", "ei");

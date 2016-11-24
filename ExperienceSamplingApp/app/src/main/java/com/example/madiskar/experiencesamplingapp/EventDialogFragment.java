@@ -31,6 +31,7 @@ public class EventDialogFragment extends DialogFragment {
     public static ArrayList<Event> activeEvents = new ArrayList<>();
     public static Map<Integer, Integer> uniqueValueMap = new HashMap<>();
     public static Map<Integer, ArrayList<Integer>> studyToNotificationIdMap = new HashMap<>();
+    public static Map<Integer, Integer> uniqueControlValueMap = new HashMap<>();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -90,8 +91,12 @@ public class EventDialogFragment extends DialogFragment {
                             //Log.v("IDDD", String.valueOf(selectedItemId));
                             Intent stopIntent = new Intent(getContext(), StopReceiver.class);
 
+                            final int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
+                            uniqueControlValueMap.put((int) events[selectedItemId].getId(), uniqueId);
+
                             stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
                             stopIntent.putExtra("notificationId", uniqueValue);
+                            stopIntent.putExtra("controlNotificationId", uniqueId);
                             stopIntent.putExtra("studyId", studyId);
                             //Log.v("EVENT", events[selectedItemId].getName());
                             stopIntent.putExtra("eventId", events[selectedItemId].getId());
@@ -109,11 +114,11 @@ public class EventDialogFragment extends DialogFragment {
                             NotificationCompat.Builder mBuilder =
                                     new NotificationCompat.Builder(getContext())
                                             .setSmallIcon(R.drawable.ic_events)
-                                            .setContentTitle("Active Event")
+                                            .setContentTitle(getString(R.string.active_event))
                                             .setContentText(selectedItem)
                                             .setWhen(System.currentTimeMillis())
                                             .setUsesChronometer(true)
-                                            .addAction(R.drawable.ic_stop, "Stop", stopPendingIntent)
+                                            .addAction(R.drawable.ic_stop, getString(R.string.stop), stopPendingIntent)
                                             .setOngoing(true);
 
                             NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -136,13 +141,12 @@ public class EventDialogFragment extends DialogFragment {
                                 Log.v("controlTimeMillis", String.valueOf(multiplier));
 
                                 Intent controltimeIntent = new Intent(getContext(), ControlTimeReceiver.class);
-                                controltimeIntent.putExtra("notificationId", uniqueValue);
+                                //controltimeIntent.putExtra("notificationId", uniqueValue);
                                 controltimeIntent.putExtra("eventId", events[selectedItemId].getId());
                                 controltimeIntent.putExtra("controlTime", (int) controlTime);
                                 controltimeIntent.putExtra("eventName", events[selectedItemId].getName());
 
-
-                                int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
+                                controltimeIntent.putExtra("notificationId", uniqueId);
                                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), uniqueId, controltimeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
                                 alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + multiplier, pendingIntent);

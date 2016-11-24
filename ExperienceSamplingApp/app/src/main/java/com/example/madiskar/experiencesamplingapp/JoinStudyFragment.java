@@ -72,7 +72,7 @@ public class JoinStudyFragment extends Fragment {
                 for (Study study: filteredStudies)
                     Log.v("filtered", study.getName());
                 if (filteredStudies.isEmpty())
-                    Toast.makeText(getActivity().getApplicationContext(), "No such studies found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.no_studies, Toast.LENGTH_SHORT).show();
                 else {
                     FragmentManager fragmentManager = getFragmentManager();
                     Fragment fragment = new SearchFragment();

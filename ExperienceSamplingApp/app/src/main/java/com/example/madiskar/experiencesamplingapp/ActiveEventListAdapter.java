@@ -103,7 +103,7 @@ public class ActiveEventListAdapter extends BaseAdapter {
                 stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
                 stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) events.get(position).getId()));
                 stopIntent.putExtra("studyId", events.get(position).getStudyId());
-                //Log.v("EVENT", events[selectedItemId].getName());
+                stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) events.get(position).getId()));
                 stopIntent.putExtra("eventId", events.get(position).getId());
                 mActivity.sendBroadcast(stopIntent);
             }

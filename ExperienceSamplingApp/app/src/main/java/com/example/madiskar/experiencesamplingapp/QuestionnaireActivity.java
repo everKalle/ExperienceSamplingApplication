@@ -66,7 +66,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         final Button next = (Button) findViewById(R.id.nextquestionbutton);
         if(questions.length == 1)
-            next.setText("Submit");
+            next.setText(R.string.submit);
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,7 +117,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 }
 
                 if(currentQNumber == answers.length-1) {
-                    next.setText("Submit");
+                    next.setText(R.string.submit);
                 } else if(currentQNumber == answers.length) {
                     saveAnswers(null);
                     finish();
@@ -158,9 +158,9 @@ public class QuestionnaireActivity extends AppCompatActivity {
             public void processFinish(String output) {
                 //Log.i("SERVER SAVE RESPONSE", output);
                 if (output.equals("invalid_study")) {
-                    Toast.makeText(getApplicationContext(), "This study no longer exists", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.no_exist, Toast.LENGTH_LONG).show();
                 } else if (output.equals("invalid_token")) {
-                    Toast.makeText(getApplicationContext(), "Account authentication failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.auth_fail, Toast.LENGTH_LONG).show();
                 } else if (output.equals("nothing")) {
                     Log.i("Answers to server: ", "Faulty query");
                 } else if (output.equals("success")) {

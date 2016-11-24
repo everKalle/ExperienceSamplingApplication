@@ -170,8 +170,8 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 // quit study here //
                 AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
                 //alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.setTitle("Are you sure you want to disable this beepfree period?");
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+                alertDialog.setTitle(R.string.disable_beepfree_period);
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.yes),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 beepFerePeriods.remove(position);
@@ -183,11 +183,11 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                                 for (int i = 0; i < beepFerePeriods.size(); i++)
                                     Log.v("BeepFreePeriod prst - ", String.valueOf(beepFerePeriods.get(i).getId()));
                                 DBHandler.getInstance(mContext).deleteBeepFreeEntry(position);
-                                Toast.makeText(mContext, "Beepfree period removed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, R.string.beepfree_removed, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
                         });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, mContext.getString(R.string.no),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
