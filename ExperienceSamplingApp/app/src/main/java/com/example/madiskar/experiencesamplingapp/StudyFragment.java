@@ -7,6 +7,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -127,7 +129,7 @@ public class StudyFragment extends ListFragment {
 
     public ArrayList<Study> filterStudies(ArrayList<Study> studies) {
         ArrayList<Study> studiesClone = new ArrayList<>(studies);
-        for (Study study: studiesClone) {
+        for (Study study: studies) {
             if (Calendar.getInstance().after(study.getEndDate())) {
                 Log.v("ops", "siin me olemegi");
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
