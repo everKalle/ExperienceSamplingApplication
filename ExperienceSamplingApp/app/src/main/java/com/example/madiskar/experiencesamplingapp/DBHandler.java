@@ -41,6 +41,7 @@ public class DBHandler extends SQLiteOpenHelper {
                     + ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_POSTPONETIME + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_POSTPONABLE + " INTEGER NOT NULL, "
+                    + ActiveStudyEntry.COLUMN_ISPUBLIC + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE + " TEXT"
                     + ")";
     public static final String SQL_CREATE_TABLE_QUESTION =
@@ -208,12 +209,13 @@ public class DBHandler extends SQLiteOpenHelper {
                 Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
                 Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
                 boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+                boolean isPublic = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ISPUBLIC))) == 1);
                 String[] defBeepFree = (cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE))).split(Pattern.quote(" "));
                 BeepFerePeriod defaultBeepFree = stringToBeepFree(0, defBeepFree[0], defBeepFree[1]);
 
                 Study newStudy = new Study(
                         id, name, qnaire, beginDate, endDate, studyLength,
-                        notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree);
+                        notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
                 studies.add(newStudy);
                 cur.moveToNext();
             }
@@ -286,12 +288,13 @@ public class DBHandler extends SQLiteOpenHelper {
             Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
             Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
             boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+            boolean isPublic = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ISPUBLIC))) == 1);
             String[] defBeepFree = (cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE))).split(Pattern.quote(" "));
             BeepFerePeriod defaultBeepFree = stringToBeepFree(0, defBeepFree[0], defBeepFree[1]);
 
             Study newStudy = new Study(
                     id, name, qnaire, beginDate, endDate, studyLength,
-                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree);
+                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
             s = newStudy;
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -354,6 +357,7 @@ public class DBHandler extends SQLiteOpenHelper {
             values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
             values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
             values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
+            values.put(ActiveStudyEntry.COLUMN_ISPUBLIC, ((study.isPublic()) ? 1 : 0));
             values.put(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE, (study.getDefaultBeepFree().getPeriodAsString()));
             for (Question q : study.getQuesstionnaire().getQuestions())
                 insertQuestion(q, study.getId());
@@ -386,6 +390,7 @@ public class DBHandler extends SQLiteOpenHelper {
             values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
             values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
             values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
+            values.put(ActiveStudyEntry.COLUMN_ISPUBLIC, ((study.isPublic()) ? 1 : 0));
             values.put(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE, (study.getDefaultBeepFree().getPeriodAsString()));
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(study.getId())});
             for (Question q : study.getQuesstionnaire().getQuestions())
@@ -730,6 +735,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 int postponeTime = jsonStudy.getInt("study-postpone-time");
                 boolean allowPostpone = (jsonStudy.getInt("study-allow-postpone") == 1);
                 boolean studyDurationForUser = (jsonStudy.getInt("study-duration-for-user") == 1);
+                boolean isPublic = (jsonStudy.getInt("study-is-public") == 1);
                 Calendar beginDate = stringToCalendar(joinDate);
                 Calendar endDate = stringToCalendar(joinDate);
                 Calendar realEndDate = stringToCalendar(jsonStudy.getString("study-end-date"));
@@ -777,7 +783,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
 
                 studyArray[i] = new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
-                        minTimeBetweenNotifications, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree);
+                        minTimeBetweenNotifications, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree, isPublic);
                 //TODO: currently notificationinterval = minTimeBetweenNotifications, redo this system.
             }
 

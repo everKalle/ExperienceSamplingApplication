@@ -85,4 +85,7 @@
     <string name="no_sound">Your Media/Music volume is set to 0.</string>
     <string name="change">Please change your media/music volume to hear the notifications.</string>
     <string name="volume_settings">Volume Settings</string>
+    <string name="update_studies">Updating Studies, Please Wait...</string>
+    <string name="update_success">Update successful</string>
+    <string name="loading_mystudies">Loading...</string>
 </resources>

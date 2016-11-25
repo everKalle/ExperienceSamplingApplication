@@ -37,14 +37,16 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 @Override
                 public void processFinish(String output) {
                     Log.i("UPLOADED DATA:", output);
-                    Log.i("STARTING SYNC:", "Study info");
+                    //Log.i("STARTING SYNC:", "Study info");
+
+                    /*
                     SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, new StudyDataSyncResponse() {
                         @Override
                         public void processFinish(String output, ArrayList<Study> newStudies) {
                             if(output.equals("invalid_token")) {
-                                Toast.makeText(context.getApplicationContext(), R.string.auth_sync_fail, Toast.LENGTH_LONG).show();
+                                Toast.makeText(context.getApplicationContext(), context.getApplicationContext().getString(R.string.auth_sync_fail), Toast.LENGTH_LONG).show();
                             } else if(output.equals("nothing")) {
-                                Toast.makeText(context.getApplicationContext(), R.string.fetch_sync_fail, Toast.LENGTH_LONG).show();
+                                Toast.makeText(context.getApplicationContext(), context.getApplicationContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
                             } else {
                                 Log.i("FINISHED SYNC:", "Study info");
                                 for(Study s : newStudies) {
@@ -56,6 +58,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                         }
                     });
                     ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
+                    */
                 }
             });
 

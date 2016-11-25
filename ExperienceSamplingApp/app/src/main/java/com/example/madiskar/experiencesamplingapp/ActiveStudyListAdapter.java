@@ -100,9 +100,9 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                     final Study studyRef = studies.get(position);
                     //Log.i("QUITTING THIS @#!$", studyRef.getName());
                     if (EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()).size() < 1)
-                        alertDialogBuilder.setMessage(R.string.quit_study +" \"" + studyRef.getName() + "\"?");
+                        alertDialogBuilder.setMessage(mContext.getString(R.string.quit_study) +" \"" + studyRef.getName() + "\"?");
                     else
-                        alertDialogBuilder.setMessage(R.string.quit_event + "\n \"" + studyRef.getName() + "\"?");
+                        alertDialogBuilder.setMessage(mContext.getString(R.string.quit_event) + "\n \"" + studyRef.getName() + "\"?");
                     alertDialogBuilder.setNegativeButton(R.string.ok,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
@@ -139,7 +139,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     ExecutorSupplier.getInstance().forBackgroundTasks().execute(leaveStudyTask);
 
                                     studies.remove(position);
-                                    Toast.makeText(mContext, R.string.study_left, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext, mContext.getString(R.string.study_left), Toast.LENGTH_SHORT).show();
                                     notifyDataSetChanged();
                                     dialog.dismiss();
                                 }
@@ -153,7 +153,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
                 } else {
-                    Toast.makeText(mContext, R.string.no_network, Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.no_network), Toast.LENGTH_LONG).show();
                 }
             }
         });

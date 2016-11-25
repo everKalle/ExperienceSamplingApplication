@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +25,12 @@ public class SearchResultsListAdapter extends BaseAdapter {
 
     private Context mContext;
     private ArrayList<Study> studies;
+    private Handler mHandler;
 
     public SearchResultsListAdapter(Context context, ArrayList<Study> studies) {
         this.mContext = context;
         this.studies = studies;
+        mHandler = new Handler();
     }
 
     @Override
@@ -83,10 +86,11 @@ public class SearchResultsListAdapter extends BaseAdapter {
                                     public void processFinish(String output) {
                                         progressDialog.dismiss();
                                         if(output.equals("success")) {
-                                            Log.i("JOINED STUDY", studies.get(position).getName());
                                             DBHandler.getInstance(mContext).insertStudy(studies.get(position));
                                             ResponseReceiver rR = new ResponseReceiver(studies.get(position));
                                             rR.setupAlarm(mContext.getApplicationContext(), true);
+                                            Log.i("JOINED STUDY", studies.get(position).getName());
+                                            updateUI(position);
                                             //Toast.makeText(mContext, "Joining successful", Toast.LENGTH_SHORT).show();
                                         } else if(output.equals("invalid_study")) {
                                             Log.i("JOINED STUDY", "INVALID STUDY");
@@ -115,5 +119,15 @@ public class SearchResultsListAdapter extends BaseAdapter {
         });
 
         return view;
+    }
+
+    public void updateUI(final int position) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                studies.remove(position);
+                notifyDataSetChanged();
+            }
+        });
     }
 }

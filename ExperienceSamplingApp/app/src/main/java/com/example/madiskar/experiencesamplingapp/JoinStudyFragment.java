@@ -2,6 +2,9 @@ package com.example.madiskar.experiencesamplingapp;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,29 +55,39 @@ public class JoinStudyFragment extends Fragment {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FragmentManager fragmentManager = getFragmentManager();
-                Fragment fragment = new SearchFragment();
-                Bundle args = new Bundle();
-                args.putBoolean("keywordsCheckboxIsChecked", keywordsCheckbox.isChecked());
-                args.putBoolean("matchAllCheckboxIsChecked", matchAllCheckbox.isChecked());
-                args.putBoolean("startDateCheckBoxIsChecked", startDateCheckBox.isChecked());
-                args.putBoolean("endDateCheckBoxIsChecked", endDateCheckBox.isChecked());
-                args.putInt("startYear", startDatePicker.getYear());
-                args.putInt("startMonth", startDatePicker.getMonth());
-                args.putInt("startDay", startDatePicker.getDayOfMonth());
-                args.putInt("endYear", endDatePicker.getYear());
-                args.putInt("endMonth", endDatePicker.getMonth());
-                args.putInt("endDay", endDatePicker.getDayOfMonth());
-                args.putString("keywordsEditText", keywordsEditText.getText().toString());
-                fragment.setArguments(args);
-                fragmentManager.beginTransaction()
-                        .replace(R.id.mainContent, fragment)
-                        .commit();
+                if(isNetworkAvailable()) {
+                    FragmentManager fragmentManager = getFragmentManager();
+                    Fragment fragment = new SearchFragment();
+                    Bundle args = new Bundle();
+                    args.putBoolean("keywordsCheckboxIsChecked", keywordsCheckbox.isChecked());
+                    args.putBoolean("matchAllCheckboxIsChecked", matchAllCheckbox.isChecked());
+                    args.putBoolean("startDateCheckBoxIsChecked", startDateCheckBox.isChecked());
+                    args.putBoolean("endDateCheckBoxIsChecked", endDateCheckBox.isChecked());
+                    args.putInt("startYear", startDatePicker.getYear());
+                    args.putInt("startMonth", startDatePicker.getMonth());
+                    args.putInt("startDay", startDatePicker.getDayOfMonth());
+                    args.putInt("endYear", endDatePicker.getYear());
+                    args.putInt("endMonth", endDatePicker.getMonth());
+                    args.putInt("endDay", endDatePicker.getDayOfMonth());
+                    args.putString("keywordsEditText", keywordsEditText.getText().toString());
+                    fragment.setArguments(args);
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.mainContent, fragment)
+                            .commit();
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.no_internet) , Toast.LENGTH_LONG).show();
+                }
             }
         });
 
         return view;
 
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }

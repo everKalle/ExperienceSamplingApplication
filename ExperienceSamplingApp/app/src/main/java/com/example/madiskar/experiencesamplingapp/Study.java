@@ -28,10 +28,11 @@ public class Study {
     private boolean postponable;
     private Event[] events;
     private BeepFerePeriod defaultBeepFree;
+    private boolean isPublic;
 
     public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength,
                  int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable,
-                 int minTimeBetweenNotifications, Event[] events, BeepFerePeriod defaultBeepFree){
+                 int minTimeBetweenNotifications, Event[] events, BeepFerePeriod defaultBeepFree, boolean isPublic) {
         this.id = id;
         this.name = name;
         this.qBatch = qBatch;
@@ -45,6 +46,7 @@ public class Study {
         this.minTimeBetweenNotifications = minTimeBetweenNotifications;
         this.events = events;
         this.defaultBeepFree = defaultBeepFree;
+        this.isPublic = isPublic;
     }
 
 
@@ -104,5 +106,9 @@ public class Study {
 
     public Event[] getEvents() {
         return events;
+    }
+
+    public boolean isPublic() {
+        return this.isPublic;
     }
 }

@@ -94,13 +94,13 @@ public class LoginActivity extends AppCompatActivity {
     private boolean login() {
 
         if (!validateInput()) {
-            Toast.makeText(getBaseContext(), R.string.wrong_format, Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), getString(R.string.wrong_format), Toast.LENGTH_LONG).show();
             loginbtn.setEnabled(true);
             return false;
         }
 
         if(!isNetworkAvailable()) {
-            Toast.makeText(getBaseContext(), R.string.no_internet , Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), getString(R.string.no_internet) , Toast.LENGTH_LONG).show();
             loginbtn.setEnabled(true);
             return false;
         }
@@ -110,6 +110,7 @@ public class LoginActivity extends AppCompatActivity {
         final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(getString(R.string.wait));
+        progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
         new AsyncTask<String, Void, String>() {
@@ -176,20 +177,21 @@ public class LoginActivity extends AppCompatActivity {
                 if(result.equals("nothing")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), R.string.log_fail, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.log_fail), Toast.LENGTH_LONG).show();
 
                 } else if(result.equals("invalid")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), R.string.wrong, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.wrong), Toast.LENGTH_LONG).show();
 
-                } else if(!result.equals(R.string.not_established)) {
+                } else if(!result.equals(getString(R.string.not_established))) {
                     final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     progressDialog.dismiss();
 
                     final ProgressDialog fetchDataDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
                     fetchDataDialog.setIndeterminate(true);
                     fetchDataDialog.setMessage(getString(R.string.fetching));
+                    fetchDataDialog.setCanceledOnTouchOutside(false);
                     fetchDataDialog.show();
                     GetParticipantStudiesTask task1 = new GetParticipantStudiesTask(result, new RunnableResponse() {
                         @Override
@@ -197,11 +199,11 @@ public class LoginActivity extends AppCompatActivity {
                             if(output.equals("invalid_token")) {
                                 loginbtn.setEnabled(true);
                                 fetchDataDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), R.string.auth_fail, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), getString(R.string.auth_fail), Toast.LENGTH_LONG).show();
                             } else if(output.equals("nothing")) {
                                 loginbtn.setEnabled(true);
                                 fetchDataDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), R.string.fetch_fail, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), getString(R.string.fetch_fail), Toast.LENGTH_LONG).show();
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
                                 Log.i("LOGGING SERVER RESPONSE", output);
@@ -233,7 +235,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), R.string.log_fail, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.log_fail), Toast.LENGTH_SHORT).show();
                 }
             }
 
