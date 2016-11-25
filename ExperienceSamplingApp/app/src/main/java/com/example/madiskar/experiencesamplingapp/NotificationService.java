@@ -174,7 +174,8 @@ public class NotificationService extends IntentService {
                     refuseIntent.putExtra("notificationId", index);
                     refuseIntent.putExtra("StudyId", index);
 
-                    okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
+                    //okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
+                    okIntent.putExtra("StudyId", study.getId());
                     okIntent.putExtra("notificationId", index);
                     postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
                     postponeIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());

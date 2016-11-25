@@ -28,7 +28,8 @@ public class StudyFragment extends ListFragment {
 
     private Handler mHandler = new Handler();
     private Boolean from_menu;
-    private static ArrayList<Study> studies;
+    private ActiveStudyListAdapter asla;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,29 +59,24 @@ public class StudyFragment extends ListFragment {
             }
             @Override
             protected void onPostExecute(final ArrayList<Study> results) {
-                studies = results;
                 if(from_menu) {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            ArrayList<Study> filtered = filterStudies(results);
                             progress.setVisibility(View.GONE);
                             progressText.setVisibility(View.GONE);
                             floatUpdate.setVisibility(View.VISIBLE);
-
-                            filterStudies();
-
-                            ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), studies);
+                            asla = new ActiveStudyListAdapter(getActivity(), filtered);
                             setListAdapter(asla);
                         }
                     }, 230); //Time for nav driver to close, for nice animations
                 } else {
-
-                    filterStudies();
-
+                    ArrayList<Study> filtered = filterStudies(results);
                     progress.setVisibility(View.GONE);
                     progressText.setVisibility(View.GONE);
                     floatUpdate.setVisibility(View.VISIBLE);
-                    ActiveStudyListAdapter asla = new ActiveStudyListAdapter(getActivity(), studies);
+                    asla = new ActiveStudyListAdapter(getActivity(), filtered);
                     setListAdapter(asla);
                 }
             }
@@ -89,45 +85,49 @@ public class StudyFragment extends ListFragment {
         floatUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isNetworkAvailable()) {
+                    SharedPreferences pref = view.getContext().getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
 
-                SharedPreferences pref = view.getContext().getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                    final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
+                    progressDialog.setIndeterminate(true);
+                    progressDialog.setMessage(getString(R.string.update_studies));
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    progressDialog.show();
 
-                final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
-                progressDialog.setIndeterminate(true);
-                progressDialog.setMessage(getString(R.string.update_studies));
-                progressDialog.setCanceledOnTouchOutside(false);
-                progressDialog.show();
-
-                SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), new StudyDataSyncResponse() {
-                    @Override
-                    public void processFinish(String output, ArrayList<Study> newStudies) {
-                        progressDialog.dismiss();
-                        if(output.equals("invalid_token")) {
-                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.auth_sync_fail), Toast.LENGTH_LONG).show();
-                        } else if(output.equals("nothing")) {
-                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(view.getContext(), view.getContext().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
-                            Log.i("FINISHED SYNC:", "Study info");
-                            for(Study s : newStudies) {
-                                Log.i("NetworkChangeReceiver", "Setting up alarms for " + newStudies.size() + " studies");
-                                ResponseReceiver rR = new ResponseReceiver(s);
-                                rR.setupAlarm(view.getContext().getApplicationContext(), true);
+                    SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
+                        @Override
+                        public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies) {
+                            progressDialog.dismiss();
+                            if (output.equals("invalid_token")) {
+                                Log.i("Study Sync", getString(R.string.auth_sync_fail));
+                                //Toast.makeText(view.getContext(), view.getContext().getString(R.string.auth_sync_fail), Toast.LENGTH_LONG).show();
+                            } else if (output.equals("nothing")) {
+                                Log.i("Study Sync", getString(R.string.fetch_sync_fail));
+                                //Toast.makeText(view.getContext(), view.getContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
+                            } else {
+                                //Toast.makeText(view.getContext(), view.getContext().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
+                                Log.i("Study sync:", getString(R.string.update_success));
+                                for (Study s : newStudies) {
+                                    Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");
+                                    ResponseReceiver rR = new ResponseReceiver(s);
+                                    rR.setupAlarm(view.getContext().getApplicationContext(), true);
+                                }
+                                updateUI(allStudies);
                             }
                         }
-                    }
-                });
-
-                ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
-
+                    });
+                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
+                } else {
+                    Toast.makeText(view.getContext(), view.getContext().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+                }
             }
         });
         return view;
     }
 
-    public void filterStudies() {
+    public ArrayList<Study> filterStudies(ArrayList<Study> studies) {
         ArrayList<Study> studiesClone = new ArrayList<>(studies);
-        for (Study study: studies) {
+        for (Study study: studiesClone) {
             if (Calendar.getInstance().after(study.getEndDate())) {
                 Log.v("ops", "siin me olemegi");
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
@@ -151,6 +151,24 @@ public class StudyFragment extends ListFragment {
                 studiesClone.remove(study);
             }
         }
-        studies = studiesClone;
+        return studiesClone;
+    }
+
+
+    public void updateUI(final ArrayList<Study> newList) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                asla = new ActiveStudyListAdapter(getActivity(), newList);
+                setListAdapter(asla);
+            }
+        });
+    }
+
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

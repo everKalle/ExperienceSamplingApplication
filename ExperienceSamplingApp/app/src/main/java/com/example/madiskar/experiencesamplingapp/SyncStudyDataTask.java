@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -22,12 +23,14 @@ public class SyncStudyDataTask implements Runnable {
     private String link = "https://experiencesampling.herokuapp.com/index.php/study/get_participant_studies";
     private String token;
     private DBHandler mydb;
+    private boolean onlyUpdateLocalStudies;
 
 
-    public SyncStudyDataTask(String token, DBHandler mydb, StudyDataSyncResponse response) {
+    public SyncStudyDataTask(String token, DBHandler mydb, boolean onlyUpdateLocalStudies, StudyDataSyncResponse response) {
         this.token = token;
         this.response = response;
         this.mydb = mydb;
+        this.onlyUpdateLocalStudies = onlyUpdateLocalStudies;
     }
 
     @Override
@@ -66,24 +69,49 @@ public class SyncStudyDataTask implements Runnable {
                 //break;
             }
 
-            int updateCounter = 0;
             JSONArray jsonArray = DBHandler.parseJsonString(sb.toString());
             Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
-            for(Study s : studies) {
-                if(!mydb.isStudyInDb(s)) {
-                    mydb.insertStudy(s);
-                    newStudies.add(s);
-                } else {
-                    mydb.updateStudyEntry(s);
-                    updateCounter ++;
+
+            if(onlyUpdateLocalStudies) {
+                int updateCounter = 0;
+                for(Study s : studies) {
+                    if(mydb.isStudyInDb(s)) {
+                        if(Calendar.getInstance().after(s.getEndDate())) {
+                            mydb.deleteStudyEntry(s.getId());
+                            //TODO: need to cancel events and notifications as well
+                            continue;
+                        }
+                        mydb.updateStudyEntry(s);
+                        updateCounter ++;
+                    }
                 }
+                Log.i("SYNCED STUDY INFO", "Updated Studies: " + updateCounter);
+                response.processFinish(sb.toString(), newStudies, mydb.getAllStudies());
+            } else {
+                int updateCounter = 0;
+                for(Study s : studies) {
+                    if(!mydb.isStudyInDb(s)) {
+                        if(!Calendar.getInstance().after(s.getEndDate())) {
+                            mydb.insertStudy(s);
+                            newStudies.add(s);
+                        }
+                    } else {
+                        if(Calendar.getInstance().after(s.getEndDate())) {
+                            mydb.deleteStudyEntry(s.getId());
+                            //TODO: need to cancel events and notifications as well
+                            continue;
+                        }
+                        mydb.updateStudyEntry(s);
+                        updateCounter ++;
+                    }
+                }
+                Log.i("SYNCED STUDY INFO", "New Studies: " + newStudies.size() + ", Updated Studies: " + updateCounter);
+                response.processFinish(sb.toString(), newStudies, mydb.getAllStudies());
             }
-            Log.i("SYNCED STUDY INFO", "New Studies: " + newStudies.size() + ", Updated Studies: " + updateCounter);
-            response.processFinish(sb.toString(), newStudies);
         }
         catch (Exception e) {
             e.printStackTrace();
-            response.processFinish("Exception: " + e.getMessage(), newStudies);
+            response.processFinish("Exception: " + e.getMessage(), newStudies, mydb.getAllStudies());
         } finally {
             if(wr != null) {
                 try {

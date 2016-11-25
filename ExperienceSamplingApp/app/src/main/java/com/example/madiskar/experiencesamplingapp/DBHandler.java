@@ -395,8 +395,9 @@ public class DBHandler extends SQLiteOpenHelper {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(study.getId())});
             for (Question q : study.getQuesstionnaire().getQuestions())
                 insertQuestion(q, study.getId());
+            db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(study.getId())});
             for (Event e : study.getEvents())
-                updateEventEntry(e);
+                insertEvent(e, study.getId());
             returnValue = db.update(ActiveStudyEntry.TABLE_NAME, values, ActiveStudyEntry._ID + "=" + study.getId(), null);
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -610,12 +611,12 @@ public class DBHandler extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
-            db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
+            //db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
-            Event[] studyEvents = getStudyEvents(studyID);
-            for(Event e : studyEvents) {
-                clearEventResults(e.getId());
-            }
+            //Event[] studyEvents = getStudyEvents(studyID);
+            //for(Event e : studyEvents) {
+            //    clearEventResults(e.getId());
+            //}
             db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
             db.setTransactionSuccessful();
         } catch (Exception e) {

@@ -43,21 +43,19 @@ public class QuestionnaireActivity extends AppCompatActivity {
         token = spref.getString("token", "none");
 
         Bundle extras = getIntent().getExtras();
-        Questionnaire questionnaire = extras.getParcelable("QUESTIONNAIRE"); //TODO: remove this, and instead put studyId as parcelable
+        studyId = extras.getLong("StudyId");
 
         final int notificationId = extras.getInt("notificationId");
         NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
 
-        studyId = questionnaire.getStudyId();
-        //ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
+        ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
 
-        questions = questionnaire.getQuestions();
+        questions = new Question[questionsArr.size()];
         answers = new String[questions.length];
-        //questions = new Question[questionsArr.size()];
 
         for(int j = 0; j < questions.length; j++) {
-            //questions[j] = questionsArr.get(j);
+            questions[j] = questionsArr.get(j);
             answers[j] = "-";
         }
 
@@ -158,9 +156,11 @@ public class QuestionnaireActivity extends AppCompatActivity {
             public void processFinish(String output) {
                 //Log.i("SERVER SAVE RESPONSE", output);
                 if (output.equals("invalid_study")) {
-                    Toast.makeText(getApplicationContext(), R.string.no_exist, Toast.LENGTH_LONG).show();
+                    Log.i("Answers to server: ", getString(R.string.no_exist));
+                    //Toast.makeText(getApplicationContext(), R.string.no_exist, Toast.LENGTH_LONG).show();
                 } else if (output.equals("invalid_token")) {
-                    Toast.makeText(getApplicationContext(), R.string.auth_fail, Toast.LENGTH_LONG).show();
+                    Log.i("Answers to server: ", getString(R.string.auth_fail));
+                    //Toast.makeText(getApplicationContext(), R.string.auth_fail, Toast.LENGTH_LONG).show();
                 } else if (output.equals("nothing")) {
                     Log.i("Answers to server: ", "Faulty query");
                 } else if (output.equals("success")) {

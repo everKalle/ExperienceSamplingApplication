@@ -37,28 +37,23 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 @Override
                 public void processFinish(String output) {
                     Log.i("UPLOADED DATA:", output);
-                    //Log.i("STARTING SYNC:", "Study info");
+                    Log.i("STARTING SYNC:", "Study info");
 
-                    /*
-                    SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, new StudyDataSyncResponse() {
+
+                    SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, true, new StudyDataSyncResponse() {
                         @Override
-                        public void processFinish(String output, ArrayList<Study> newStudies) {
+                        public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies) {
                             if(output.equals("invalid_token")) {
-                                Toast.makeText(context.getApplicationContext(), context.getApplicationContext().getString(R.string.auth_sync_fail), Toast.LENGTH_LONG).show();
+                                Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.auth_sync_fail));
                             } else if(output.equals("nothing")) {
-                                Toast.makeText(context.getApplicationContext(), context.getApplicationContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
+                                Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
                             } else {
-                                Log.i("FINISHED SYNC:", "Study info");
-                                for(Study s : newStudies) {
-                                    Log.i("NetworkChangeReceiver", "Setting up alarms for " + newStudies.size() + " studies");
-                                    ResponseReceiver rR = new ResponseReceiver(s);
-                                    rR.setupAlarm(context.getApplicationContext(), true);
-                                }
+                                Log.i("FINISHED SYNC:", "Study info: success");
                             }
                         }
                     });
                     ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
-                    */
+
                 }
             });
 

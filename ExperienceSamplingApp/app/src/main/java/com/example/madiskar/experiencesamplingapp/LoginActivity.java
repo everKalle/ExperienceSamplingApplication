@@ -30,6 +30,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -211,12 +212,17 @@ public class LoginActivity extends AppCompatActivity {
                                 JSONArray jsonArray = DBHandler.parseJsonString(output);
                                 Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
 
+                                Calendar cInstance = Calendar.getInstance();
                                 for (Study s : studies) { // add studies to local db and also set up alarms
-                                    mydb.insertStudy(s);
+                                    if(!cInstance.after(s.getEndDate())) {
+                                        mydb.insertStudy(s);
+                                    }
                                 }
                                 for (Study s : studies) {
-                                    ResponseReceiver rR = new ResponseReceiver(s);
-                                    rR.setupAlarm(getApplicationContext(), true);
+                                    if(!cInstance.after(s.getEndDate())) {
+                                        ResponseReceiver rR = new ResponseReceiver(s);
+                                        rR.setupAlarm(getApplicationContext(), true);
+                                    }
                                 }
 
                                 SharedPreferences.Editor editor = sharedPref.edit();

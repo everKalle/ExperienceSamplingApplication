@@ -8,5 +8,5 @@ import java.util.ArrayList;
 
 public interface StudyDataSyncResponse {
 
-    void processFinish(String output, ArrayList<Study> newStudies);
+    void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies);
 }

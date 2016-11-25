@@ -21,10 +21,8 @@
         app:fabSize="normal"
         app:srcCompat="@android:drawable/ic_popup_sync"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="25dp"
-        android:layout_marginEnd="25dp"
+
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="25dp"
         android:id="@+id/floatingUpdateButton" />
 
