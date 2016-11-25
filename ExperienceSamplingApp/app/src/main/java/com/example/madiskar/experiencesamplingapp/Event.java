@@ -20,6 +20,7 @@ public class Event implements Parcelable{
     private int controlTime;
     private String unit;
     private long startTimeInMillis;
+    private String startTimeCalendar;
     // TODO: make sure all "s", "d" and "m" units are implemented and working
 
     public Event(long id, long studyId, String name, int controlTime, String unit) {
@@ -35,7 +36,7 @@ public class Event implements Parcelable{
         this.startTimeInMillis = -1;
     }
 
-    public Event(long id, long studyId, String name, int startYear, int startMonth, int startDayOfMonth, int startTimeHour, int startTimeMinute, int controlTime, String unit, long startTimeInMillis) {
+    public Event(long id, long studyId, String name, int startYear, int startMonth, int startDayOfMonth, int startTimeHour, int startTimeMinute, int controlTime, String unit, long startTimeInMillis, String startTimeCalendar) {
         this.id = id;
         this.studyId = studyId;
         this.name = name;
@@ -52,6 +53,7 @@ public class Event implements Parcelable{
         this.controlTime = controlTime;
         this.unit = unit;
         this.startTimeInMillis = startTimeInMillis;
+        this.startTimeCalendar = startTimeCalendar;
     }
 
     protected Event(Parcel in) {
@@ -68,6 +70,7 @@ public class Event implements Parcelable{
         controlTime = in.readInt();
         unit = in.readString();
         startTimeInMillis = in.readLong();
+        startTimeCalendar = in.readString();
     }
 
     @Override
@@ -85,6 +88,7 @@ public class Event implements Parcelable{
         dest.writeInt(controlTime);
         dest.writeString(unit);
         dest.writeLong(startTimeInMillis);
+        dest.writeString(startTimeCalendar);
     }
 
     @Override
@@ -152,6 +156,10 @@ public class Event implements Parcelable{
         return startTimeInMillis;
     }
 
+    public String getStartTimeCalendar() {
+        return startTimeCalendar;
+    }
+
     public long getStudyId() {
         return studyId;
     }
@@ -186,5 +194,9 @@ public class Event implements Parcelable{
 
     public void setStartTimeInMillis(long startTimeInMillis) {
         this.startTimeInMillis = startTimeInMillis;
+    }
+
+    public void setStartTimeCalendar(String startTimeCalendar) {
+        this.startTimeCalendar = startTimeCalendar;
     }
 }

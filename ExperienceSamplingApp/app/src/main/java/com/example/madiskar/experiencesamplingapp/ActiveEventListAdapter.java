@@ -100,7 +100,7 @@ public class ActiveEventListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 Intent stopIntent = new Intent(mActivity, StopReceiver.class);
-                stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
+                stopIntent.putExtra("start", events.get(position).getStartTimeCalendar());
                 stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) events.get(position).getId()));
                 stopIntent.putExtra("studyId", events.get(position).getStudyId());
                 stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) events.get(position).getId()));

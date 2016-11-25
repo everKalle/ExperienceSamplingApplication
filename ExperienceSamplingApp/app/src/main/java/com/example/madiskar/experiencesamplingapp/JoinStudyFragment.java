@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -52,6 +53,16 @@ public class JoinStudyFragment extends Fragment {
         endDateCheckBox = (CheckBox) view.findViewById(R.id.endDateCheckBox);
         searchButton = (Button) view.findViewById(R.id.button_search);
 
+        keywordsCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    matchAllCheckbox.setEnabled(true);
+                else
+                    matchAllCheckbox.setEnabled(false);
+            }
+        });
+
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -73,6 +84,7 @@ public class JoinStudyFragment extends Fragment {
                     fragment.setArguments(args);
                     fragmentManager.beginTransaction()
                             .replace(R.id.mainContent, fragment)
+                            .addToBackStack(null)
                             .commit();
                 } else {
                     Toast.makeText(getActivity(), getString(R.string.no_internet) , Toast.LENGTH_LONG).show();

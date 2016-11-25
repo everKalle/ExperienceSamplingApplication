@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     BeepFreePeriodListAdapter adapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
+    public static boolean justStarted = true;
 
     ArrayList<MenuItem> mMenuItems = new ArrayList<>();
 
@@ -234,9 +235,20 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             Bundle args = new Bundle();
             args.putBoolean("fromNav", from_menu);
             fragment.setArguments(args);
-            fragmentManager.beginTransaction()
-                    .replace(R.id.mainContent, fragment)
-                    .commit();
+
+            if (!justStarted) {
+                Log.v("huops", "oleme siin");
+                fragmentManager.beginTransaction()
+                        .replace(R.id.mainContent, fragment)
+                        .addToBackStack("My Studies")
+                        .commit();
+            }
+            else {
+                Log.v("huops", "oleme kohal");
+                fragmentManager.beginTransaction()
+                        .replace(R.id.mainContent, fragment)
+                        .commit();
+            }
         }
         else if (itemName.equals("Beepfree period")) {
             Log.v("wotm8", "m9");
@@ -244,12 +256,14 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
+                    .addToBackStack(null)
                     .commit();
         }
 	    else if (itemName.equals("Settings")) {
             setTitle(itemName);
        	    getFragmentManager().beginTransaction()
                     .replace(R.id.mainContent, new SettingsFragment())
+                    .addToBackStack(null)
                     .commit();
         }
         else if (itemName.equals("Log Out")) {
@@ -371,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             Fragment fragment = new JoinStudyFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
+                    .addToBackStack(null)
                     .commit();
         }
         else if(itemName.equals("My Events")) {
@@ -378,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             Fragment fragment = new EventFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
+                    .addToBackStack(null)
                     .commit();
         }
     }

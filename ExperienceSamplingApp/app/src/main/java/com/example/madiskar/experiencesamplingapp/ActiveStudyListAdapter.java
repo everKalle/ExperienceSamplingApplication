@@ -119,7 +119,6 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     try {
                                         EventDialogFragment.cancelEvents(mContext, (int) studyRef.getId());
                                     } catch (Exception e) {
-                                        e.printStackTrace();
                                     }
                                     try {
                                         Intent intent = new Intent(mContext, QuestionnaireActivity.class);

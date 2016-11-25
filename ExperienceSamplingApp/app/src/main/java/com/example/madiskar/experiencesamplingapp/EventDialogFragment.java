@@ -94,7 +94,9 @@ public class EventDialogFragment extends DialogFragment {
                             final int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
                             uniqueControlValueMap.put((int) events[selectedItemId].getId(), uniqueId);
 
-                            stopIntent.putExtra("start", DBHandler.calendarToString(Calendar.getInstance()));
+                            String calendarString =  DBHandler.calendarToString(Calendar.getInstance());
+
+                            stopIntent.putExtra("start", calendarString);
                             stopIntent.putExtra("notificationId", uniqueValue);
                             stopIntent.putExtra("controlNotificationId", uniqueId);
                             stopIntent.putExtra("studyId", studyId);
@@ -107,6 +109,7 @@ public class EventDialogFragment extends DialogFragment {
                             events[selectedItemId].setStartTimeHour(calendar.get(calendar.HOUR_OF_DAY));
                             events[selectedItemId].setStartTimeMinute(calendar.get(calendar.MINUTE));
                             events[selectedItemId].setStartTimeInMillis(calendar.getTimeInMillis());
+                            events[selectedItemId].setStartTimeCalendar(calendarString);
                             activeEvents.add(events[selectedItemId]);
 
                             PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), uniqueValue, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);

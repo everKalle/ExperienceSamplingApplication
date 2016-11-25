@@ -56,7 +56,6 @@ public class SearchFragment extends ListFragment {
         endMonth = bundle.getInt("endMonth");
         endDay = bundle.getInt("endDay");
 
-
         /*  ListView generates its own "loading element", this should not be needed
         final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
@@ -70,6 +69,13 @@ public class SearchFragment extends ListFragment {
                 //TODO: maybe handle server responses here later?
                 Log.i("PUBLIC STUDIES", message);
                 studies = study_list;
+                filteredStudies = new ArrayList<>(studies);
+
+                Log.v("UURINGUD", String.valueOf(studies.size()));
+                Log.v("keywordsCheck", String.valueOf(keywordsCheckboxIsChecked));
+                Log.v("matchAllCheck", String.valueOf(matchAllCheckboxIsChecked));
+                Log.v("startDateCheck", String.valueOf(startDateCheckBoxIsChecked));
+                Log.v("endDateCheck", String.valueOf(endDateCheckBoxIsChecked));
 
                 new AsyncTask<Void, Void, String>() {
                     @Override
