@@ -28,11 +28,12 @@
         android:text="Small Text"
         android:id="@+id/study_duration"
         android:layout_below="@+id/study_name"
-        android:layout_alignRight="@+id/study_name"
-        android:layout_alignEnd="@+id/study_name"
         android:layout_alignLeft="@+id/study_name"
         android:layout_alignStart="@+id/study_name"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="7dp"
+        android:layout_toLeftOf="@+id/join_button"
+        android:layout_toStartOf="@+id/join_button" />
 
     <Button
         android:layout_width="wrap_content"
@@ -41,9 +42,10 @@
         android:drawableLeft="@drawable/ic_add"
         android:id="@+id/join_button"
         android:background="#00ffffff"
-        android:layout_alignRight="@+id/study_duration"
-        android:layout_alignBaseline="@+id/study_duration"
         android:clickable="true"
         android:focusable="false"
-        android:enabled="true" />
+        android:enabled="true"
+        android:layout_alignTop="@+id/study_duration"
+        android:layout_alignRight="@+id/study_name"
+        android:layout_alignEnd="@+id/study_name" />
 </RelativeLayout>

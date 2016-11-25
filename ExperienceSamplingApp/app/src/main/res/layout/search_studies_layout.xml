@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
                 android:layout_marginRight="20dp"
-                android:checked="true"/>
+                android:checked="false"/>
 
             <CheckBox
                 android:id="@+id/endDateCheckBox"
@@ -107,7 +107,7 @@
                 android:layout_marginBottom="12dp"
                 android:layout_alignBaseline="@id/startDateCheckBox"
                 android:layout_toRightOf="@id/startDateCheckBox"
-                android:checked="true"/>
+                android:checked="false"/>
         </RelativeLayout>
 
              <android.support.v7.widget.AppCompatButton

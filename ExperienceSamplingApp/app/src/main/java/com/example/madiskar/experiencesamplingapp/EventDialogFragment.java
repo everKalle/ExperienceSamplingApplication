@@ -168,6 +168,7 @@ public class EventDialogFragment extends DialogFragment {
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
         ArrayList<Integer> notifIdArrayList = studyToNotificationIdMap.get(studyId);
+        //TODO: error here when quitting study, doesnt crash the app but shows in logcat
         for (int notifyId : notifIdArrayList)
             nMgr.cancel(notifyId);
     }

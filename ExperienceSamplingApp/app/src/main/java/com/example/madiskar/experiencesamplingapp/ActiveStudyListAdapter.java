@@ -132,6 +132,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(studyRef.getId()), DBHandler.getInstance(mContext), new RunnableResponse() {
                                         @Override
                                         public void processFinish(String output) {
+                                        	//TODO: handle more server responses
                                             Log.i("QUITTING STUDY", output);
                                         }
                                     });

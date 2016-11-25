@@ -35,8 +35,6 @@ public class JoinStudyFragment extends Fragment {
     private CheckBox startDateCheckBox;
     private CheckBox endDateCheckBox;
     private Button searchButton;
-    private ArrayList<Study> studies;
-    public static ArrayList<Study> filteredStudies;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,170 +49,32 @@ public class JoinStudyFragment extends Fragment {
         endDateCheckBox = (CheckBox) view.findViewById(R.id.endDateCheckBox);
         searchButton = (Button) view.findViewById(R.id.button_search);
 
-        DBHandler myDb = DBHandler.getInstance(getActivity().getApplicationContext());
-
-        studies = myDb.getAllStudies();
-        filteredStudies = new ArrayList<>();
-
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (keywordsCheckbox.isChecked())
-                    filterKeyWord();
-                if (startDateCheckBox.isChecked() && endDateCheckBox.isChecked())
-                    filterDate();
-                else {
-                    if (startDateCheckBox.isChecked())
-                        filterStartDate();
-                    if (endDateCheckBox.isChecked())
-                        filterEndDate();
-                }
-                for (Study study: filteredStudies)
-                    Log.v("filtered", study.getName());
-                if (filteredStudies.isEmpty())
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.no_studies, Toast.LENGTH_SHORT).show();
-                else {
-                    FragmentManager fragmentManager = getFragmentManager();
-                    Fragment fragment = new SearchFragment();
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.mainContent, fragment)
-                            .commit();
-                }
-
+                FragmentManager fragmentManager = getFragmentManager();
+                Fragment fragment = new SearchFragment();
+                Bundle args = new Bundle();
+                args.putBoolean("keywordsCheckboxIsChecked", keywordsCheckbox.isChecked());
+                args.putBoolean("matchAllCheckboxIsChecked", matchAllCheckbox.isChecked());
+                args.putBoolean("startDateCheckBoxIsChecked", startDateCheckBox.isChecked());
+                args.putBoolean("endDateCheckBoxIsChecked", endDateCheckBox.isChecked());
+                args.putInt("startYear", startDatePicker.getYear());
+                args.putInt("startMonth", startDatePicker.getMonth());
+                args.putInt("startDay", startDatePicker.getDayOfMonth());
+                args.putInt("endYear", endDatePicker.getYear());
+                args.putInt("endMonth", endDatePicker.getMonth());
+                args.putInt("endDay", endDatePicker.getDayOfMonth());
+                args.putString("keywordsEditText", keywordsEditText.getText().toString());
+                fragment.setArguments(args);
+                fragmentManager.beginTransaction()
+                        .replace(R.id.mainContent, fragment)
+                        .commit();
             }
         });
 
-
         return view;
-    }
-
-    public void filterKeyWord() {
-
-        String keywords = keywordsEditText.getText().toString().toLowerCase();
-        String[] keywordsArray = keywords.split(",");
-        Set<String> keywordsSet = new HashSet<String>(Arrays.asList(keywordsArray));
-
-        for (Study s: studies) {
-            String studyName = s.getName().toLowerCase();
-
-            /*String[] keywordsInStudy = studyName.split("\\W");
-            Set<String> studyKeywordsSet = new HashSet<String>(Arrays.asList(keywordsInStudy));
-
-            if (!Collections.disjoint(keywordsSet,studyKeywordsSet)) // if the two sets have any keywords in common, add the study to the filteredStudies list
-                filteredStudies.add(s);
-            */
-
-            if (!matchAllCheckbox.isChecked()) {
-                for (String keyword : keywordsArray) {
-                    if (studyName.matches(".*" + keyword + ".*")) {
-                        if (!filteredStudies.contains(s))
-                            filteredStudies.add(s);
-                    }
-                }
-            }
-            else {
-                boolean matches = true;
-                for (String keyword : keywordsArray) {
-                    if (!(studyName.matches(".*" + keyword + ".*"))) {
-                        matches = false;
-                    }
-                }
-                if (matches)
-                    if (!filteredStudies.contains(s))
-                        filteredStudies.add(s);
-            }
-        }
 
     }
 
-    private void filterStartDate() {
-
-        int year = startDatePicker.getYear();
-        int month = startDatePicker.getMonth();
-        int day = startDatePicker.getDayOfMonth();
-
-        if (!keywordsCheckbox.isChecked() || keywordsEditText.getText().toString().equals(""))
-            filteredStudies = new ArrayList<>(studies);
-
-        ArrayList<Study> filteredStudiesClone = new ArrayList<>(filteredStudies);
-
-        try {
-            for (Study s : filteredStudiesClone) {
-                Calendar studyStartDate = s.getBeginDate();
-                int studyYear = studyStartDate.get(Calendar.YEAR);
-                int studyMonth = studyStartDate.get(Calendar.MONTH);
-                int studyDay = studyStartDate.get(Calendar.DAY_OF_MONTH);
-
-                if (year != studyYear || month != studyMonth || day != studyDay)
-                    filteredStudies.remove(s);
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    private void filterEndDate() {
-
-        if (!keywordsCheckbox.isChecked() && !startDateCheckBox.isChecked() || !keywordsEditText.getText().toString().equals("") && !startDateCheckBox.isChecked())
-            filteredStudies = new ArrayList<>(studies);
-
-        int year = endDatePicker.getYear();
-        int month = endDatePicker.getMonth();
-        int day = endDatePicker.getDayOfMonth();
-
-        ArrayList<Study> filteredStudiesClone = new ArrayList<>(filteredStudies);
-
-
-        try {
-            for (Study s : filteredStudiesClone) {
-                Calendar studyEndDate = s.getEndDate();
-                int studyYear = studyEndDate.get(Calendar.YEAR);
-                int studyMonth = studyEndDate.get(Calendar.MONTH);
-                int studyDay = studyEndDate.get(Calendar.DAY_OF_MONTH);
-
-                if (year != studyYear || month != studyMonth || day != studyDay) {
-                    filteredStudies.remove(s);
-                }
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    private void filterDate() {
-
-        if (!keywordsCheckbox.isChecked() || keywordsEditText.getText().toString().equals(""))
-            filteredStudies = new ArrayList<>(studies);
-
-        Calendar startCalendar = Calendar.getInstance();
-        Calendar endCalendar = Calendar.getInstance();
-
-        int startYear = startDatePicker.getYear();
-        int startMonth = startDatePicker.getMonth();
-        int startDay = startDatePicker.getDayOfMonth();
-
-        int endYear = endDatePicker.getYear();
-        int endMonth = endDatePicker.getMonth();
-        int endDay = endDatePicker.getDayOfMonth();
-
-        startCalendar.set(startYear, startMonth, startDay, 0, 0);
-        endCalendar.set(endYear, endMonth, endDay, 0, 0);
-
-        ArrayList<Study> filteredStudiesClone = new ArrayList<>(filteredStudies);
-
-        try {
-            for (Study s : filteredStudiesClone) {
-                Calendar studyStartDate = s.getBeginDate();
-                Calendar studyEndDate = s.getEndDate();
-
-                studyStartDate.set(studyStartDate.get(Calendar.YEAR), studyStartDate.get(Calendar.MONTH), studyStartDate.get(Calendar.DAY_OF_MONTH),0 , 0);
-                studyEndDate.set(studyEndDate.get(Calendar.YEAR), studyEndDate.get(Calendar.MONTH), studyEndDate.get(Calendar.DAY_OF_MONTH),0 , 0);
-
-                if (!((studyStartDate.after(startCalendar) || (!studyStartDate.after(startCalendar) && !studyStartDate.before(startCalendar))) && (studyEndDate.before(endCalendar)
-                        || (!studyEndDate.before(endCalendar) && !studyEndDate.after(endCalendar))) || (!studyStartDate.after(startCalendar) && !studyStartDate.before(startCalendar))
-                && (!studyEndDate.after(endCalendar) && !studyEndDate.before(endCalendar)))){
-                    filteredStudies.remove(s);
-                }
-            }
-        } catch (Exception e) {
-        }
-    }
 }

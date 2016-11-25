@@ -48,7 +48,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                             } else {
                                 Log.i("FINISHED SYNC:", "Study info");
                                 for(Study s : newStudies) {
-                                    Log.i("NetworkChangeReceiver", "Setting up alarms for " + newStudies.size() + "studies");
+                                    Log.i("NetworkChangeReceiver", "Setting up alarms for " + newStudies.size() + " studies");
                                     ResponseReceiver rR = new ResponseReceiver(s);
                                     rR.setupAlarm(context.getApplicationContext(), true);
                                 }
