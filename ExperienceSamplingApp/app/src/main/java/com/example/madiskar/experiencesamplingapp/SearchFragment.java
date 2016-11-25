@@ -64,7 +64,7 @@ public class SearchFragment extends ListFragment {
         progressDialog.show();
         */
 
-        GetPublicStudiesTask getPublicStudiesTask = new GetPublicStudiesTask(new RunnableResponseArray() {
+        GetPublicStudiesTask getPublicStudiesTask = new GetPublicStudiesTask(DBHandler.getInstance(getActivity().getApplicationContext()), new RunnableResponseArray() {
             @Override
             public void processFinish(String message, ArrayList<Study> study_list) {
                 //TODO: maybe handle server responses here later?

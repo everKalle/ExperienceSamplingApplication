@@ -20,16 +20,18 @@ public class GetPublicStudiesTask implements Runnable {
 
     private RunnableResponseArray response = null;
     private String link = "https://experiencesampling.herokuapp.com/index.php/study/get_public_studies";
+    private ArrayList<Study> myStudies;
+    private DBHandler mydb;
 
-    public GetPublicStudiesTask(RunnableResponseArray response) {
+    public GetPublicStudiesTask(DBHandler mydb, RunnableResponseArray response) {
         this.response = response;
+        this.mydb = mydb;
     }
 
     @Override
     public void run() {
 
         HttpsURLConnection connection = null;
-        OutputStreamWriter wr = null;
         BufferedReader reader = null;
 
         try {
@@ -53,6 +55,7 @@ public class GetPublicStudiesTask implements Runnable {
                 sb.append(line);
                 //break;
             }
+            myStudies = mydb.getAllStudies();
             response.processFinish(sb.toString(), jsonArrayToPublicStudyArray(DBHandler.parseJsonString(sb.toString())));
         }
         catch (Exception e) {
@@ -72,13 +75,25 @@ public class GetPublicStudiesTask implements Runnable {
         }
     }
 
-    private static ArrayList<Study> jsonArrayToPublicStudyArray(JSONArray jsonArray) {
+
+    private boolean checkStudyList(long studyId) {
+        for(Study s : myStudies) {
+            if(s.getId() == studyId)
+                return true;
+        }
+        return false;
+    }
+
+
+    private ArrayList<Study> jsonArrayToPublicStudyArray(JSONArray jsonArray) {
         ArrayList<Study> studies = new ArrayList<>();
 
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonStudy = jsonArray.getJSONObject(i);
                 long studyID = jsonStudy.getLong("id");
+                if(checkStudyList(studyID))
+                    continue;
                 String name = jsonStudy.getString("study-title");
                 int notificationsPerDay = jsonStudy.getInt("study-beeps-per-day");
                 int minTimeBetweenNotifications = jsonStudy.getInt("study-min-time-between-beeps");
