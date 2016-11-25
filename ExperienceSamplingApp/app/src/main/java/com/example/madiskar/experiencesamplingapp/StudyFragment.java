@@ -129,7 +129,7 @@ public class StudyFragment extends ListFragment {
 
     public ArrayList<Study> filterStudies(ArrayList<Study> studies) {
         ArrayList<Study> studiesClone = new ArrayList<>(studies);
-        for (Study study: studies) {
+        for (Study study: studiesClone) {
             if (Calendar.getInstance().after(study.getEndDate())) {
                 Log.v("ops", "siin me olemegi");
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
