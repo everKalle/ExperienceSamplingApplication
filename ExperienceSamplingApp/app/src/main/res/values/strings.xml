@@ -88,4 +88,8 @@
     <string name="update_studies">Updating Studies, Please Wait...</string>
     <string name="update_success">Update successful</string>
     <string name="loading_mystudies">Loading...</string>
+    <string name="public_study">This is a public study.</string>
+    <string name="private_study">This is a private study.</string>
+    <string name="study_info">Study info</string>
+    <string name="study_active_hours">This study\'s active hours are</string>
 </resources>

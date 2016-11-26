@@ -12,6 +12,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 public class ActiveStudyListAdapter extends BaseAdapter  {
     private Context mContext;
     private ArrayList<Study> studies;
-    String token;
+    private String token;
 
     public ActiveStudyListAdapter(Context context, ArrayList<Study> studies) {
         this.mContext = context;
@@ -74,6 +76,31 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
         Button eventBtn = (Button) view.findViewById(R.id.event_button);
         Button quitBtn = (Button) view.findViewById(R.id.quit_button);
 
+
+        nameView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("Clicked on nameView", "absolutely!");
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                alertDialogBuilder.setTitle(mContext.getString(R.string.study_info));
+                String[] activeWhen = studies.get(position).getDefaultBeepFree().getPeriodAsString().split(" ");
+                if(studies.get(position).isPublic()) {
+                    alertDialogBuilder.setMessage(mContext.getString(R.string.public_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
+                            + activeWhen[0] + " - " + activeWhen[1]);
+                } else {
+                    alertDialogBuilder.setMessage(mContext.getString(R.string.private_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
+                            + activeWhen[0] + " - " + activeWhen[1]);
+                }
+                alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
 
         eventBtn.setOnClickListener(new View.OnClickListener(){
             @Override
