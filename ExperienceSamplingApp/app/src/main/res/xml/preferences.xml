@@ -28,4 +28,13 @@
             android:targetPackage="com.example.madiskar.experiencesamplingapp"
             android:targetClass="com.example.madiskar.experiencesamplingapp.VolumeControlActivity"/>
     </Preference>
+    <Preference
+        android:key="change_password"
+        android:summary="@string/pref_change_password_summary"
+        android:title="@string/pref_change_password" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.madiskar.experiencesamplingapp"
+            android:targetClass="com.example.madiskar.experiencesamplingapp.ChangePasswordActivity"/>
+    </Preference>
 </PreferenceScreen>

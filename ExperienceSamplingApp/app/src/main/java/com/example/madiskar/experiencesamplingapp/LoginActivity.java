@@ -130,8 +130,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     //send data
                     connection.setRequestMethod("POST");
-                    connection.setReadTimeout(10000);
-                    connection.setConnectTimeout(15000);
+                    connection.setReadTimeout(15000);
+                    connection.setConnectTimeout(20000);
                     connection.setDoOutput(true);
 
                     wr = new OutputStreamWriter(connection.getOutputStream());
@@ -200,11 +200,11 @@ public class LoginActivity extends AppCompatActivity {
                             if(output.equals("invalid_token")) {
                                 loginbtn.setEnabled(true);
                                 fetchDataDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), getString(R.string.auth_fail), Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, getString(R.string.auth_fail), Toast.LENGTH_LONG).show();
                             } else if(output.equals("nothing")) {
                                 loginbtn.setEnabled(true);
                                 fetchDataDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), getString(R.string.fetch_fail), Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, getString(R.string.fetch_fail), Toast.LENGTH_LONG).show();
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
                                 Log.i("LOGGING SERVER RESPONSE", output);

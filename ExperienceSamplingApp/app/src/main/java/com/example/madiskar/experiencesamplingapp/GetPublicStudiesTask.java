@@ -42,8 +42,8 @@ public class GetPublicStudiesTask implements Runnable {
             connection.setSSLSocketFactory(sc.getSocketFactory());
 
             connection.setRequestMethod("GET");
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.setConnectTimeout(20000);
             connection.setDoOutput(false);
 
             //read response

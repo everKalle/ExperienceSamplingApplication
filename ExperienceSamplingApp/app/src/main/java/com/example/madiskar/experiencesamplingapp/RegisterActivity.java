@@ -131,8 +131,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                     //send data
                     connection.setRequestMethod("POST");
-                    connection.setReadTimeout(10000);
-                    connection.setConnectTimeout(15000);
+                    connection.setReadTimeout(15000);
+                    connection.setConnectTimeout(20000);
                     connection.setDoOutput(true);
 
                     wr = new OutputStreamWriter(connection.getOutputStream());
@@ -208,6 +208,7 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
 }

@@ -16,6 +16,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="pref_alarm_type">Alarm type</string>
     <string name="pref_alarm_tone">Alarm tone</string>
+    <string name="pref_change_password">Change password</string>
+    <string name="pref_change_password_summary">Change password on current account</string>
     <string name="pref_language">Language</string>
     <string name="new_event">Active Event</string>
     <string name="start">Start</string>
@@ -29,7 +31,7 @@
     <string name="viewstudies">View my current studies</string>
     <string name="browsestudies">Browse and join available  studies</string>
     <string name="activeeents">View my active events</string>
-    <string name="changesettings">View my active events</string>
+    <string name="changesettings">Change my settings</string>
     <string name="logcurrent">Log out from current account</string>
     <string name="runbackground">Active studies will continue  to run in background</string>
     <string name="pref_alarm_volume">Alarm volume</string>
@@ -78,11 +80,14 @@
     <string name="pass_length">Password must be between 6 and 16 characters</string>
     <string name="no_match">Passwords don\'t match</string>
     <string name="creating_account">Please Wait, Creating Account...</string>
+    <string name="changing_password">Please Wait, Changing Password...</string>
     <string name="register_fail">Registering failed</string>
     <string name="used_email">This email address has already been used</string>
     <string name="create_success">Account creation was successful</string>
     <string name="conf_sound">Configure sound volume</string>
     <string name="no_sound">Your Media/Music volume is set to 0.</string>
+    <string name="pw_change_success">Password successfully changed</string>
+    <string name="pw_change_fail">Password change unsuccessful</string>
     <string name="change">Please change your media/music volume to hear the notifications.</string>
     <string name="volume_settings">Volume Settings</string>
     <string name="update_studies">Updating Studies, Please Wait...</string>

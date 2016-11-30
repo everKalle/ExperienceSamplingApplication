@@ -1,6 +1,5 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.os.AsyncTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,29 +11,31 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+public class ChangePasswordTask implements Runnable {
 
-public class GetParticipantStudiesTask implements Runnable {
-
-    private RunnableResponse response = null;
-    private String link = "https://experiencesampling.herokuapp.com/index.php/study/get_participant_studies";
+    private String link = "https://experiencesampling.herokuapp.com/index.php/participant/change_password";
     private String token;
+    private String oldPw;
+    private String newPw;
+    private RunnableResponse response;
 
-
-    public GetParticipantStudiesTask(String token, RunnableResponse response) {
+    public ChangePasswordTask(String token, String oldPw, String newPw, RunnableResponse response) {
         this.response = response;
         this.token = token;
+        this.oldPw = oldPw;
+        this.newPw = newPw;
     }
-
 
     @Override
     public void run() {
-
         HttpsURLConnection connection = null;
         OutputStreamWriter wr = null;
         BufferedReader reader = null;
 
         try {
             String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
+            data += "&" + URLEncoder.encode("new_password", "UTF-8") + "=" + URLEncoder.encode(newPw, "UTF-8");
+            data += "&" + URLEncoder.encode("old_password", "UTF-8") + "=" + URLEncoder.encode(oldPw, "UTF-8");
 
             connection = (HttpsURLConnection) new URL(link).openConnection();
             SSLContext sc;
@@ -62,30 +63,27 @@ public class GetParticipantStudiesTask implements Runnable {
                 //break;
             }
             response.processFinish(sb.toString());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             response.processFinish("Exception: " + e.getMessage());
         } finally {
-            if(wr != null) {
+            if (wr != null) {
                 try {
                     wr.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if(reader != null) {
+            if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if(connection != null) {
+            if (connection != null) {
                 connection.disconnect();
             }
         }
     }
-
-
 }

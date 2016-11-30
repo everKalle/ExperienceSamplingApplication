@@ -80,7 +80,6 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
         nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("Clicked on nameView", "absolutely!");
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
                 alertDialogBuilder.setTitle(mContext.getString(R.string.study_info));
                 String[] activeWhen = studies.get(position).getDefaultBeepFree().getPeriodAsString().split(" ");

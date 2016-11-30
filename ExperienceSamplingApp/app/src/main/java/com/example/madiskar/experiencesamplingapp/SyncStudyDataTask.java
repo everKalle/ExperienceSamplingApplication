@@ -51,8 +51,8 @@ public class SyncStudyDataTask implements Runnable {
 
             //send data
             connection.setRequestMethod("POST");
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.setConnectTimeout(20000);
             connection.setDoOutput(true);
 
             wr = new OutputStreamWriter(connection.getOutputStream());
