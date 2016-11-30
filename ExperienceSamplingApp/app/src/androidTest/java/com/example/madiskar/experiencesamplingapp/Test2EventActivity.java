@@ -29,6 +29,7 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
@@ -57,6 +58,29 @@ public class Test2EventActivity {
 
     @Test
     public void eventActivityTest() throws Exception {
+
+        ViewInteraction appCompatEditText = onView(
+                withId(R.id.email_input));
+        appCompatEditText.perform(scrollTo(), click());
+
+        ViewInteraction appCompatEditText2 = onView(
+                withId(R.id.email_input));
+        appCompatEditText2.perform(scrollTo(), replaceText("test@test.com"), closeSoftKeyboard());
+
+        ViewInteraction appCompatEditText3 = onView(
+                withId(R.id.password_input));
+        appCompatEditText3.perform(scrollTo(), replaceText("testing123"), closeSoftKeyboard());
+
+        ViewInteraction appCompatButton = onView(
+                allOf(withId(R.id.button_login), withText("Login")));
+        appCompatButton.perform(scrollTo(), click());
+
+        ViewInteraction appCompatImageButton = onView(
+                allOf(withContentDescription("Open"),
+                        withParent(allOf(withId(R.id.action_bar),
+                                withParent(withId(R.id.action_bar_container)))),
+                        isDisplayed()));
+        appCompatImageButton.check(matches(isDisplayed()));
 
         ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.event_button), withText("Event"),
@@ -95,8 +119,27 @@ public class Test2EventActivity {
         eventStopButton.click();
 
         //Make sure that notifications are closed
-        if (mDevice.hasObject(By.pkg("com.android.systemui")))
-            mDevice.pressBack();
+        /*if (mDevice.hasObject(By.pkg("com.android.systemui")))
+            mDevice.pressBack();*/
+
+        ViewInteraction appCompatImageButton3 = onView(
+                allOf(withContentDescription("Open"),
+                        withParent(allOf(withId(R.id.action_bar),
+                                withParent(withId(R.id.action_bar_container)))),
+                        isDisplayed()));
+        appCompatImageButton3.perform(click());
+
+        ViewInteraction relativeLayout = onView(
+                allOf(childAtPosition(
+                        allOf(withId(R.id.menuList),
+                                withParent(withId(R.id.drawerPane))),
+                        4),
+                        isDisplayed()));
+        relativeLayout.perform(click());
+
+        ViewInteraction appCompatButton4 = onView(
+                allOf(withId(R.id.button_login), withText("Login")));
+        appCompatButton4.check(matches(isDisplayed()));
     }
 
     /*

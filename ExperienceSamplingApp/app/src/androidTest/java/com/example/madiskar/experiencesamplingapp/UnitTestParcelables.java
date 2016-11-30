@@ -41,7 +41,7 @@ public class UnitTestParcelables {
         freeTextQuestion = new FreeTextQuestion(21, "testquestion1");
         String[] choices = {"Choice1, choice2"};
         multipleChoiceQuestion = new MultipleChoiceQuestion(21, 1, "Multichoice q1", choices);
-        event = new Event(2, 21, "Event 1", 3, 23, 2, "m");
+        event = new Event(2, 21, "Event 1", 2, "m");
         Question[] questions = {freeTextQuestion, multipleChoiceQuestion};
 
         questionnaire = new Questionnaire(21, questions);
