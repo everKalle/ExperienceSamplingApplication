@@ -323,7 +323,7 @@ class Study extends CI_Controller {
           if ($success === TRUE){
             echo "success";
           } else {
-            echo $success;
+            echo "dberror";
           }
         } else {
           echo "invalid_study";
@@ -349,7 +349,7 @@ class Study extends CI_Controller {
           if ($success === TRUE){
             echo "success";
           } else {
-            echo $success;
+            echo "dberror";
           }
           
         } else {
