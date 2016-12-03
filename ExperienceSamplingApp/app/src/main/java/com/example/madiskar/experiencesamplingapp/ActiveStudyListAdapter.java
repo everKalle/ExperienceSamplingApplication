@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class ActiveStudyListAdapter extends BaseAdapter  {
@@ -119,15 +120,19 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
         eventBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                FragmentActivity activity = (FragmentActivity)(mContext);
-                final android.support.v4.app.FragmentManager fm = activity.getSupportFragmentManager();
-                EventDialogFragment edf = new EventDialogFragment();
                 Study study = (Study) getItem(position);
-                Bundle b = new Bundle();
-                b.putParcelableArray("EVENTS", study.getEvents());
-                b.putLong("studyId", study.getId());
-                edf.setArguments(b);
-                edf.show(fm, "eventChooser");
+                if (!Calendar.getInstance().before(study.getBeginDate())) {
+                    FragmentActivity activity = (FragmentActivity) (mContext);
+                    final android.support.v4.app.FragmentManager fm = activity.getSupportFragmentManager();
+                    EventDialogFragment edf = new EventDialogFragment();
+                    Bundle b = new Bundle();
+                    b.putParcelableArray("EVENTS", study.getEvents());
+                    b.putLong("studyId", study.getId());
+                    edf.setArguments(b);
+                    edf.show(fm, "eventChooser");
+                }
+                else
+                    Toast.makeText(mContext, "This study is not active yet!", Toast.LENGTH_SHORT).show();
             }
         });
 

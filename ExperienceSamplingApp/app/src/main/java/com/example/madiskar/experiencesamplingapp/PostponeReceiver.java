@@ -20,18 +20,19 @@ public class PostponeReceiver extends BroadcastReceiver {
 
         //Bundle extras = intent.getExtras();
 
-        Questionnaire qnaire = intent.getParcelableExtra("QUESTIONNAIRE");
         int postponeTime = intent.getIntExtra("postpone", 0);
         int notificationId = intent.getIntExtra("notificationId", 0);
         int uniqueValue = intent.getIntExtra("uniqueValue", 0);
-        Log.v("UNIQUEVALUE", String.valueOf(uniqueValue));
+        long studyId = intent.getLongExtra("StudyId", 0);
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
+
+        Log.v("STUDYID POSTPONE", String.valueOf(studyId));
 
         Log.i("POSTPONE", "Postponing right now, ETA " + postponeTime + " minutes.");
 
         Intent scheduledIntent = new Intent(context, QuestionnaireActivity.class);
-        scheduledIntent.putExtra("QUESTIONNAIRE", qnaire);
+        scheduledIntent.putExtra("StudyId", studyId);
         scheduledIntent.putExtra("postpone", postponeTime);
 
         scheduledIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

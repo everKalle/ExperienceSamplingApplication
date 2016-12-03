@@ -178,9 +178,9 @@ public class NotificationService extends IntentService {
                     okIntent.putExtra("StudyId", study.getId());
                     okIntent.putExtra("notificationId", index);
                     postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
-                    postponeIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
                     postponeIntent.putExtra("postpone", study.getPostponeTime());
                     postponeIntent.putExtra("notificationId", index);
+                    postponeIntent.putExtra("StudyId", study.getId());
                     postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
 
                     PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);

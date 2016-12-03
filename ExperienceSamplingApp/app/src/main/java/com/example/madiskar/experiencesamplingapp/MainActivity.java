@@ -122,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
     }
 
-
     private void selectItemFromDrawer(int position) {
         mDrawerList.setItemChecked(position, true);
         mDrawerLayout.closeDrawer(mDrawerPane);
