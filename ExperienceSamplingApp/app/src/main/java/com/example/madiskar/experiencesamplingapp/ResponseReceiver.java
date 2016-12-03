@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 
 public class ResponseReceiver extends WakefulBroadcastReceiver {
@@ -91,21 +93,10 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (firstTime) {
-            if (Calendar.getInstance().before(study.getBeginDate())) {
-                Log.v("ALGAMAS", "uuring poe veel alanud, " + study.getBeginDate().get(Calendar.MINUTE)+ ", " + study.getBeginDate().get(Calendar.DAY_OF_MONTH) + " " + study.getName());
-                Calendar calendar = study.getBeginDate();
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                        calendar.getTimeInMillis(),
-                        interval * 60 * 1000,
-                        alarmIntent);
-            }
-            else {
-                Log.v("KAIB", "STUDY ON AKTIIVNE " + study.getName());
-                alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime() + interval * 60 * 1000,
-                        interval * 60 * 1000,
-                        alarmIntent);
-            }
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + interval * 60 * 1000,
+                    interval * 60 * 1000,
+                    alarmIntent);
         }
         else {
             Calendar calendar = Calendar.getInstance();

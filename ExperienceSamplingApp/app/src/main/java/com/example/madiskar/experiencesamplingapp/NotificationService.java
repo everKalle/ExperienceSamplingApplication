@@ -91,161 +91,168 @@ public class NotificationService extends IntentService {
 
         Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
         // Log.v("SIIN", "");
-        if (!beepFreePeriod(study)) {
-            //Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
-            // Log.v("COUNTER", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
-            // Log.v("ALLOWED COUNTER", String.valueOf(notificationsPerDay));
+        if (!Calendar.getInstance().before(study.getBeginDate())) {
+            if (!beepFreePeriod(study)) {
+                //Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
+                // Log.v("COUNTER", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
+                // Log.v("ALLOWED COUNTER", String.valueOf(notificationsPerDay));
 
 
-            sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
-            int dailyNotCount = sharedPref.getInt(String.valueOf(index),0);
-            int soundVolume = sharedPref.getInt("volume",-1);
-            if (soundVolume == -1) {
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putInt("volume", 50);
-                editor.apply();
-                soundVolume = 50;
-            }
+                sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                int dailyNotCount = sharedPref.getInt(String.valueOf(index), 0);
 
-            Log.v("sound vol", String.valueOf(soundVolume));
-            //Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
+                Log.v("PAEVANE NOTTIDE ARV", String.valueOf(dailyNotCount));
 
-            Calendar rightNow = Calendar.getInstance();
-            int hour = rightNow.get(Calendar.HOUR_OF_DAY);
-            int minutes = rightNow.get(Calendar.MINUTE);
-
-            String time = sharedPref.getString("TIME" + String.valueOf(study.getId()), "");
-            if (!time.equals("")) {
-                String[] parts = time.split(":");
-                int hourPart = Integer.valueOf(parts[0]);
-                int minutePart = Integer.valueOf(parts[1]);
-
-                if (hour < hourPart) {
-                    ResponseReceiver rr = new ResponseReceiver(study);
-                    rr.setupAlarm(mContext, false);
-                }
-            }
-
-
-            SharedPreferences.Editor editor = sharedPref.edit(); // STORE THE TIME OF THE NOTIFICATION
-            editor.putString("TIME" + String.valueOf(study.getId()), hour + ":" + minutes);
-            editor.apply();
-
-            Log.v("nimi", study.getName());
-            Log.v("aja teema", String.valueOf(!Calendar.getInstance().after(study.getEndDate())));
-            Log.v("tapsem aja teema", String.valueOf(Calendar.getInstance()));
-            Log.v("tapsem aja teema 2", String.valueOf(study.getEndDate()));
-
-            if (!Calendar.getInstance().after(study.getEndDate())) {
-                if (dailyNotCount < notificationsPerDay) {
-
-                    editor = sharedPref.edit();
-                    editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
+                int soundVolume = sharedPref.getInt("volume", -1);
+                if (soundVolume == -1) {
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putInt("volume", 50);
                     editor.apply();
+                    soundVolume = 50;
+                }
 
+                Log.v("sound vol", String.valueOf(soundVolume));
+                //Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
 
-                    if (alarmType == 0) {
+                Calendar rightNow = Calendar.getInstance();
+                int hour = rightNow.get(Calendar.HOUR_OF_DAY);
+                int minutes = rightNow.get(Calendar.MINUTE);
 
-                        if (alarmTone == 0) {
-                            mediaPlayer = MediaPlayer.create(this, R.raw.chime_1);
-                        } else if (alarmTone == 1)
-                            mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
-                        else
-                            mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
-                        if (!started) {
-                            float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
-                            mediaPlayer.setVolume(volume, volume);
-                            mediaPlayer.start();
-                            started = true;
-                        }
-                    } else if (alarmType == 1) {
-                        Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-                        // Vibrate for 1000 milliseconds
-                        v.vibrate(1000);
+                String time = sharedPref.getString("TIME" + String.valueOf(study.getId()), "");
+                if (!time.equals("")) {
+                    String[] parts = time.split(":");
+                    int hourPart = Integer.valueOf(parts[0]);
+                    int minutePart = Integer.valueOf(parts[1]);
+
+                    if (hour < hourPart) {
+
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putInt(String.valueOf(study.getId()), 0);
+                        editor.apply();
+                        dailyNotCount = 0;
                     }
+                }
 
-                    final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-                    String uniqueValue = (index + 1) + "00000";
-                    String uniqueValue2 = (index + 1) + "00001";
-                    String uniqueValue3 = (index + 1) + "00002";
-                    Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
-                    Intent postponeIntent = new Intent(NotificationService.this, PostponeReceiver.class);
-                    Intent refuseIntent = new Intent(NotificationService.this, RefuseReceiver.class);
-                    refuseIntent.putExtra("notificationId", index);
-                    refuseIntent.putExtra("StudyId", index);
 
-                    //okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
-                    okIntent.putExtra("StudyId", study.getId());
-                    okIntent.putExtra("notificationId", index);
-                    postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
-                    postponeIntent.putExtra("postpone", study.getPostponeTime());
-                    postponeIntent.putExtra("notificationId", index);
-                    postponeIntent.putExtra("StudyId", study.getId());
-                    postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
+                SharedPreferences.Editor editor = sharedPref.edit(); // STORE THE TIME OF THE NOTIFICATION
+                editor.putString("TIME" + String.valueOf(study.getId()), hour + ":" + minutes);
+                editor.apply();
 
-                    PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
-                    PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), -Integer.valueOf(uniqueValue3), postponeIntent, 0);
+                Log.v("nimi", study.getName());
+                Log.v("aja teema", String.valueOf(!Calendar.getInstance().after(study.getEndDate())));
+                Log.v("tapsem aja teema", String.valueOf(Calendar.getInstance()));
+                Log.v("tapsem aja teema 2", String.valueOf(study.getEndDate()));
 
-                    builder.setContentTitle(name)
-                            .setOngoing(true)
-                            .setColor(getResources().getColor(R.color.colorAccent))
-                            .setContentText(getString(R.string.questionnaire))
-                            .setSmallIcon(R.drawable.ic_events)
-                            .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
-                            .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent)
-                            .addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent).build();
-                    ;
+                if (!Calendar.getInstance().after(study.getEndDate())) {
+                    if (dailyNotCount < notificationsPerDay) {
 
-                    PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                            index,
-                            new Intent(),
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-                    builder.setContentIntent(pendingIntent);
+                        editor = sharedPref.edit();
+                        editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
+                        editor.apply();
 
-                    final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-                    manager.notify(index, builder.build());
 
-                    Handler h = new Handler(Looper.getMainLooper());
-                    long delay = 300000;
-                    h.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            manager.cancel(index);
+                        if (alarmType == 0) {
+
+                            if (alarmTone == 0) {
+                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_1);
+                            } else if (alarmTone == 1)
+                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
+                            else
+                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
+                            if (!started) {
+                                float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
+                                mediaPlayer.setVolume(volume, volume);
+                                mediaPlayer.start();
+                                started = true;
+                            }
+                        } else if (alarmType == 1) {
+                            Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+                            // Vibrate for 1000 milliseconds
+                            v.vibrate(1000);
                         }
-                    }, delay);
-                } else {
 
+                        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                        String uniqueValue = (index + 1) + "00000";
+                        String uniqueValue2 = (index + 1) + "00001";
+                        String uniqueValue3 = (index + 1) + "00002";
+                        Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
+                        Intent postponeIntent = new Intent(NotificationService.this, PostponeReceiver.class);
+                        Intent refuseIntent = new Intent(NotificationService.this, RefuseReceiver.class);
+                        refuseIntent.putExtra("notificationId", index);
+                        refuseIntent.putExtra("StudyId", index);
+
+                        //okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
+                        okIntent.putExtra("StudyId", study.getId());
+                        okIntent.putExtra("notificationId", index);
+                        postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
+                        postponeIntent.putExtra("postpone", study.getPostponeTime());
+                        postponeIntent.putExtra("notificationId", index);
+                        postponeIntent.putExtra("StudyId", study.getId());
+                        postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
+
+                        PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
+                        PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), -Integer.valueOf(uniqueValue3), postponeIntent, 0);
+
+                        builder.setContentTitle(name)
+                                .setOngoing(true)
+                                .setColor(getResources().getColor(R.color.colorAccent))
+                                .setContentText(getString(R.string.questionnaire))
+                                .setSmallIcon(R.drawable.ic_events)
+                                .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
+                                .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent)
+                                .addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent).build();
+                        ;
+
+                        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                                index,
+                                new Intent(),
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                        builder.setContentIntent(pendingIntent);
+
+                        final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+                        manager.notify(index, builder.build());
+
+                        Handler h = new Handler(Looper.getMainLooper());
+                        long delay = 300000;
+                        h.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                manager.cancel(index);
+                            }
+                        }, delay);
+                    } else {
+
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                        am.cancel(pendingIntent);
+
+                        ResponseReceiver rr = new ResponseReceiver(study);
+                        rr.setupAlarm(mContext, false);
+
+                        //TODO: add daily notification resets
+                    }
+                } else {
+                    Log.v("Jah, jouab", "siia");
+                    cancelNotification(getApplicationContext(), (int) study.getId());
+                    Intent intent = new Intent(mContext, QuestionnaireActivity.class);
+                    ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
                     AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                     am.cancel(pendingIntent);
-
-                    ResponseReceiver rr = new ResponseReceiver(study);
-                    rr.setupAlarm(mContext, false);
-
-                    //TODO: add daily notification resets
-                }
-            }
-            else {
-                Log.v("Jah, jouab", "siia");
-                cancelNotification(getApplicationContext(), (int) study.getId());
-                Intent intent = new Intent(mContext, QuestionnaireActivity.class);
-                ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
-                AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                am.cancel(pendingIntent);
-                for (Event event: EventDialogFragment.activeEvents) {
-                    if (event.getStudyId() == study.getId()) {
-                        Intent stopIntent = new Intent(getApplicationContext(), StopReceiver.class);
-                        stopIntent.putExtra("start", event.getStartTimeCalendar());
-                        stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
-                        stopIntent.putExtra("studyId", event.getStudyId());
-                        stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
-                        stopIntent.putExtra("eventId", event.getId());
-                        sendBroadcast(stopIntent);
+                    for (Event event : EventDialogFragment.activeEvents) {
+                        if (event.getStudyId() == study.getId()) {
+                            Intent stopIntent = new Intent(getApplicationContext(), StopReceiver.class);
+                            stopIntent.putExtra("start", event.getStartTimeCalendar());
+                            stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("studyId", event.getStudyId());
+                            stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("eventId", event.getId());
+                            sendBroadcast(stopIntent);
+                        }
                     }
+                    DBHandler.getInstance(getApplicationContext()).deleteStudyEntry(study.getId());
                 }
-                DBHandler.getInstance(getApplicationContext()).deleteStudyEntry(study.getId());
             }
         }
     }
