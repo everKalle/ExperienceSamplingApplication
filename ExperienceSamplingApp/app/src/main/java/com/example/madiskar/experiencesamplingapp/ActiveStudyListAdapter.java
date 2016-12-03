@@ -104,7 +104,11 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                 "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
                 } else {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.private_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
-                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2]);
+                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2] + "\n\n" +
+                                "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
+                                "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
+                                "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
+                                "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
                 }
                 alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override

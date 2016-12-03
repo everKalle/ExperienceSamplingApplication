@@ -211,19 +211,14 @@ public class LoginActivity extends AppCompatActivity {
                                 Log.i("LOGGING SERVER RESPONSE", output);
                                 mydb.clearTables();
                                 JSONArray jsonArray = DBHandler.parseJsonString(output);
-                                ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray);
+                                ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray, true);
 
-                                Calendar cInstance = Calendar.getInstance();
                                 for (Study s : studies) { // add studies to local db and also set up alarms
-                                    //if(!cInstance.after(s.getEndDate())) {
-                                        mydb.insertStudy(s);
-                                    //}
+                                    mydb.insertStudy(s);
                                 }
                                 for (Study s : studies) {
-                                    //if(!cInstance.after(s.getEndDate())) {
-                                        ResponseReceiver rR = new ResponseReceiver(s);
-                                        rR.setupAlarm(getApplicationContext(), true);
-                                    //}
+                                    ResponseReceiver rR = new ResponseReceiver(s);
+                                    rR.setupAlarm(getApplicationContext(), true);
                                 }
 
                                 SharedPreferences.Editor editor = sharedPref.edit();

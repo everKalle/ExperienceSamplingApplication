@@ -716,7 +716,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    public static ArrayList<Study> jsonArrayToStudyArray(JSONArray jsonArray) {
+    public static ArrayList<Study> jsonArrayToStudyArray(JSONArray jsonArray, boolean blockFinishedStudies) {
         ArrayList<Study> studyList = new ArrayList<>();
 
         try {
@@ -748,9 +748,11 @@ public class DBHandler extends SQLiteOpenHelper {
                 } else {
                     endDate = realEndDate;
                 }
-                if(endDate.before(Calendar.getInstance())) {
-                    Log.i("Study over, do not add", name);
-                    continue;
+                if(blockFinishedStudies) {
+                    if (endDate.before(Calendar.getInstance())) {
+                        Log.i("Study over, do not add", name);
+                        continue;
+                    }
                 }
 
                 JSONArray questionArray = jsonStudy.getJSONArray("questions");

@@ -1,6 +1,7 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -39,6 +40,9 @@ public class SyncStudyDataTask implements Runnable {
         OutputStreamWriter wr = null;
         BufferedReader reader = null;
         ArrayList<Study> newStudies = new ArrayList<>();
+        ArrayList<Study> updatedStudies = new ArrayList<>();
+        ArrayList<Study> oldStudies = new ArrayList<>();
+        ArrayList<Study> cancelledStudies = new ArrayList<>();
 
         try {
             String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
@@ -70,22 +74,27 @@ public class SyncStudyDataTask implements Runnable {
             }
 
             JSONArray jsonArray = DBHandler.parseJsonString(sb.toString());
-            ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray);
+            ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray, false);
 
             if(onlyUpdateLocalStudies) {
                 int updateCounter = 0;
                 for(Study s : studies) {
                     if(mydb.isStudyInDb(s)) {
                         if(Calendar.getInstance().after(s.getEndDate())) {
-                            //TODO: need to cancel events and notifications as well
+                            cancelledStudies.add(mydb.getStudy(s.getId()));
                             continue;
+                        }
+                        Study oldStudy = mydb.getStudy(s.getId());
+                        if(notificationDataChanged(oldStudy, s)) {
+                            updatedStudies.add(s);
+                            oldStudies.add(oldStudy);
                         }
                         mydb.updateStudyEntry(s);
                         updateCounter ++;
                     }
                 }
                 Log.i("SYNCED STUDY INFO", "Updated Studies: " + updateCounter);
-                response.processFinish(sb.toString(), newStudies, mydb.getAllStudies());
+                response.processFinish(sb.toString(), newStudies, mydb.getAllStudies(), updatedStudies, oldStudies, cancelledStudies);
             } else {
                 int updateCounter = 0;
                 for(Study s : studies) {
@@ -96,20 +105,26 @@ public class SyncStudyDataTask implements Runnable {
                         }
                     } else {
                         if(Calendar.getInstance().after(s.getEndDate())) {
-                            //TODO: need to cancel events and notifications as well
+                            Log.i("Study over", "hetkekuup2ev: " + DBHandler.calendarToString(Calendar.getInstance()) + " lopukuupaev: " + DBHandler.calendarToString(s.getEndDate()));
+                            cancelledStudies.add(mydb.getStudy(s.getId()));
                             continue;
+                        }
+                        Study oldStudy = mydb.getStudy(s.getId());
+                        if(notificationDataChanged(oldStudy, s)) {
+                            updatedStudies.add(s);
+                            oldStudies.add(oldStudy);
                         }
                         mydb.updateStudyEntry(s);
                         updateCounter ++;
                     }
                 }
                 Log.i("SYNCED STUDY INFO", "New Studies: " + newStudies.size() + ", Updated Studies: " + updateCounter);
-                response.processFinish(sb.toString(), newStudies, mydb.getAllStudies());
+                response.processFinish(sb.toString(), newStudies, mydb.getAllStudies(), updatedStudies, oldStudies, cancelledStudies);
             }
         }
         catch (Exception e) {
             e.printStackTrace();
-            response.processFinish("Exception: " + e.getMessage(), newStudies, mydb.getAllStudies());
+            response.processFinish("Exception: " + e.getMessage(), newStudies, mydb.getAllStudies(), updatedStudies, oldStudies, cancelledStudies);
         } finally {
             if(wr != null) {
                 try {
@@ -128,6 +143,16 @@ public class SyncStudyDataTask implements Runnable {
             if(connection != null) {
                 connection.disconnect();
             }
+        }
+    }
+
+    private boolean notificationDataChanged(Study oldS, Study newS) {
+        int old_interval = oldS.getMinTimeBetweenNotifications();
+        int updated_interval = newS.getMinTimeBetweenNotifications();
+        if(!(old_interval == updated_interval)) {
+            return true;
+        } else {
+            return false;
         }
     }
 

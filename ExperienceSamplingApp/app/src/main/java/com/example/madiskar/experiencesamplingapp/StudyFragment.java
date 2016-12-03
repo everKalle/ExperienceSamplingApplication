@@ -12,7 +12,9 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.support.design.widget.FloatingActionButton;
+import android.test.suitebuilder.TestMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +33,7 @@ public class StudyFragment extends ListFragment {
     private Handler mHandler = new Handler();
     private Boolean from_menu;
     private ActiveStudyListAdapter asla;
+    private TextView noStudiesTxt;
 
 
     @Override
@@ -49,9 +52,11 @@ public class StudyFragment extends ListFragment {
         final ProgressBar progress = (ProgressBar) view.findViewById(R.id.myStudiesProgressBar);
         final FloatingActionButton floatUpdate = (FloatingActionButton) view.findViewById(R.id.floatingUpdateButton);
         final TextView progressText = (TextView) view.findViewById(R.id.myStudiesProgressBarText);
+        noStudiesTxt = (TextView) view.findViewById(R.id.no_studies);
         progress.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.VISIBLE);
         floatUpdate.setVisibility(View.GONE);
+        noStudiesTxt.setVisibility(View.GONE);
 
         new AsyncTask<Void, Void, ArrayList<Study>>() {
             @Override
@@ -66,20 +71,32 @@ public class StudyFragment extends ListFragment {
                         @Override
                         public void run() {
                             ArrayList<Study> filtered = filterStudies(results);
-                            progress.setVisibility(View.GONE);
-                            progressText.setVisibility(View.GONE);
-                            floatUpdate.setVisibility(View.VISIBLE);
-                            asla = new ActiveStudyListAdapter(getActivity(), filtered);
-                            setListAdapter(asla);
+                            if(filtered.size() > 0) {
+                                progress.setVisibility(View.GONE);
+                                progressText.setVisibility(View.GONE);
+                                floatUpdate.setVisibility(View.VISIBLE);
+                                asla = new ActiveStudyListAdapter(getActivity(), filtered);
+                                setListAdapter(asla);
+                            } else {
+                                progress.setVisibility(View.GONE);
+                                progressText.setVisibility(View.GONE);
+                                noStudiesTxt.setVisibility(View.VISIBLE);
+                            }
                         }
                     }, 230); //Time for nav driver to close, for nice animations
                 } else {
                     ArrayList<Study> filtered = filterStudies(results);
-                    progress.setVisibility(View.GONE);
-                    progressText.setVisibility(View.GONE);
-                    floatUpdate.setVisibility(View.VISIBLE);
-                    asla = new ActiveStudyListAdapter(getActivity(), filtered);
-                    setListAdapter(asla);
+                    if(filtered.size() > 0) {
+                        progress.setVisibility(View.GONE);
+                        progressText.setVisibility(View.GONE);
+                        floatUpdate.setVisibility(View.VISIBLE);
+                        asla = new ActiveStudyListAdapter(getActivity(), filtered);
+                        setListAdapter(asla);
+                    } else {
+                        progress.setVisibility(View.GONE);
+                        progressText.setVisibility(View.GONE);
+                        noStudiesTxt.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         }.execute();
@@ -98,8 +115,7 @@ public class StudyFragment extends ListFragment {
 
                     SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
                         @Override
-                        public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies) {
-                            progressDialog.dismiss();
+                        public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
                             if (output.equals("invalid_token")) {
                                 Log.i("Study Sync", getString(R.string.auth_sync_fail));
                                 //Toast.makeText(view.getContext(), view.getContext().getString(R.string.auth_sync_fail), Toast.LENGTH_LONG).show();
@@ -107,14 +123,28 @@ public class StudyFragment extends ListFragment {
                                 Log.i("Study Sync", getString(R.string.fetch_sync_fail));
                                 //Toast.makeText(view.getContext(), view.getContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
                             } else if(!output.equals("dberror")){
-                                //Toast.makeText(view.getContext(), view.getContext().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
-                                Log.i("Study sync:", getString(R.string.update_success));
                                 for (Study s : newStudies) {
                                     Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");
-                                    ResponseReceiver rR = new ResponseReceiver(s);
-                                    rR.setupAlarm(view.getContext().getApplicationContext(), true);
+                                    setUpNewStudy(s);
                                 }
+                                for (int i=0; i<updatedStudies.size(); i++) {
+                                    Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
+                                    cancelStudy(oldStudies.get(i));
+                                    setUpNewStudy(updatedStudies.get(i));
+                                }
+                                for (Study s : cancelledStudies) {
+                                    Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
+                                    for(Study ks : allStudies) {
+                                        if(ks.getId() == s.getId()) {
+                                            allStudies.remove(ks);
+                                            break;
+                                        }
+                                    }
+                                    cancelStudy(s);
+                                }
+                                progressDialog.dismiss();
                                 updateUI(allStudies);
+                                Log.i("Study sync:", getString(R.string.update_success));
                             } else {
                                 Log.i("FINISHED SYNC:", "study sync failed");
                             }
@@ -158,11 +188,53 @@ public class StudyFragment extends ListFragment {
         return studiesClone;
     }
 
-
-    public void updateUI(final ArrayList<Study> newList) {
+    public void cancelStudy(final Study study) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                Log.i("Deleting study", study.getName());
+                NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
+                Intent intent = new Intent(getActivity().getApplicationContext(), QuestionnaireActivity.class);
+                ResponseReceiver.cancelExistingAlarm(getActivity(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity().getApplicationContext(), (int) study.getId(), new Intent(getActivity().getApplicationContext(), ResponseReceiver.class), 0);
+                AlarmManager am = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                am.cancel(pendingIntent);
+                for (Event event : EventDialogFragment.activeEvents) {
+                    if (event.getStudyId() == study.getId()) {
+                        Intent stopIntent = new Intent(getActivity().getApplicationContext(), StopReceiver.class);
+                        stopIntent.putExtra("start", event.getStartTimeCalendar());
+                        stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                        stopIntent.putExtra("studyId", event.getStudyId());
+                        stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                        stopIntent.putExtra("eventId", event.getId());
+                        getActivity().getApplicationContext().sendBroadcast(stopIntent);
+                    }
+                }
+                DBHandler.getInstance(getActivity().getApplicationContext()).deleteStudyEntry(study.getId());
+            }
+        });
+    }
+
+
+    private void setUpNewStudy(final Study s) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ResponseReceiver rR = new ResponseReceiver(s);
+                rR.setupAlarm(getActivity().getApplicationContext(), true);
+            }
+        });
+    }
+
+
+    private void updateUI(final ArrayList<Study> newList) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(newList.size() == 0)
+                    noStudiesTxt.setVisibility(View.VISIBLE);
+                if(newList.size() > 0)
+                    noStudiesTxt.setVisibility(View.GONE);
                 asla = new ActiveStudyListAdapter(getActivity(), newList);
                 setListAdapter(asla);
             }

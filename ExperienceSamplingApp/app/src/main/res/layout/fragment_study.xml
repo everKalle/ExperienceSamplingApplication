@@ -42,5 +42,14 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/myStudiesProgressBarText" />
 
+    <TextView
+        android:text="@string/no_active_studies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/no_studies"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+
 </RelativeLayout>
 
