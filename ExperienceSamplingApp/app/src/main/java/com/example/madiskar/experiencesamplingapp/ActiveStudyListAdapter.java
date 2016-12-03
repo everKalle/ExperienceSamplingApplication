@@ -81,7 +81,7 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-                alertDialogBuilder.setTitle(mContext.getString(R.string.study_info));
+                alertDialogBuilder.setTitle(studies.get(position).getName());
                 String[] beepfree = studies.get(position).getDefaultBeepFree().getPeriodAsString().split(" ");
                 String[] startSplit = beepfree[0].split(":");
                 String[] endSplit = beepfree[1].split(":");
@@ -96,7 +96,11 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                 }
                 if(studies.get(position).isPublic()) {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.public_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
-                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2]);
+                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2] + "\n\n" +
+                                "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
+                                "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
+                                "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
+                                "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
                 } else {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.private_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
                             + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2]);

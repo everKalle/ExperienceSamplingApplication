@@ -1,6 +1,8 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 

@@ -206,7 +206,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 Event[] events = getStudyEvents(id);
                 Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
                 Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
-                boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+                boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONABLE))) == 1);
                 boolean isPublic = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ISPUBLIC))) == 1);
                 String[] defBeepFree = (cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE))).split(Pattern.quote(" "));
                 BeepFerePeriod defaultBeepFree = stringToBeepFree(0, defBeepFree[0], defBeepFree[1]);
@@ -284,7 +284,7 @@ public class DBHandler extends SQLiteOpenHelper {
             Event[] events = getStudyEvents(id);
             Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
             Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
-            boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+            boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONABLE))) == 1);
             boolean isPublic = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ISPUBLIC))) == 1);
             String[] defBeepFree = (cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE))).split(Pattern.quote(" "));
             BeepFerePeriod defaultBeepFree = stringToBeepFree(0, defBeepFree[0], defBeepFree[1]);
