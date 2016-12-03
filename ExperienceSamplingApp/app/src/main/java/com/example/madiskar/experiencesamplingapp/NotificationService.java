@@ -169,7 +169,7 @@ public class NotificationService extends IntentService {
                     String uniqueValue2 = (index + 1) + "00001";
                     String uniqueValue3 = (index + 1) + "00002";
                     Intent okIntent = new Intent(NotificationService.this, QuestionnaireActivity.class);
-                    Intent postponeIntent = new Intent(getBaseContext(), PostponeReceiver.class);
+                    Intent postponeIntent = new Intent(NotificationService.this, PostponeReceiver.class);
                     Intent refuseIntent = new Intent(NotificationService.this, RefuseReceiver.class);
                     refuseIntent.putExtra("notificationId", index);
                     refuseIntent.putExtra("StudyId", index);

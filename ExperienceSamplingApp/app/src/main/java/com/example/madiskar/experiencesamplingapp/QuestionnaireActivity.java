@@ -45,9 +45,13 @@ public class QuestionnaireActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         studyId = extras.getLong("StudyId");
 
-        final int notificationId = extras.getInt("notificationId");
-        NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(notificationId);
+        try {
+            final int notificationId = extras.getInt("notificationId");
+            NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(notificationId);
+        } catch (Exception e) {
+            // do nothing
+        }
 
         ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
 

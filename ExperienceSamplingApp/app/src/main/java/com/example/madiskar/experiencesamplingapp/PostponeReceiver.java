@@ -18,12 +18,12 @@ public class PostponeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        //Bundle extras = intent.getExtras();
+        Bundle extras = intent.getExtras();
 
-        int postponeTime = intent.getIntExtra("postpone", 0);
-        int notificationId = intent.getIntExtra("notificationId", 0);
-        int uniqueValue = intent.getIntExtra("uniqueValue", 0);
-        long studyId = intent.getLongExtra("StudyId", 0);
+        int postponeTime = extras.getInt("postpone", 0);
+        int notificationId = extras.getInt("notificationId", 0);
+        int uniqueValue = extras.getInt("uniqueValue", 0);
+        long studyId = extras.getLong("StudyId", 0);
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
 

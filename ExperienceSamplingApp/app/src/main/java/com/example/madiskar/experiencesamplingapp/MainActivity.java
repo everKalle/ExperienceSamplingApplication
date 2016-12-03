@@ -33,7 +33,6 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements BeepfreePeriodPickerFragment.BeepFreePeriodListener{
 
-    //TODO - DISALLOW CLICKING ON NOTIFICATIONS AND THUS STARTING AN EVIL ALL-DESTROYING ACTIVITY
     ListView mDrawerList;
     RelativeLayout mDrawerPane;
     ArrayList<BeepFerePeriod> bfpArrayList = new ArrayList<BeepFerePeriod>();
@@ -63,6 +62,16 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         Log.v("KONTROLL", String.valueOf(bfps.size()));
         adapter = new BeepFreePeriodListAdapter(this, bfps);
         adapter.updateAdapter(bfps);
+
+        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Fragment f = getFragmentManager().findFragmentById(R.id.mainContent);
+                if (f instanceof StudyFragment) { // here we listen for changes in backstack and then rename the title accordingly
+                    setTitle(f.getTag());
+                }
+            }
+        });
 
 
         mMenuItems.add(new MenuItem(getString(R.string.studies), getString(R.string.viewstudies), R.drawable.ic_study));
@@ -137,20 +146,10 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             Bundle args = new Bundle();
             args.putBoolean("fromNav", from_menu);
             fragment.setArguments(args);
-
-            if (!justStarted) {
-                Log.v("huops", "oleme siin");
-                fragmentManager.beginTransaction()
-                        .replace(R.id.mainContent, fragment)
-                        .addToBackStack("My Studies")
-                        .commit();
-            }
-            else {
-                Log.v("huops", "oleme kohal");
-                fragmentManager.beginTransaction()
-                        .replace(R.id.mainContent, fragment)
-                        .commit();
-            }
+            fragmentManager.beginTransaction()
+                    .replace(R.id.mainContent, fragment, "My Studies")
+                    .addToBackStack("My Studies")
+                    .commit();
         }
         else if (itemName.equals("Beepfree period")) {
             Log.v("wotm8", "m9");
@@ -158,13 +157,12 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
-                    .addToBackStack(null)
                     .commit();
         }
 	    else if (itemName.equals("Settings")) {
             setTitle(itemName);
        	    getFragmentManager().beginTransaction()
-                    .replace(R.id.mainContent, new SettingsFragment())
+                    .replace(R.id.mainContent, new SettingsFragment(), "Settings")
                     .addToBackStack(null)
                     .commit();
         }
@@ -286,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             setTitle(itemName);
             Fragment fragment = new JoinStudyFragment();
             fragmentManager.beginTransaction()
-                    .replace(R.id.mainContent, fragment)
+                    .replace(R.id.mainContent, fragment, "Join Studies")
                     .addToBackStack(null)
                     .commit();
         }
@@ -294,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             setTitle(itemName);
             Fragment fragment = new EventFragment();
             fragmentManager.beginTransaction()
-                    .replace(R.id.mainContent, fragment)
+                    .replace(R.id.mainContent, fragment, "My Events")
                     .addToBackStack(null)
                     .commit();
         }
@@ -436,4 +434,27 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
         //  NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
     }
+
+
+    @Override
+    public void onBackPressed() {
+
+        Fragment f = getFragmentManager().findFragmentById(R.id.mainContent);
+        if (f instanceof StudyFragment) {
+            Log.i("Finish activity", "jah");
+            finish();
+        }
+
+        int count = getFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+            super.onBackPressed();
+            finish();
+        } else {
+            getFragmentManager().popBackStack();
+        }
+
+    }
+
+
 }

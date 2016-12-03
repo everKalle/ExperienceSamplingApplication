@@ -53,8 +53,7 @@
 
         <activity
             android:name=".QuestionnaireActivity"
-            android:screenOrientation="portrait"
-            android:noHistory="true" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".RegisterActivity"
             android:noHistory="true"
