@@ -361,6 +361,7 @@ class Study_model extends CI_Model {
 	}
 
 	function add_participant($study_id, $target_user) {
+		date_default_timezone_set('Europe/Tallinn');
 		$data = array(
 		   'participant_id' => $target_user ,
 		   'survey_id' => $study_id ,
