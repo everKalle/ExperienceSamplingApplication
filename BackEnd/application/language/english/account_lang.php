@@ -15,3 +15,7 @@ $lang['act-fail-invalid-link'] = "Invalid activation link";
 $lang['to-login'] = 'To login page';
 $lang['activate-account'] = 'Set password and activate account';
 
+$lang['old-password'] = 'Old password';
+$lang['new-password'] = 'New password';
+$lang['repeat-new-password'] = 'Repeat the new password';
+$lang['update-password'] = 'Update password';

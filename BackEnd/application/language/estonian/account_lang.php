@@ -15,3 +15,7 @@ $lang['act-fail-invalid-link'] = "Vigane konto aktiveerimise link";
 $lang['to-login'] = 'Sisselogimise lehele';
 $lang['activate-account'] = 'Sea parool ja aktiveeri konto';
 
+$lang['old-password'] = 'Vana parool';
+$lang['new-password'] = 'Uus parool';
+$lang['repeat-new-password'] = 'Korda uut parooli';
+$lang['update-password'] = 'Uuenda parooli';
