@@ -15,10 +15,21 @@
             android:paddingRight="24dp"
             android:layout_below="@+id/scrollView">
 
+            <TextView
+                android:text="Experience Sampling Application"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/title_message"
+                android:layout_marginTop="50dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                android:textSize="24sp"
+                android:textAlignment="center" />
+
+
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="140dp"
+                android:layout_marginTop="100dp"
                 android:layout_marginBottom="8dp">
                 <EditText
                     android:layout_width="match_parent"

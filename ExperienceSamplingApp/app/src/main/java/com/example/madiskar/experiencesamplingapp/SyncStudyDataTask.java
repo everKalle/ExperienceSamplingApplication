@@ -70,14 +70,13 @@ public class SyncStudyDataTask implements Runnable {
             }
 
             JSONArray jsonArray = DBHandler.parseJsonString(sb.toString());
-            Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
+            ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray);
 
             if(onlyUpdateLocalStudies) {
                 int updateCounter = 0;
                 for(Study s : studies) {
                     if(mydb.isStudyInDb(s)) {
                         if(Calendar.getInstance().after(s.getEndDate())) {
-                            mydb.deleteStudyEntry(s.getId());
                             //TODO: need to cancel events and notifications as well
                             continue;
                         }
@@ -97,7 +96,6 @@ public class SyncStudyDataTask implements Runnable {
                         }
                     } else {
                         if(Calendar.getInstance().after(s.getEndDate())) {
-                            mydb.deleteStudyEntry(s.getId());
                             //TODO: need to cancel events and notifications as well
                             continue;
                         }

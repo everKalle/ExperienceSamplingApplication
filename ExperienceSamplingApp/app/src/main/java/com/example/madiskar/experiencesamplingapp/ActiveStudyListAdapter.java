@@ -82,13 +82,24 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
             public void onClick(View v) {
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
                 alertDialogBuilder.setTitle(mContext.getString(R.string.study_info));
-                String[] activeWhen = studies.get(position).getDefaultBeepFree().getPeriodAsString().split(" ");
+                String[] beepfree = studies.get(position).getDefaultBeepFree().getPeriodAsString().split(" ");
+                String[] startSplit = beepfree[0].split(":");
+                String[] endSplit = beepfree[1].split(":");
+                if(startSplit[1].equals("0")) {
+                    startSplit[1] = "00";
+                } if(endSplit[1].equals("0")) {
+                    endSplit[1] = "00";
+                } if(startSplit[0].equals("0")) {
+                    startSplit[0] = "00";
+                } if(endSplit[0].equals("0")) {
+                    endSplit[0] = "00";
+                }
                 if(studies.get(position).isPublic()) {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.public_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
-                            + activeWhen[0] + " - " + activeWhen[1]);
+                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2]);
                 } else {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.private_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
-                            + activeWhen[0] + " - " + activeWhen[1]);
+                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2]);
                 }
                 alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override

@@ -97,4 +97,6 @@
     <string name="private_study">This is a private study.</string>
     <string name="study_info">Study info</string>
     <string name="study_active_hours">This study\'s active hours are</string>
+    <string name="study_join_success">Joining successful</string>
+    <string name="study_join_fail">Joining failed</string>
 </resources>

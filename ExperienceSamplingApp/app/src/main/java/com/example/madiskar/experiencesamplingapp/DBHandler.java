@@ -37,7 +37,6 @@ public class DBHandler extends SQLiteOpenHelper {
                     + ActiveStudyEntry.COLUMN_ENDDATE + " TEXT NOT NULL, "
                     + ActiveStudyEntry.COLUMN_STUDYLENGTH + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY + " INTEGER NOT NULL, "
-                    + ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_POSTPONETIME + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_POSTPONABLE + " INTEGER NOT NULL, "
@@ -195,7 +194,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 long id = cur.getLong(cur.getColumnIndex(ActiveStudyEntry._ID));
                 int studyLength = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_STUDYLENGTH));
                 int notificationsPerDay = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY));
-                int notificationInterval = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL));
                 int minTimeBetweenNotification = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
                 int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
                 String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
@@ -215,7 +213,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
                 Study newStudy = new Study(
                         id, name, qnaire, beginDate, endDate, studyLength,
-                        notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
+                        notificationsPerDay, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
                 studies.add(newStudy);
                 cur.moveToNext();
             }
@@ -274,7 +272,6 @@ public class DBHandler extends SQLiteOpenHelper {
         try{
             int studyLength = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_STUDYLENGTH));
             int notificationsPerDay = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY));
-            int notificationInterval = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL));
             int minTimeBetweenNotification = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
             int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
             String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
@@ -294,7 +291,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
             Study newStudy = new Study(
                     id, name, qnaire, beginDate, endDate, studyLength,
-                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
+                    notificationsPerDay, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
             s = newStudy;
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -353,7 +350,6 @@ public class DBHandler extends SQLiteOpenHelper {
             values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
             values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
             values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
-            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());
             values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
             values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
             values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
@@ -386,7 +382,6 @@ public class DBHandler extends SQLiteOpenHelper {
             values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
             values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
             values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
-            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());
             values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
             values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
             values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
@@ -721,8 +716,8 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    public static Study[] jsonArrayToStudyArray(JSONArray jsonArray) {
-        Study[] studyArray = new Study[jsonArray.length()];
+    public static ArrayList<Study> jsonArrayToStudyArray(JSONArray jsonArray) {
+        ArrayList<Study> studyList = new ArrayList<>();
 
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -732,6 +727,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 int notificationsPerDay = jsonStudy.getInt("study-beeps-per-day");
                 int minTimeBetweenNotifications = jsonStudy.getInt("study-min-time-between-beeps");
                 String joinDate = jsonStudy.getString("join_date");
+                Calendar realStartDate = stringToCalendar(jsonStudy.getString("study-start-date"));
                 BeepFerePeriod defaultBeepFree = stringToBeepFree(0, jsonStudy.getString("study-beep-end-time"), jsonStudy.getString("study-beep-start-time"));
                 int postponeTime = jsonStudy.getInt("study-postpone-time");
                 boolean allowPostpone = (jsonStudy.getInt("study-allow-postpone") == 1);
@@ -739,6 +735,10 @@ public class DBHandler extends SQLiteOpenHelper {
                 boolean isPublic = (jsonStudy.getInt("study-is-public") == 1);
                 Calendar beginDate = stringToCalendar(joinDate);
                 Calendar endDate = stringToCalendar(joinDate);
+                if(beginDate.before(realStartDate)) {
+                    beginDate = realStartDate;
+                    endDate = realStartDate;
+                }
                 Calendar realEndDate = stringToCalendar(jsonStudy.getString("study-end-date"));
                 int studyLengthForUser = jsonStudy.getInt("study-duration-time");
                 if(studyDurationForUser) {
@@ -747,6 +747,10 @@ public class DBHandler extends SQLiteOpenHelper {
                         endDate = realEndDate;
                 } else {
                     endDate = realEndDate;
+                }
+                if(endDate.before(Calendar.getInstance())) {
+                    Log.i("Study over, do not add", name);
+                    continue;
                 }
 
                 JSONArray questionArray = jsonStudy.getJSONArray("questions");
@@ -783,15 +787,14 @@ public class DBHandler extends SQLiteOpenHelper {
                     events[g] = new Event(eventID, studyID, title, controltime, controltimeUnit);
                 }
 
-                studyArray[i] = new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
-                        minTimeBetweenNotifications, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree, isPublic);
-                //TODO: currently notificationinterval = minTimeBetweenNotifications, redo this system.
+                studyList.add(new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
+                        postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree, isPublic));
             }
 
         } catch (org.json.JSONException e) {
             e.printStackTrace();
         }
-        return studyArray;
+        return studyList;
     }
 
 }

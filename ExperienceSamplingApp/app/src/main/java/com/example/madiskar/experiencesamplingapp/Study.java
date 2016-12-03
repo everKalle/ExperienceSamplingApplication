@@ -22,7 +22,6 @@ public class Study {
     private Calendar endDate;
     private int studyLength;
     private int notificationsPerDay;
-    private int notificationInterval; // TODO: REMOVE THIS, CURRENTLY  notificationInterval = minTimeBetweenNotifications
     private int minTimeBetweenNotifications;
     private int postponeTime;
     private boolean postponable;
@@ -31,7 +30,7 @@ public class Study {
     private boolean isPublic;
 
     public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength,
-                 int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable,
+                 int notificationsPerDay, int postponeTime, boolean postponable,
                  int minTimeBetweenNotifications, Event[] events, BeepFerePeriod defaultBeepFree, boolean isPublic) {
         this.id = id;
         this.name = name;
@@ -40,7 +39,6 @@ public class Study {
         this.endDate = endDate;
         this.studyLength = studyLength;
         this.notificationsPerDay = notificationsPerDay;
-        this.notificationInterval = notificationInterval;
         this.postponeTime = postponeTime;
         this.postponable = postponable;
         this.minTimeBetweenNotifications = minTimeBetweenNotifications;
@@ -84,10 +82,6 @@ public class Study {
 
     public int getNotificationsPerDay() {
         return notificationsPerDay;
-    }
-
-    public int getNotificationInterval() {
-        return notificationInterval;
     }
 
     public int getPostponeTime() {

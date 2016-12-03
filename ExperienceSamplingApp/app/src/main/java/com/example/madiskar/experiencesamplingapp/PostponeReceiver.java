@@ -21,7 +21,6 @@ public class PostponeReceiver extends BroadcastReceiver {
         //Bundle extras = intent.getExtras();
 
         Questionnaire qnaire = intent.getParcelableExtra("QUESTIONNAIRE");
-        int interval = intent.getIntExtra("INTERVAL", 0);
         int postponeTime = intent.getIntExtra("postpone", 0);
         int notificationId = intent.getIntExtra("notificationId", 0);
         int uniqueValue = intent.getIntExtra("uniqueValue", 0);
@@ -33,7 +32,6 @@ public class PostponeReceiver extends BroadcastReceiver {
 
         Intent scheduledIntent = new Intent(context, QuestionnaireActivity.class);
         scheduledIntent.putExtra("QUESTIONNAIRE", qnaire);
-        scheduledIntent.putExtra("interval", interval);
         scheduledIntent.putExtra("postpone", postponeTime);
 
         scheduledIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

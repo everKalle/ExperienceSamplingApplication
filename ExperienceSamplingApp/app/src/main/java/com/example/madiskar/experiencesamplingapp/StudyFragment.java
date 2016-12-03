@@ -106,7 +106,7 @@ public class StudyFragment extends ListFragment {
                             } else if (output.equals("nothing")) {
                                 Log.i("Study Sync", getString(R.string.fetch_sync_fail));
                                 //Toast.makeText(view.getContext(), view.getContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
-                            } else {
+                            } else if(!output.equals("dberror")){
                                 //Toast.makeText(view.getContext(), view.getContext().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
                                 Log.i("Study sync:", getString(R.string.update_success));
                                 for (Study s : newStudies) {
@@ -115,6 +115,8 @@ public class StudyFragment extends ListFragment {
                                     rR.setupAlarm(view.getContext().getApplicationContext(), true);
                                 }
                                 updateUI(allStudies);
+                            } else {
+                                Log.i("FINISHED SYNC:", "study sync failed");
                             }
                         }
                     });
@@ -131,7 +133,7 @@ public class StudyFragment extends ListFragment {
         ArrayList<Study> studiesClone = new ArrayList<>(studies);
         for (Study study: studiesClone) {
             if (Calendar.getInstance().after(study.getEndDate())) {
-                Log.v("ops", "siin me olemegi");
+                Log.i("ops", "siin me olemegi");
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
                 Intent intent = new Intent(getActivity().getApplicationContext(), QuestionnaireActivity.class);
                 ResponseReceiver.cancelExistingAlarm(getActivity(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);

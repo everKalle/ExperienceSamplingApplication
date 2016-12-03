@@ -47,8 +47,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                                 Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.auth_sync_fail));
                             } else if(output.equals("nothing")) {
                                 Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
-                            } else {
+                            } else if(!output.equals("dberror")){
                                 Log.i("FINISHED SYNC:", "Study info: success");
+                            } else {
+                                Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
                             }
                         }
                     });

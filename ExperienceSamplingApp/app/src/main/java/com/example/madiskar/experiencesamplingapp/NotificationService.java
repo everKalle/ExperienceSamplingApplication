@@ -180,7 +180,6 @@ public class NotificationService extends IntentService {
                     postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
                     postponeIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
                     postponeIntent.putExtra("postpone", study.getPostponeTime());
-                    postponeIntent.putExtra("INTERVAL", study.getNotificationInterval());
                     postponeIntent.putExtra("notificationId", index);
                     postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
 

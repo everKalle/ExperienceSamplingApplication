@@ -155,8 +155,7 @@ public class GetPublicStudiesTask implements Runnable {
                 }
 
                 studies.add(new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
-                        minTimeBetweenNotifications, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree, true));
-                //TODO: currently notificationinterval = minTimeBetweenNotifications, redo this system.
+                        postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree, true));
             }
 
         } catch (org.json.JSONException e) {

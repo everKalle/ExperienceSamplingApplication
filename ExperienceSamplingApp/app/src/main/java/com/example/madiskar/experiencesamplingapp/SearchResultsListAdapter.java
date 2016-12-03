@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.os.Process;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,16 +92,21 @@ public class SearchResultsListAdapter extends BaseAdapter {
                                             rR.setupAlarm(mContext.getApplicationContext(), true);
                                             Log.i("JOINED STUDY", studies.get(position).getName());
                                             updateUI(position);
-                                            //Toast.makeText(mContext, "Joining successful", Toast.LENGTH_SHORT).show();
+                                            showSuccessToast();
                                         } else if(output.equals("invalid_study")) {
                                             Log.i("JOINED STUDY", "INVALID STUDY");
+                                            showFailToast();
                                             //Toast.makeText(mContext, "This study doesn't exist", Toast.LENGTH_LONG).show();
                                         } else if(output.equals("invalid_token")) {
                                             Log.i("JOINED STUDY", "INVALID TOKEN");
+                                            showFailToast();
                                             //Toast.makeText(mContext, "Account authentication failed", Toast.LENGTH_LONG).show();
                                         } else if(output.equals("nothing")) {
+                                            showFailToast();
                                             Log.i("JOINED STUDY", "FAULTY QUERY");
                                             //Toast.makeText(mContext, "Faulty query", Toast.LENGTH_LONG).show();
+                                        } else {
+                                            showFailToast();
                                         }
                                     }
                                 });
@@ -121,12 +127,33 @@ public class SearchResultsListAdapter extends BaseAdapter {
         return view;
     }
 
-    public void updateUI(final int position) {
+
+    private void updateUI(final int position) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 studies.remove(position);
                 notifyDataSetChanged();
+            }
+        });
+    }
+
+
+    private void showSuccessToast() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, mContext.getApplicationContext().getString(R.string.study_join_success), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void showFailToast() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, mContext.getApplicationContext().getString(R.string.study_join_fail), Toast.LENGTH_SHORT).show();
             }
         });
     }
