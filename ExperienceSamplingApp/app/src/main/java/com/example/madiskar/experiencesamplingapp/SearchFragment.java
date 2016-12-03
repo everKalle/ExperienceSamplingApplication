@@ -138,9 +138,9 @@ public class SearchFragment extends ListFragment {
 
             if (!matchAllCheckboxIsChecked) {
                 for (String keyword : keywordsArray) {
-                    if (studyName.matches(".*" + keyword + ".*")) {
-                        if (!filteredStudies.contains(s))
-                            filteredStudies.add(s);
+                    if (!studyName.matches(".*" + keyword + ".*")) {
+                        if (filteredStudies.contains(s))
+                            filteredStudies.remove(s);
                     }
                 }
             }
@@ -151,9 +151,9 @@ public class SearchFragment extends ListFragment {
                         matches = false;
                     }
                 }
-                if (matches)
-                    if (!filteredStudies.contains(s))
-                        filteredStudies.add(s);
+                if (!matches)
+                    if (filteredStudies.contains(s))
+                        filteredStudies.remove(s);
             }
         }
 

@@ -208,7 +208,7 @@ public class NotificationService extends IntentService {
                     manager.notify(index, builder.build());
 
                     Handler h = new Handler(Looper.getMainLooper());
-                    long delay = 30000;
+                    long delay = 300000;
                     h.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -308,7 +308,7 @@ public class NotificationService extends IntentService {
             }
         }
         Log.v("jajajajajajajajaj", "ei");
-        Log.v("Beepfree", String.valueOf(beepfree));
+        Log.v("Beepfree", String.valueOf(beepfree) + " for study " + study.getName());
         return beepfree;
     }
 

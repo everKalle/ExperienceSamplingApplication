@@ -206,12 +206,23 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
         boolean overlap = false;
         for (int i = 0; i < existingStartHours.size(); i++) {
 
+            Calendar calendarBeepStart = Calendar.getInstance();
+            Calendar calendarBeepEnd = Calendar.getInstance();
+            Calendar calendarExistingStart = Calendar.getInstance();
+            Calendar calendarExistingEnd = Calendar.getInstance();
+
+            calendarBeepStart.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, beepFerePeriod.getStartTimeHour(), beepFerePeriod.getStartTimeMinute());
+            calendarBeepEnd.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, beepFerePeriod.getEndTimeHour(), beepFerePeriod.getEndTimeMinute());
+            calendarExistingStart.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, existingStartHours.get(i), existingStartMinutes.get(i));
+            calendarExistingEnd.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, existingEndHours.get(i),existingEndMinutes.get(i));
+
+
            if (edit && i == beepFerePeriod.getId()) {
                continue;
            }
 
             if (existingStartHours.get(i) > existingEndHours.get(i)) { // 22.00 - 2.30
-                if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) { // 20.00 - 4.00
+                if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour() || beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour() && beepFerePeriod.getStartTimeMinute() > beepFerePeriod.getEndTimeMinute()) { // 20.00 - 4.00
                     Log.v("lap 0", "siin");
                     overlap = true;
                 }
@@ -236,6 +247,21 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             Log.v("lap 2", "siin");
                             overlap = true;
                         }
+                    }
+                    else {
+                        calendarExistingEnd.add(Calendar.DATE, 1);
+
+                        if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) {
+                            calendarBeepEnd.add(Calendar.DATE, 1);
+                        }
+                        if (calendarBeepStart.after(calendarExistingStart) && calendarBeepStart.before(calendarExistingEnd) ||
+                                calendarBeepStart.get(Calendar.HOUR) == calendarExistingStart.get(Calendar.HOUR) &&
+                                calendarBeepStart.get(Calendar.MINUTE) == calendarExistingStart.get(Calendar.MINUTE) && calendarBeepStart.before(calendarExistingEnd) ||
+                                calendarBeepStart.get(Calendar.HOUR) == calendarExistingStart.get(Calendar.HOUR) &&
+                                        calendarBeepStart.get(Calendar.MINUTE) == calendarExistingStart.get(Calendar.MINUTE) && calendarBeepEnd.get(Calendar.HOUR) == calendarExistingEnd.get(Calendar.HOUR) &&
+                                calendarBeepEnd.get(Calendar.MINUTE) == calendarExistingEnd.get(Calendar.MINUTE))
+                            overlap = true;
+
                     }
                 }
             }

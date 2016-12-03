@@ -97,14 +97,17 @@ public class GetPublicStudiesTask implements Runnable {
                 String name = jsonStudy.getString("study-title");
                 int notificationsPerDay = jsonStudy.getInt("study-beeps-per-day");
                 int minTimeBetweenNotifications = jsonStudy.getInt("study-min-time-between-beeps");
-                String beginDateString = DBHandler.calendarToString(Calendar.getInstance());
-                String endDateString = DBHandler.calendarToString(Calendar.getInstance());
+                Calendar realStartDate = DBHandler.stringToCalendar(jsonStudy.getString("study-start-date"));
                 BeepFerePeriod defaultBeepFree = DBHandler.stringToBeepFree(0, jsonStudy.getString("study-beep-end-time"), jsonStudy.getString("study-beep-start-time"));
                 int postponeTime = jsonStudy.getInt("study-postpone-time");
                 boolean allowPostpone = (jsonStudy.getInt("study-allow-postpone") == 1);
                 boolean studyDurationForUser = (jsonStudy.getInt("study-duration-for-user") == 1);
-                Calendar beginDate = DBHandler.stringToCalendar(beginDateString);
-                Calendar endDate = DBHandler.stringToCalendar(endDateString);
+                Calendar beginDate = DBHandler.stringToCalendar(DBHandler.calendarToString(Calendar.getInstance()));
+                Calendar endDate = DBHandler.stringToCalendar(DBHandler.calendarToString(Calendar.getInstance()));
+                if(beginDate.before(realStartDate)) {
+                    beginDate = realStartDate;
+                    endDate = realStartDate;
+                }
                 Calendar realEndDate = DBHandler.stringToCalendar(jsonStudy.getString("study-end-date"));
                 int studyLengthForUser = jsonStudy.getInt("study-duration-time");
                 if(studyDurationForUser) {
