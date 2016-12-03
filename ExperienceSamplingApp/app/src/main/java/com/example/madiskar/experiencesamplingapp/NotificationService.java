@@ -52,37 +52,22 @@ public class NotificationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         try {
-            String action = intent.getAction();
-            String name = intent.getStringExtra(NOTIFICATION_NAME);
-            int interval = intent.getIntExtra(NOTIFICATION_INTERVAL,0);
-            String[] textQuestions = intent.getStringArrayExtra(STUDY_QUESTIONS);
-            int notificationsPerDay = intent.getIntExtra(DAILY_NOTIFICATION_LIMIT, 0);
             long studyId = intent.getLongExtra("studyId", 0);
 
             ArrayList<Study> studies = DBHandler.getInstance(getApplicationContext()).getAllStudies();
-            Study studyParam = null;
-            for (Study s: studies) {
-                if (s.getId() == (int) studyId) {
-                    studyParam = s;
-                }
-            }
-            processNotification(name, studyParam.getQuesstionnaire().getQuestions(), interval, notificationsPerDay, (int)studyId); //TODO: casting long to int this way might be problematic, should switch to long
+            processNotification((int)studyId);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
 
-    public static Intent createIntentNotificationService(Context context, int interval, String name, String[] questions, int notificationsPerDay, Study study) {
+    public static Intent createIntentNotificationService(Context context, Study study) {
         Intent intent = new Intent(context, NotificationService.class);
-        intent.putExtra(NOTIFICATION_NAME, name);
-        intent.putExtra(NOTIFICATION_INTERVAL, interval);
-        intent.putExtra(STUDY_QUESTIONS, questions);
-        intent.putExtra(DAILY_NOTIFICATION_LIMIT, notificationsPerDay);
         intent.putExtra("studyId", study.getId());
         return intent;
     }
 
-    private void processNotification(String name, Question[] questions, int interval, int notificationsPerDay, final int index) {
+    private void processNotification(final int index) {
         mContext = getApplicationContext();
         Study study = DBHandler.getInstance(getApplicationContext()).getStudy(index);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -144,7 +129,7 @@ public class NotificationService extends IntentService {
                 Log.v("tapsem aja teema 2", String.valueOf(study.getEndDate()));
 
                 if (!Calendar.getInstance().after(study.getEndDate())) {
-                    if (dailyNotCount < notificationsPerDay) {
+                    if (dailyNotCount < study.getNotificationsPerDay()) {
 
                         editor = sharedPref.edit();
                         editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
@@ -184,8 +169,6 @@ public class NotificationService extends IntentService {
                         //okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
                         okIntent.putExtra("StudyId", study.getId());
                         okIntent.putExtra("notificationId", index);
-                        postponeIntent.putExtra(NOTIFICATION_INTERVAL, interval);
-                        postponeIntent.putExtra("postpone", study.getPostponeTime());
                         postponeIntent.putExtra("notificationId", index);
                         postponeIntent.putExtra("StudyId", study.getId());
                         postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
@@ -194,7 +177,7 @@ public class NotificationService extends IntentService {
                         PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
                         PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), -Integer.valueOf(uniqueValue3), postponeIntent, 0);
 
-                        builder.setContentTitle(name)
+                        builder.setContentTitle(study.getName())
                                 .setOngoing(true)
                                 .setColor(getResources().getColor(R.color.colorAccent))
                                 .setContentText(getString(R.string.questionnaire))
