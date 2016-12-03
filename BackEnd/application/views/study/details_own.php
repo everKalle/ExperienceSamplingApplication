@@ -2,73 +2,6 @@
   <h2><?php echo $study_details['study-title']; ?></h2>
 </div>
 
-
-<div class="panel panel-info">
-  <div class="panel-heading">
-    <?php echo $this->lang->line('study-sharing'); ?>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-sm-6">
-        <p><strong><?php echo $this->lang->line('study-shared-with'); ?></strong></p>
-          <ul class="list-group">
-            <?php foreach ($shared_with as $sw):
-              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $sw['username'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_share/'.$study_details['id'].'/'.$sw['users_id']) . '" class="text-danger">' . $this->lang->line('remove-user') . '</a></div></div></li>';
-            endforeach; ?>
-          </ul>
-      </div>
-      <div class="col-sm-6">
-  			<?php echo form_open('study/share/'.$study_details['id']); ?>
-        <div class="form-group">
-          <label class="control-label" for="share-study-username"><?php echo $this->lang->line('enter-name'); ?></label>
-          <input class="form-control" list="usernames" id="share-study-username" name="share-study-username" placeholder="<?php echo $this->lang->line('name-placeholder'); ?>" required>
-          <datalist id="usernames">
-            <?php foreach ($other_users as $ou):
-              echo '<option value="' . $ou['username'] . '">';
-            endforeach; ?>
-          </datalist>
-        </div>
-        <input class="btn btn-primary" type="submit" name="submit" id="submit-button" value="<?php echo $this->lang->line('share-study'); ?>"/>
-  			</form>
-      </div>
-    </div>
-  </div>
-</div>
-<?php if (!$study_details['study-is-public']) { ?>
-<div class="panel panel-success">
-  <div class="panel-heading">
-    <?php echo $this->lang->line('adding-participants'); ?>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-sm-6">
-        <p><strong><?php echo $this->lang->line('participants'); ?></strong></p>
-          <ul class="list-group">
-            <?php foreach ($participants as $p):
-              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $p['email'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_participant/'.$study_details['id'].'/'.$p['participant_id']) . '" class="text-danger">' . $this->lang->line('remove-user') . '</a></div></div></li>';
-            endforeach; ?>
-          </ul>
-      </div>
-      <div class="col-sm-6">
-        <?php echo form_open('study/add_participant/'.$study_details['id']); ?>
-        <div class="form-group">
-          <label class="control-label" for="add-participant-username"><?php echo $this->lang->line('enter-email'); ?></label>
-          <input class="form-control" list="partic" id="add-participant-username" name="add-participant-username" placeholder="<?php echo $this->lang->line('email-placeholder'); ?>" required>
-          <datalist id="partic">
-            <?php foreach ($all_participants as $ou):
-              echo '<option value="' . $ou['email'] . '">';
-            endforeach; ?>
-          </datalist>
-        </div>
-        <input class="btn btn-primary" type="submit" name="submit" id="submit-button" value="<?php echo $this->lang->line('add-participant'); ?>"/>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<?php } ?>
-<br><br>
-
 <div class="panel panel-info">
   <div class="panel-heading">
     <?php echo $this->lang->line('study-info'); ?>
@@ -105,6 +38,78 @@
         </p>
   </div>
 </div>
+
+<?php if (!$study_details['study-is-public']) { ?>
+<div class="panel panel-success">
+  <div class="panel-heading">
+    <a href="#void" onclick="togglePanel('participant-add-panel')">
+      <div class="row">
+      <div class="col-md-8"><?php echo $this->lang->line('adding-participants') . ': <strong>' . count($participants) . '</strong> ' . $this->lang->line('adding-participants-end'); ?></div>
+      <div class="col-md-4"><p class="text-right"><span class="glyphicon glyphicon-menu-down"></span></p></div>
+      </div>
+    </a>
+  </div>
+  <div class="panel-body" style="display: none;" id="participant-add-panel">
+    <div class="row">
+      <div class="col-sm-6">
+        <p><strong><?php echo $this->lang->line('participants'); ?></strong></p>
+          <ul class="list-group" id="shared-participant-list">
+            <?php foreach ($participants as $p):
+              echo '<li class="list-group-item" id="participant-entry-' . $p['participant_id'] . '"><div class="row"><div class="col-md-6">' . $p['email'] . '</div>  <div class="col-md-6 text-right"><a href="#void" class="text-danger" onclick="removeParticipant(' . $p['participant_id'] . ')">' . $this->lang->line('remove-user') . '</a></div></div></li>';
+            endforeach; ?>
+          </ul>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="control-label" for="add-participant-username"><?php echo $this->lang->line('enter-email'); ?></label>
+          <input class="form-control" list="partic" id="add-participant-username" name="add-participant-username" placeholder="<?php echo $this->lang->line('email-placeholder'); ?>" required>
+          <datalist id="partic">
+            <?php foreach ($all_participants as $ou):
+              echo '<option value="' . $ou['email'] . '">';
+            endforeach; ?>
+          </datalist>
+        </div>
+        <button class="btn btn-primary" id="submit-button" onclick="sendNewParticipant()"><?php echo $this->lang->line('add-participant'); ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function sendNewParticipant(){
+  var xmlhttp = new XMLHttpRequest();
+  var url = "<?php echo base_url(); ?>index.php/study/add_participant/<?php echo $study_details['id']; ?>";
+
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var resp = xmlhttp.responseText;
+      if (resp != "failed"){
+        var arr = resp.split("|");
+        $("#shared-participant-list").append('<li class="list-group-item" id="participant-entry-' + arr[1] + '"><div class="row"><div class="col-md-6">' + arr[0] + '</div>  <div class="col-md-6 text-right"><a href="#void" class="text-danger" onclick="removeParticipant(' + arr[1] + ')"><?php echo $this->lang->line("remove-user"); ?></a></div></div></li>');
+      }
+    }
+  };
+  xmlhttp.open("POST", url, true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.send("add-participant-username=" + $("#add-participant-username").val());
+}
+
+function removeParticipant(id){
+  var xmlhttp = new XMLHttpRequest();
+  var url = "<?php echo base_url(); ?>index.php/study/remove_participant/<?php echo $study_details['id']; ?>/" + id;
+
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var resp = xmlhttp.responseText;
+      if (resp != "failed"){
+        $("#participant-entry-" + resp).remove();
+      }
+    }
+  };
+  xmlhttp.open("GET", url, true);
+  xmlhttp.send();
+}
+</script>
+<?php } ?>
 
 <div class="panel panel-info">
   <div class="panel-heading">
@@ -175,8 +180,80 @@
   </div>
 </div>
 
-<a href="<?php echo site_url('study/modify/'.$study_details['id']); ?>" type="button" class="btn btn-lg btn-warning"><?php echo $this->lang->line('modify-study'); ?></a>
-<button type="button" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#deleteModal"><?php echo $this->lang->line('delete-study'); ?></button>
+<div class="panel panel-info">
+  <div class="panel-heading">
+    <a href="#void" onclick="togglePanel('admin-add-panel')">
+      <div class="row">
+      <div class="col-md-8"><?php echo $this->lang->line('study-sharing') . ': <strong>' . count($shared_with) . '</strong> ' . $this->lang->line('study-sharing-end'); ?></div>
+      <div class="col-md-4"><p class="text-right"><span class="glyphicon glyphicon-menu-down"></span></p></div>
+      </div>
+    </a>
+  </div>
+  <div class="panel-body" style="display: none;" id="admin-add-panel">
+    <div class="row">
+      <div class="col-sm-6">
+        <p><strong><?php echo $this->lang->line('study-shared-with'); ?></strong></p>
+          <ul class="list-group" id="shared-admin-list">
+            <?php foreach ($shared_with as $sw):
+              echo '<li class="list-group-item" id="admin-entry-' . $sw['users_id'] . '"><div class="row"><div class="col-md-6">' . $sw['username'] . '</div>  <div class="col-md-6 text-right"><a href="#void" class="text-danger" onclick="removeAdmin(' . $sw['users_id'] . ')">' . $this->lang->line('remove-user') . '</a></div></div></li>';
+            endforeach; ?>
+          </ul>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="control-label" for="share-study-username"><?php echo $this->lang->line('enter-name'); ?></label>
+          <input class="form-control" list="usernames" id="share-study-username" name="share-study-username" placeholder="<?php echo $this->lang->line('name-placeholder'); ?>" required>
+          <datalist id="usernames">
+            <?php foreach ($other_users as $ou):
+              echo '<option value="' . $ou['username'] . '">';
+            endforeach; ?>
+          </datalist>
+        </div>
+        <button class="btn btn-primary" id="submit-button" onclick="sendNewAdmin()"><?php echo $this->lang->line('share-study'); ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function sendNewAdmin(){
+  var xmlhttp = new XMLHttpRequest();
+  var url = "<?php echo base_url(); ?>index.php/study/share/<?php echo $study_details['id']; ?>";
+
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var resp = xmlhttp.responseText;
+      if (resp != "failed"){
+        var arr = resp.split("|");
+        $("#shared-admin-list").append('<li class="list-group-item" id="admin-entry-' + arr[1] + '"><div class="row"><div class="col-md-6">' + arr[0] + '</div>  <div class="col-md-6 text-right"><a href="#void" class="text-danger" onclick="removeAdmin(' + arr[1] + ')"><?php echo $this->lang->line("remove-user"); ?></a></div></div></li>');
+      }
+    }
+  };
+  xmlhttp.open("POST", url, true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.send("share-study-username=" + $("#share-study-username").val());
+}
+
+function removeAdmin(id){
+  var xmlhttp = new XMLHttpRequest();
+  var url = "<?php echo base_url(); ?>index.php/study/remove_share/<?php echo $study_details['id']; ?>/" + id;
+
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var resp = xmlhttp.responseText;
+      if (resp != "failed"){
+        $("#admin-entry-" + resp).remove();
+      }
+    }
+  };
+  xmlhttp.open("GET", url, true);
+  xmlhttp.send();
+}
+</script>
+
+<a href="<?php echo site_url('study/modify/'.$study_details['id']); ?>" type="button" class="btn btn-lg btn-warning"><?php echo $this->lang->line('modify-study'); ?> (<?php echo $this->lang->line('modify-basic'); ?>)</a>
+<button type="button" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#deleteModal"><?php echo $this->lang->line('delete-study'); ?></button><br><br>
+<a href="<?php echo site_url('study/modify_full/'.$study_details['id']); ?>" type="button" class="btn btn-lg btn-warning"><?php echo $this->lang->line('modify-study'); ?> (<?php echo $this->lang->line('modify-full'); ?>)</a>
 
 <div id="deleteModal" class="modal fade" role="dialog">
   <div class="modal-dialog">

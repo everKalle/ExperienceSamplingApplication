@@ -1,7 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$lang['study-sharing'] = 'Uuringu jagamine';
+$lang['study-sharing'] = 'Uuringu on jagatud';
+$lang['study-sharing-end'] = 'inimesega';
 $lang['study-shared-with'] = 'Uuring on jagatud järgnevate inimestega:';
 $lang['enter-name'] = 'Sisesta nimi:';
 $lang['name-placeholder'] = 'Nimi';
@@ -9,7 +10,8 @@ $lang['share-study'] = 'Jaga uuring';
 
 $lang['remove-user'] = 'Eemalda';
 
-$lang['adding-participants'] = 'Uuringusse osalejate lisamine';
+$lang['adding-participants'] = 'Uuringusse osaleb';
+$lang['adding-participants-end'] = 'inimest';
 $lang['participants'] = 'Uuringus osalejad:';
 $lang['enter-email'] = 'Sisesta e-maili aadress:';
 $lang['email-placeholder'] = 'E-Mail';
@@ -52,6 +54,8 @@ $lang['question-csv'] = 'Lae alla küsimustiku vastused CSV-failina';
 $lang['events-csv'] = 'Lae alla sündmuste tulemused CSV-failina';
 
 $lang['modify-study'] = 'Muuda';
+$lang['modify-basic'] = 'Ainult tekst ja seaded';
+$lang['modify-full'] = 'Täielik';
 $lang['delete-study'] = 'Kustuta';
 
 $lang['delete-confirm-modal-title'] = 'Palun kinnitata uuringu kustutamine';

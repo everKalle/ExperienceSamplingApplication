@@ -10,4 +10,7 @@
 	<button type="button" class="btn btn-lg btn-default" onClick="add_question();"><?php echo $this->lang->line('add-question'); ?></button>
 	<button style="display: none;" id="question-remove-button" type="button" class="btn btn-lg btn-danger" onClick="remove_question();"><?php echo $this->lang->line('remove-question'); ?></button>
   </div>
+  <script>
+  	var questionCount = 0;
+  </script>
 </div>

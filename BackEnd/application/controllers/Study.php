@@ -110,6 +110,8 @@ class Study extends CI_Controller {
         $data['owner_name'] = $this->user->get_username_via_id($data['study_details']['author'])['username'];
         $data['other_users'] = $this->user->get_other_usernames($this->logged_in['username']);
         $data['shared_with'] = $this->study_model->get_study_shares($id);
+        $data['participants'] = $this->study_model->get_study_participants($id);
+        $data['all_participants'] = $this->participant_model->get_all_participants();
         $data['active_page'] = "shared_studies";
         $data['logged_in'] = $this->logged_in;
 
@@ -136,22 +138,22 @@ class Study extends CI_Controller {
       $this->load->library('form_validation');
       $this->form_validation->set_rules('share-study-username', 'User', 'required');
       if ($this->form_validation->run() === FALSE){
-       	redirect('/study/view/' . $study_id, 'location');
+       	echo "failed";
        } else {
   			 $user = $_POST['share-study-username'];
-  			 if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) && $user != $this->logged_in['username']) {
+  			 if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) && $user != $this->logged_in['username'] && $this->study_model->get_author_id($user)) {
           if (!$this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($user))){
     				$this->study_model->share_study($study_id, $this->study_model->get_author_id($user));
           }
-          redirect('/study/view/' . $study_id, 'location');
+          echo $user . "|" . $this->study_model->get_author_id($user);
   			 } else {
-  				redirect('/study/view/' . $study_id, 'location');
+  				echo "failed";
   			 }			 
   		}
     }
     else
     {
-      $this->login_required();
+      echo "failed";
     }
  }
 
@@ -163,11 +165,11 @@ class Study extends CI_Controller {
           $this->study_model->remove_sharing($study_id, $user_id);
         }
       }
-      redirect('/study/view/' . $study_id, 'location');
+      echo $user_id;
     }
     else
     {
-      $this->login_required();
+      echo "not logged in";
     }
  }
 
@@ -179,20 +181,20 @@ class Study extends CI_Controller {
       $this->load->library('form_validation');
       $this->form_validation->set_rules('add-participant-username', 'User', 'required');
       if ($this->form_validation->run() === FALSE){
-        redirect('/study/view/' . $study_id, 'location');
+        echo "failed";
        } else {
          $user = $_POST['add-participant-username'];
          if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) || $this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) {
             $this->study_model->add_participant($study_id, $this->study_model->get_participant_id($user));
-          redirect('/study/view/' . $study_id, 'location');  
+          echo $user . "|" . $this->study_model->get_participant_id($user); 
         } else {
-          redirect('/study/view/' . $study_id, 'location');  
+          echo "failed";
         }
       }
     }
     else
     {
-      $this->login_required();
+      echo "failed";
     }
  }
 
@@ -202,11 +204,11 @@ class Study extends CI_Controller {
       if($this->study_model->get_admin_is_owner_of_study($study_id,$this->study_model->get_author_id($this->logged_in['username'])) || $this->study_model->get_user_has_access_to_study($study_id,$this->study_model->get_author_id($this->logged_in['username']))) {
         $this->study_model->remove_participant($study_id, $user_id);
       }
-      redirect('/study/view/' . $study_id, 'location');
+      echo $user_id;
     }
     else
     {
-      $this->login_required();
+      echo "not logged in";
     }
  }
 
@@ -456,6 +458,63 @@ class Study extends CI_Controller {
         if($id = $this->study_model->update_study($study_id, $general_study_data)) { // save study to db
         $this->study_model->update_questions($study_questions); // save study questions to db 
         $this->study_model->update_events($study_events); // ... events to db
+        redirect('/study/view/' . $study_id, 'location');
+
+      } else {
+
+      echo $id; // error
+
+      }
+     }
+    } else {
+      redirect('/', 'location');
+    }
+   }
+   else
+   {
+    $this->login_required();
+   }
+
+ }
+
+ function modify_full($id)
+ {
+   if($this->logged_in)  //check if logged in
+   {
+     if ($this->study_model->get_admin_is_owner_of_study($id,$this->study_model->get_author_id($this->logged_in['username']))){
+     $this->load->helper('form');
+     $this->load->library('form_validation');
+      $this->form_validation->set_rules('gen[study-title]', 'Pealkiri', 'required');
+       if ($this->form_validation->run() === FALSE){
+        $data['title'] = "Uuringu muutmine";
+        $data['active_page'] = "own_studies";
+        $data['logged_in'] = $this->logged_in;
+        $data['study_details'] = $this->study_model->get_study_data($id);
+        $data['questions'] = $this->study_model->get_study_questions_for_modification($id);
+        $data['events'] = $this->study_model->get_study_events_for_modification($id);
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('study/modify_study_full', $data);
+        $this->load->view('study/modify_question_full', $data);
+        $this->load->view('study/modify_event_full', $data);
+        $this->load->view('templates/footer');
+       } else {
+        $study_id = $_POST['study-id'];
+        $general_study_data = $_POST['gen'];
+        $study_questions = $_POST["question"];
+        $study_events = $_POST["event"];
+
+        $general_study_data['study-min-time-between-beeps'] *= 60; // hours to minutes
+        $general_study_data['study-duration-time'] *= $this->input->post('study-duration-time-unit'); // convert weeks to minutes
+      
+        $author = $this->study_model->get_author_id($this->logged_in['username']); // get authors id
+        $general_study_data['author'] = $author;
+
+        if($id = $this->study_model->update_study($study_id, $general_study_data)) { // save study to db
+        $this->study_model->remove_questions($study_id);
+        $this->study_model->remove_events($study_id);
+        $this->study_model->insert_questions($study_id, $study_questions); // save study questions to db 
+        $this->study_model->insert_events($study_id, $study_events); // ... events to db
         redirect('/study/view/' . $study_id, 'location');
 
       } else {

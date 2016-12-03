@@ -10,6 +10,9 @@
 	<button type="button" class="btn btn-lg btn-default" onClick="add_event();"><?php echo $this->lang->line('add-event'); ?></button>
 	<button style="display: none;" id="event-remove-button" type="button" class="btn btn-lg btn-danger" onClick="remove_event();"><?php echo $this->lang->line('remove-event'); ?></button>
   </div>
+  <script>
+  	var eventCount = 0;
+  </script>
 </div>
 
 <div class="alert alert-warning" role="alert" id="alert-question-add">

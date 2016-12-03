@@ -1,17 +1,3 @@
-/*var lang = {
-		'question-type' : '<?php echo $this->lang->line('question-type'); ?>',
-		'question-type-freetext' : '<?php echo $this->lang->line('question-type-freetext'); ?>',
-		'question-type-multichoice' : '<?php echo $this->lang->line('question-type-multichoice'); ?>',
-		'multichoice-can-choose' : '<?php echo $this->lang->line('multichoice-can-choose'); ?>',
-		'multichoice-one-choice' : '<?php echo $this->lang->line('multichoice-one-choice'); ?>',
-		'multichoice-multi-choice' : '<?php echo $this->lang->line('multichoice-multi-choice'); ?>',
-		'multichoice-title' : '<?php echo $this->lang->line('multichoice-title'); ?>',
-		'multichoice-title-placeholder' : '<?php echo $this->lang->line('multichoice-title-placeholder'); ?>',
-		'freetext-question' : '<?php echo $this->lang->line('freetext-question'); ?>'
-	}*/
-
-var questionCount = 0;
-
 function add_question(){
 	$("#questionHolder").append('<div class="panel panel-default" id="question-panel-' + questionCount + '">' + 
 		  '<div class="panel-body">' +
@@ -130,7 +116,6 @@ function removeMultichoice(index, choice_index){
 					  '</div>');
 }
 
-var eventCount = 0;
 function add_event(){
 	$("#eventHolder").append('<div class="panel panel-default" id="event-panel-' + eventCount + '">' +
 			'<div class="panel-body">' +
@@ -147,8 +132,8 @@ function add_event(){
 			          	'<input class="form-control input-sm" type="number" id="event-control-time-' + eventCount + '" name="event[' + eventCount +'][event-control-time]" size="5" min="1" placeholder="0" required/>&nbsp;&nbsp;' +
           				'<select class="form-control input-sm" name="event[' + eventCount + '][event-control-time-unit]">' +
 			            '<option value="m">' + lang['minutes'] +'</option>' +
-			            '<option value="h" selected>' + lang['days'] +'</option>' +
-			            '<option value="d">' + lang['hours'] +'</option>' +
+			            '<option value="h" selected>' + lang['hours'] +'</option>' +
+			            '<option value="d">' + lang['days'] +'</option>' +
 			          '</select>' +
 			        '</div>' +
 			    '</div>' +
@@ -231,21 +216,12 @@ function comparedates(){
 	    var startDate = new Date($("#study-start-date").val());
 	    if (endDate instanceof Date && startDate instanceof Date && startDate.toString() != "Invalid Date" && endDate.toString() != "Invalid Date"){
 		    if (startDate < endDate){
-		    	var currentDate = new Date();
-		    	if (currentDate <= startDate){
-			    	$("#study-end-date").get(0).setCustomValidity("");
-			    	$("#study-start-date-group").removeClass("has-error");
-			    	$("#study-end-date-group").removeClass("has-error");
-			    	$("#study-date-help").hide();	
-			    	$("#study-date-help-too-early").hide();
-					checkDuration();
-				} else {
-					$("#study-end-date").get(0).setCustomValidity(lang['begin-must-be-after-today']);
-			    	$("#study-start-date-group").addClass("has-error");
-			    	$("#study-end-date-group").addClass("has-error");
-			    	$("#study-date-help").hide();
-			    	$("#study-date-help-too-early").show();
-				}
+			    $("#study-end-date").get(0).setCustomValidity("");
+			    $("#study-start-date-group").removeClass("has-error");
+			    $("#study-end-date-group").removeClass("has-error");
+			    $("#study-date-help").hide();	
+			    $("#study-date-help-too-early").hide();
+				checkDuration();
 		    } else {
 		    	$("#study-end-date").get(0).setCustomValidity(lang['begin-must-be-before-end']);
 		    	$("#study-start-date-group").addClass("has-error");
@@ -389,4 +365,8 @@ function checkDuration(){
     	$("#study-duration-group").removeClass("has-error");
 		$("#study-duration-help-exceeded").hide();
     }
+}
+
+function togglePanel(id){
+	$("#" + id).slideToggle(500);
 }

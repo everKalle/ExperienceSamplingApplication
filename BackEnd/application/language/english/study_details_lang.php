@@ -1,7 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$lang['study-sharing'] = 'Study sharing';
+$lang['study-sharing'] = 'This study is shared with';
+$lang['study-sharing-end'] = 'people';
 $lang['study-shared-with'] = 'This study is shared with the following people:';
 $lang['enter-name'] = 'Enter name:';
 $lang['name-placeholder'] = 'Name';
@@ -9,7 +10,8 @@ $lang['share-study'] = 'Share study';
 
 $lang['remove-user'] = 'Remove';
 
-$lang['adding-participants'] = 'Adding participants to this study';
+$lang['adding-participants'] = 'Current number of participants';
+$lang['adding-participants-end'] = '';
 $lang['participants'] = 'Current participants:';
 $lang['enter-email'] = 'Enter e-mail address';
 $lang['email-placeholder'] = 'E-Mail';
@@ -52,6 +54,8 @@ $lang['question-csv'] = 'Download questionnaire answers as CSV';
 $lang['events-csv'] = 'Download event results as CSV';
 
 $lang['modify-study'] = 'Modify';
+$lang['modify-basic'] = 'Text and settings';
+$lang['modify-full'] = 'Full';
 $lang['delete-study'] = 'Delete';
 
 $lang['delete-confirm-modal-title'] = 'Please confirm the deletion of the study';

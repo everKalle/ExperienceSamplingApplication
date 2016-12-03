@@ -3,41 +3,6 @@
   <h4 class="text-muted">Omanik: <?php echo $owner_name; ?></h4>
 </div>
 
-
-<?php if (!$study_details['study-is-public']) { ?>
-<div class="panel panel-success">
-  <div class="panel-heading">
-    <?php echo $this->lang->line('adding-participants'); ?>
-  </div>
-  <div class="panel-body">
-    <div class="row">
-      <div class="col-sm-6">
-        <p><strong><?php echo $this->lang->line('participants'); ?></strong></p>
-          <ul class="list-group">
-            <?php foreach ($participants as $p):
-              echo '<li class="list-group-item"><div class="row"><div class="col-md-6">' . $p['email'] . '</div>  <div class="col-md-6 text-right"><a href="' . site_url('study/remove_participant/'.$study_details['id'].'/'.$p['participant_id']) . '" class="text-danger">' . $this->lang->line('remove-user') . '</a></div></div></li>';
-            endforeach; ?>
-          </ul>
-      </div>
-      <div class="col-sm-6">
-        <?php echo form_open('study/add_participant/'.$study_details['id']); ?>
-        <div class="form-group">
-          <label class="control-label" for="add-participant-username"><?php echo $this->lang->line('enter-email'); ?></label>
-          <input class="form-control" list="partic" id="add-participant-username" name="add-participant-username" placeholder="<?php echo $this->lang->line('email-placeholder'); ?>" required>
-          <datalist id="partic">
-            <?php foreach ($all_participants as $ou):
-              echo '<option value="' . $ou['email'] . '">';
-            endforeach; ?>
-          </datalist>
-        </div>
-        <input class="btn btn-primary" type="submit" name="submit" id="submit-button" value="<?php echo $this->lang->line('add-participant'); ?>"/>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<?php } ?>
-
 <div class="panel panel-info">
   <div class="panel-heading">
     <?php echo $this->lang->line('study-info'); ?>
@@ -74,6 +39,78 @@
         </p>
   </div>
 </div>
+
+<?php if (!$study_details['study-is-public']) { ?>
+<div class="panel panel-success">
+  <div class="panel-heading">
+    <a href="#void" onclick="togglePanel('participant-add-panel')">
+      <div class="row">
+      <div class="col-md-8"><?php echo $this->lang->line('adding-participants') . ': <strong>' . count($participants) . '</strong> ' . $this->lang->line('adding-participants-end'); ?></div>
+      <div class="col-md-4"><p class="text-right"><span class="glyphicon glyphicon-menu-down"></span></p></div>
+      </div>
+    </a>
+  </div>
+  <div class="panel-body" style="display: none;" id="participant-add-panel">
+    <div class="row">
+      <div class="col-sm-6">
+        <p><strong><?php echo $this->lang->line('participants'); ?></strong></p>
+          <ul class="list-group" id="shared-participant-list">
+            <?php foreach ($participants as $p):
+              echo '<li class="list-group-item" id="participant-entry-' . $p['participant_id'] . '"><div class="row"><div class="col-md-6">' . $p['email'] . '</div>  <div class="col-md-6 text-right"><a href="#void" class="text-danger" onclick="removeParticipant(' . $p['participant_id'] . ')">' . $this->lang->line('remove-user') . '</a></div></div></li>';
+            endforeach; ?>
+          </ul>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label class="control-label" for="add-participant-username"><?php echo $this->lang->line('enter-email'); ?></label>
+          <input class="form-control" list="partic" id="add-participant-username" name="add-participant-username" placeholder="<?php echo $this->lang->line('email-placeholder'); ?>" required>
+          <datalist id="partic">
+            <?php foreach ($all_participants as $ou):
+              echo '<option value="' . $ou['email'] . '">';
+            endforeach; ?>
+          </datalist>
+        </div>
+        <button class="btn btn-primary" id="submit-button" onclick="sendNewParticipant()"><?php echo $this->lang->line('add-participant'); ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function sendNewParticipant(){
+  var xmlhttp = new XMLHttpRequest();
+  var url = "<?php echo base_url(); ?>index.php/study/add_participant/<?php echo $study_details['id']; ?>";
+
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var resp = xmlhttp.responseText;
+      if (resp != "failed"){
+        var arr = resp.split("|");
+        $("#shared-participant-list").append('<li class="list-group-item" id="participant-entry-' + arr[1] + '"><div class="row"><div class="col-md-6">' + arr[0] + '</div>  <div class="col-md-6 text-right"><a href="#void" class="text-danger" onclick="removeParticipant(' + arr[1] + ')"><?php echo $this->lang->line("remove-user"); ?></a></div></div></li>');
+      }
+    }
+  };
+  xmlhttp.open("POST", url, true);
+  xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  xmlhttp.send("add-participant-username=" + $("#add-participant-username").val());
+}
+
+function removeParticipant(id){
+  var xmlhttp = new XMLHttpRequest();
+  var url = "<?php echo base_url(); ?>index.php/study/remove_participant/<?php echo $study_details['id']; ?>/" + id;
+
+  xmlhttp.onreadystatechange = function() {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+      var resp = xmlhttp.responseText;
+      if (resp != "failed"){
+        $("#participant-entry-" + resp).remove();
+      }
+    }
+  };
+  xmlhttp.open("GET", url, true);
+  xmlhttp.send();
+}
+</script>
+<?php } ?>
 
 <div class="panel panel-info">
   <div class="panel-heading">
