@@ -144,6 +144,11 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
                     //alertDialog.setCanceledOnTouchOutside(false);
                     final Study studyRef = studies.get(position);
+
+                    SharedPreferences sp = mContext.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sp.edit();
+                    editor.putInt(String.valueOf(studyRef.getId()), 0);
+                    editor.apply();
                     //Log.i("QUITTING THIS @#!$", studyRef.getName());
                     if (EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()).size() < 1)
                         alertDialogBuilder.setMessage(mContext.getString(R.string.quit_study) +" \"" + studyRef.getName() + "\"?");
