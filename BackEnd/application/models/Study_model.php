@@ -362,9 +362,9 @@ class Study_model extends CI_Model {
 
 	function add_participant($study_id, $target_user) {
 		$this->db->select('*');
+		$this->db->from('partipant_to_study');
 		$this->db->where('survey_id',$study_id);
 		$this->db->where('participant_id',$user_id);
-		$this->db->delete('partipant_to_study');
 		$query = $this->db->get();
 
 		if($query -> num_rows() == 0) {
