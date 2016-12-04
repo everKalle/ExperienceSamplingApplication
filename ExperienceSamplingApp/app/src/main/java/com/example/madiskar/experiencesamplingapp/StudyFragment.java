@@ -127,12 +127,12 @@ public class StudyFragment extends ListFragment {
                             } else if(!output.equals("dberror")){
                                 for (Study s : newStudies) {
                                     Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");
-                                    setUpNewStudy(s);
+                                    setUpNewStudyAlarms(s);
                                 }
                                 for (int i=0; i<updatedStudies.size(); i++) {
                                     Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
-                                    cancelStudy(oldStudies.get(i));
-                                    setUpNewStudy(updatedStudies.get(i));
+                                    cancelStudy(oldStudies.get(i), false, false);
+                                    setUpNewStudyAlarms(updatedStudies.get(i));
                                 }
                                 for (Study s : cancelledStudies) {
                                     Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
@@ -142,7 +142,7 @@ public class StudyFragment extends ListFragment {
                                             break;
                                         }
                                     }
-                                    cancelStudy(s);
+                                    cancelStudy(s, true, true);
                                 }
                                 progressDialog.dismiss();
                                 updateUI(allStudies);
@@ -189,35 +189,39 @@ public class StudyFragment extends ListFragment {
         return studiesClone;
     }
 
-    public void cancelStudy(final Study study) {
+public void cancelStudy(final Study study, final boolean cancelEvents, final boolean removeStudy) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 Log.i("Deleting study", study.getName());
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
                 Intent intent = new Intent(getActivity().getApplicationContext(), QuestionnaireActivity.class);
-                ResponseReceiver.cancelExistingAlarm(getActivity(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
+                ResponseReceiver.cancelExistingAlarm(getActivity().getApplicationContext(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity().getApplicationContext(), (int) study.getId(), new Intent(getActivity().getApplicationContext(), ResponseReceiver.class), 0);
                 AlarmManager am = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 am.cancel(pendingIntent);
-                for (Event event : EventDialogFragment.activeEvents) {
-                    if (event.getStudyId() == study.getId()) {
-                        Intent stopIntent = new Intent(getActivity().getApplicationContext(), StopReceiver.class);
-                        stopIntent.putExtra("start", event.getStartTimeCalendar());
-                        stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
-                        stopIntent.putExtra("studyId", event.getStudyId());
-                        stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
-                        stopIntent.putExtra("eventId", event.getId());
-                        getActivity().getApplicationContext().sendBroadcast(stopIntent);
+                if(cancelEvents) {
+                    for (Event event : EventDialogFragment.activeEvents) {
+                        if (event.getStudyId() == study.getId()) {
+                            Intent stopIntent = new Intent(getActivity().getApplicationContext(), StopReceiver.class);
+                            stopIntent.putExtra("start", event.getStartTimeCalendar());
+                            stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("studyId", event.getStudyId());
+                            stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("eventId", event.getId());
+                            getActivity().getApplicationContext().sendBroadcast(stopIntent);
+                        }
                     }
                 }
-                DBHandler.getInstance(getActivity().getApplicationContext()).deleteStudyEntry(study.getId());
+                if(removeStudy) {
+                    DBHandler.getInstance(getActivity().getApplicationContext()).deleteStudyEntry(study.getId());
+                }
             }
         });
     }
 
 
-    private void setUpNewStudy(final Study s) {
+    private void setUpNewStudyAlarms(final Study s) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -233,7 +237,7 @@ public class StudyFragment extends ListFragment {
             @Override
             public void run() {
                 if(newList.size() == 0)
-                    noStudiesTxt.setVisibility(View.VISIBLE);
+                    noStudies()
                 if(newList.size() > 0)
                     noStudiesTxt.setVisibility(View.GONE);
                 asla = new ActiveStudyListAdapter(getActivity(), newList, StudyFragment.this);
