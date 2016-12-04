@@ -21,6 +21,8 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
+import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
@@ -37,7 +39,7 @@ public class TestJoinStudyActivity {
 
     @Test
     public void joinStudyActivityTest() {
-        ViewInteraction appCompatEditText3 = onView(
+        /*ViewInteraction appCompatEditText3 = onView(
                 allOf(withId(R.id.email_input)));
         appCompatEditText3.perform(scrollTo(), replaceText("test@test.com"), closeSoftKeyboard());
 
@@ -47,7 +49,7 @@ public class TestJoinStudyActivity {
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.button_login), withText("Login")));
-        appCompatButton.perform(scrollTo(), click());
+        appCompatButton.perform(scrollTo(), click());*/
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Open"),
@@ -66,18 +68,22 @@ public class TestJoinStudyActivity {
 
         ViewInteraction appCompatEditText5 = onView(
                 withId(R.id.keywords_input));
-        appCompatEditText5.perform(scrollTo(), replaceText("join"), closeSoftKeyboard());
+        appCompatEditText5.perform(scrollTo(), replaceText("android,join"), closeSoftKeyboard());
 
         ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.button_search), withText("Search"),
                         withParent(withId(R.id.linearLayout))));
         appCompatButton2.perform(scrollTo(), click());
 
+        ViewInteraction studyExists = onView(
+                allOf(withText("Android join testing")));
+        studyExists.check(matches(isDisplayed()));
+
         ViewInteraction appCompatButton3 = onView(
                 allOf(withId(R.id.join_button), withText("Join"),
                         withParent(childAtPosition(
                                 withId(android.R.id.list),
-                                4)),
+                                0)),
                         isDisplayed()));
         appCompatButton3.perform(click());
 
@@ -111,6 +117,10 @@ public class TestJoinStudyActivity {
         ViewInteraction appCompatButton6 = onView(
                 allOf(withId(android.R.id.button2), withText("OK")));
         appCompatButton6.perform(scrollTo(), click());
+
+        ViewInteraction studyExists2 = onView(
+                allOf(withText("Android join testing")));
+        studyExists2.check(doesNotExist()); //study should not exist in the list
 
         ViewInteraction appCompatImageButton3 = onView(
                 allOf(withContentDescription("Open"),
