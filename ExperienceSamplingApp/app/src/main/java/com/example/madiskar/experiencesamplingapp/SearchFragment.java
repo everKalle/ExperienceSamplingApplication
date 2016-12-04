@@ -5,11 +5,13 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,8 @@ public class SearchFragment extends ListFragment {
     private ArrayList<Study> studies;
 
     private TextView noResultsTxt;
+    private TextView progressText;
+    private ProgressBar progressBar;
 
     private boolean keywordsCheckboxIsChecked;
     private boolean endDateCheckBoxIsChecked;
@@ -51,35 +55,10 @@ public class SearchFragment extends ListFragment {
 
         noResultsTxt.setVisibility(View.GONE);
 
-        return view;
-    }
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        filteredStudies = new ArrayList<>();
-
-        Bundle bundle = getArguments();
-        keywordsCheckboxIsChecked = bundle.getBoolean("keywordsCheckboxIsChecked");
-        endDateCheckBoxIsChecked = bundle.getBoolean("endDateCheckBoxIsChecked");
-        matchAllCheckboxIsChecked = bundle.getBoolean("matchAllCheckboxIsChecked");
-        startDateCheckBoxIsChecked = bundle.getBoolean("startDateCheckBoxIsChecked");
-        keywordsEditText = bundle.getString("keywordsEditText");
-        startYear = bundle.getInt("startYear");
-        startMonth = bundle.getInt("startMonth");
-        startDay = bundle.getInt("startDay");
-        endYear = bundle.getInt("endYear");
-        endMonth = bundle.getInt("endMonth");
-        endDay = bundle.getInt("endDay");
-
-        /*  ListView generates its own "loading element", this should not be needed
-        final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Searching, Please Wait...");
-        progressDialog.show();
-        */
+        progressBar = (ProgressBar) view.findViewById(R.id.resultsProgressBar);
+        progressText = (TextView) view.findViewById(R.id.resultsProgressBarText);
+        progressBar.setVisibility(View.VISIBLE);
+        progressText.setVisibility(View.VISIBLE);
 
         GetPublicStudiesTask getPublicStudiesTask = new GetPublicStudiesTask(DBHandler.getInstance(getActivity().getApplicationContext()), new RunnableResponseArray() {
             @Override
@@ -118,7 +97,8 @@ public class SearchFragment extends ListFragment {
                     }
                     @Override
                     protected void onPostExecute(String response) {
-                        //progressDialog.dismiss();  See above
+                        progressBar.setVisibility(View.GONE);
+                        progressText.setVisibility(View.GONE);
                         if(response.equals("failure")) {
                             noResultsTxt.setVisibility(View.VISIBLE);
                             SearchResultsListAdapter srla = new SearchResultsListAdapter(getActivity(), filteredStudies);
@@ -134,6 +114,30 @@ public class SearchFragment extends ListFragment {
         });
 
         ExecutorSupplier.getInstance().forBackgroundTasks().execute(getPublicStudiesTask);
+
+
+        return view;
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        filteredStudies = new ArrayList<>();
+
+        Bundle bundle = getArguments();
+        keywordsCheckboxIsChecked = bundle.getBoolean("keywordsCheckboxIsChecked");
+        endDateCheckBoxIsChecked = bundle.getBoolean("endDateCheckBoxIsChecked");
+        matchAllCheckboxIsChecked = bundle.getBoolean("matchAllCheckboxIsChecked");
+        startDateCheckBoxIsChecked = bundle.getBoolean("startDateCheckBoxIsChecked");
+        keywordsEditText = bundle.getString("keywordsEditText");
+        startYear = bundle.getInt("startYear");
+        startMonth = bundle.getInt("startMonth");
+        startDay = bundle.getInt("startDay");
+        endYear = bundle.getInt("endYear");
+        endMonth = bundle.getInt("endMonth");
+        endDay = bundle.getInt("endDay");
 
     }
 
