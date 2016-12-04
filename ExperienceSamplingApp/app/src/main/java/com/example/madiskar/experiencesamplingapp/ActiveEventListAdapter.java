@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Created by Joosep on 12.11.2016.
@@ -57,46 +61,11 @@ public class ActiveEventListAdapter extends BaseAdapter {
         }
 
         TextView nameView = (TextView) view.findViewById(R.id.active_event);
-        final TextView timeView = (TextView) view.findViewById(R.id.event_duration);
         Button stopButton = (Button) view.findViewById(R.id.stop_button);
 
         nameView.setText(events.get(position).getName());
 
 
-        Thread t = new Thread() {
-
-            long hours = 0;
-            long minutes = 0;
-            long seconds = 0;
-
-            @Override
-            public void run() {
-                try {
-
-                    while (!isInterrupted()) {
-                        Thread.sleep(1000);
-                        mActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    if (EventDialogFragment.activeEvents.size() > 0) {
-                                        Event event = events.get(position);
-                                        long newTime = (Calendar.getInstance().getTimeInMillis() - event.getStartTimeInMillis());
-                                        hours = newTime / (60 * 60 * 1000);
-                                        minutes = newTime / (60 * 1000) - 60 * hours;
-                                        seconds = newTime / 1000 - 60 * minutes;
-                                        timeView.setText(hours + " : " + minutes + " : " + seconds);
-                                    }
-                                } catch (Exception e) {}
-                            }
-                        });
-                    }
-                } catch (InterruptedException e) {
-                }
-            }
-        };
-
-        t.start();
 
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
