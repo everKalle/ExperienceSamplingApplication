@@ -76,6 +76,8 @@
     <string name="refuse">Refuse</string>
     <string name="postpone">Postpone</string>
     <string name="submit">Submit</string>
+    <string name="help">Help</string>
+    <string name="help_desc">Get help with this app</string>
     <string name="no_exist">This study no longer exists</string>
     <string name="pass_length">Password must be between 6 and 16 characters</string>
     <string name="no_match">Passwords don\'t match</string>
@@ -83,6 +85,7 @@
     <string name="changing_password">Please Wait, Changing Password...</string>
     <string name="register_fail">Registering failed</string>
     <string name="used_email">This email address has already been used</string>
+    <string name="cancel_questionnaire">Are you sure you want to cancel this questionnaire?</string>
     <string name="create_success">Account creation was successful</string>
     <string name="conf_sound">Configure sound volume</string>
     <string name="no_sound">Your Media/Music volume is set to 0.</string>
@@ -103,4 +106,6 @@
     <string name="pref_sync">Allow data sync over mobile internet</string>
     <string name="no_active_events">No Active Events</string>
     <string name="no_search_results">No Matching Studies Found</string>
+    <string name="questionnaire_help">If a study has started, the app will automatically start sending questionnaires to the user, at a fixed rate, defined in the study. If a questionnaire arrives, a notification is shown in the system notification area at the top of the screen. There the user will have three options: \'OK\' will start the questionnaire, \'Refuse\' will skip it and \'Postpone\' will start the questionnaire at a later time, defined by the study itself (Postpone might not be allowed in all studies).</string>
+    <string name="events_help">In \'My Studies\' view, the user can start events that are defined in the study, by pressing the \'Event\' button found next to the corresponding study. The user can then choose the type of event and press \'Start\', after which a notification will be shown in the system notification area, showing the name of currently running event and also elapsed time. This info is also available in \'My Events\' view. User can press on \'Stop\' button to stop the event, in both the notification and \'My Events\' view.</string>
 </resources>

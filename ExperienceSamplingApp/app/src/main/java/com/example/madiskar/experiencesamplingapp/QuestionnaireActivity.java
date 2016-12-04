@@ -1,9 +1,11 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -132,13 +134,30 @@ public class QuestionnaireActivity extends AppCompatActivity {
         });
         Button back = (Button) findViewById(R.id.previousquestionbutton);
         back.setVisibility(View.INVISIBLE); // TODO: Implement back button functionality
+        final Context mContext = this;
 
         Button cancel = (Button) findViewById(R.id.cancel_questionnaire_button);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveAnswers("user-cancelled-this-questionnaire");
-                finish();
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                alertDialogBuilder.setTitle(getString(R.string.cancel_questionnaire));
+                alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveAnswers("user-cancelled-this-questionnaire");
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+                alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
         });
 

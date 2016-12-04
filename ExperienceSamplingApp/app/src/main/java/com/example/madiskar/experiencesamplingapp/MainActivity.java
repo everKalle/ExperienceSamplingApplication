@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -50,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         setContentView(R.layout.activity_main);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         SharedPreferences spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         String username = spref.getString("username", "none");
         TextView usernameField = (TextView) findViewById(R.id.userName_email);
@@ -78,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mMenuItems.add(new MenuItem(getString(R.string.join), getString(R.string.browsestudies), R.drawable.ic_add));
         mMenuItems.add(new MenuItem(getString(R.string.events), getString(R.string.activeeents), R.drawable.ic_events));
         mMenuItems.add(new MenuItem(getString(R.string.action_settings), getString(R.string.changesettings), R.drawable.ic_settings));
+        mMenuItems.add(new MenuItem(getString(R.string.help), getString(R.string.help_desc), R.drawable.ic_help));
         mMenuItems.add(new MenuItem(getString(R.string.logout), getString(R.string.logcurrent), R.drawable.ic_logout));
         mMenuItems.add(new MenuItem(getString(R.string.exit), getString(R.string.runbackground), R.drawable.ic_exit));
 
@@ -123,8 +123,10 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             }
         };
 
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         setTitle(getString(R.string.studies));
         loadFragment(getString(R.string.studies), false);
@@ -157,6 +159,14 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment)
+                    .commit();
+        }
+        else if (itemName.equals("Help")) {
+            setTitle(itemName);
+            Fragment fragment = new HelpFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.mainContent, fragment, "Help")
+                    .addToBackStack("Help")
                     .commit();
         }
 	    else if (itemName.equals("Settings")) {

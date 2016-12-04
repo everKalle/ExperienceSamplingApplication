@@ -53,11 +53,11 @@ public class StudyFragment extends ListFragment {
 
         progress = (ProgressBar) view.findViewById(R.id.myStudiesProgressBar);
         final FloatingActionButton floatUpdate = (FloatingActionButton) view.findViewById(R.id.floatingUpdateButton);
+        floatUpdate.setVisibility(View.VISIBLE);
         progressText = (TextView) view.findViewById(R.id.myStudiesProgressBarText);
         noStudiesTxt = (TextView) view.findViewById(R.id.no_studies);
         progress.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.VISIBLE);
-        floatUpdate.setVisibility(View.GONE);
         noStudiesTxt.setVisibility(View.GONE);
 
         new AsyncTask<Void, Void, ArrayList<Study>>() {
@@ -76,7 +76,6 @@ public class StudyFragment extends ListFragment {
                             if(filtered.size() > 0) {
                                 progress.setVisibility(View.GONE);
                                 progressText.setVisibility(View.GONE);
-                                floatUpdate.setVisibility(View.VISIBLE);
                                 asla = new ActiveStudyListAdapter(getActivity(), filtered, StudyFragment.this);
                                 setListAdapter(asla);
                             } else {
@@ -91,7 +90,6 @@ public class StudyFragment extends ListFragment {
                     if(filtered.size() > 0) {
                         progress.setVisibility(View.GONE);
                         progressText.setVisibility(View.GONE);
-                        floatUpdate.setVisibility(View.VISIBLE);
                         asla = new ActiveStudyListAdapter(getActivity(), filtered, StudyFragment.this);
                         setListAdapter(asla);
                     } else {
@@ -189,7 +187,7 @@ public class StudyFragment extends ListFragment {
         return studiesClone;
     }
 
-public void cancelStudy(final Study study, final boolean cancelEvents, final boolean removeStudy) {
+    private void cancelStudy(final Study study, final boolean cancelEvents, final boolean removeStudy) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
