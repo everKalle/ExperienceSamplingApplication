@@ -18,6 +18,7 @@ class Superuser extends CI_Controller {
    $this->lang->load('account', $currentLang);
    $this->lang->load('navigation', $currentLang);
    $this->lang->load('login', $currentLang);
+   require_once 'application/vendor/autoload.php';
  }
 
  function index()
@@ -40,7 +41,6 @@ class Superuser extends CI_Controller {
          $data['success_msg'] = "";
          $data['error_msg'] = "";
          $this->load->view('templates/header.php', $data);
-         //$this->load->view('login_view');
          $this->load->view('account_creation');
          $this->load->view('templates/footer.php');
        }
@@ -58,23 +58,34 @@ class Superuser extends CI_Controller {
             $data['error_msg'] = $this->lang->line('fail-exists');
            }
            $this->load->view('templates/header.php', $data);
-           //$this->load->view('login_view');
            $this->load->view('account_creation');
            $this->load->view('templates/footer.php');
          } else {
-            echo base_url() . 'index.php/login/activate/' . $id . '/' . hash('sha256', $this->input->post('username'));
-            $this->load->library('email');
-            $this->email->from('automated@experiencesampling.herokuapp.com', 'Experience Sampling Automated');
-            $this->email->to($this->input->post('username'));
-                            
-            $this->email->subject("Experience Sampling - Account activation");
-            $this->email->message('Hi, an administrative account for Experience Sampling application has been created for you.
+            $request_body = json_decode('{
+            "personalizations": [
+              {
+                "to": [
+                  {
+                    "email": "' . $this->input->post('username') . '"
+                  }
+                ],
+                "subject": "Experience Sampling - Account activation"
+              }
+            ],
+            "from": {
+              "email": "no-reply@experiencesampling.herokuapp.com"
+            },
+            "content": [
+              {
+                "type": "text/plain",
+                "value": "Hi, an administrative account for Experience Sampling application has been created for you.\nUse the following link to activate your account:\n\n' . base_url() . 'index.php/login/activate/' . $id . '/' . hash('sha256', $this->input->post('username')) .'/\n\n\nExperience Sampling automated."
+              }
+            ]
+          }');
 
-Use the following link to activate your account:
-{unwrap}' . base_url() . 'index.php/login/activate/' . $id . '/' . hash('sha256', $this->input->post('username')) .'/{/unwrap}
-                            
-Experience Sampling automated.');
-            $this->email->send();
+          $apiKey = getenv('SENDGRID_API_KEY');
+          $sg = new \SendGrid($apiKey);
+          $response = $sg->client->mail()->send()->post($request_body);
 
             $data['title'] = $this->lang->line('create-account');
            $data['active_page'] = "account_creation";
@@ -82,7 +93,6 @@ Experience Sampling automated.');
             $data['success_msg'] = $this->lang->line('creation-success');
             $data['error_msg'] = "";
            $this->load->view('templates/header.php', $data);
-           //$this->load->view('login_view');
            $this->load->view('account_creation');
            $this->load->view('templates/footer.php');
          }

@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $lang['confirm-pass'] = 'Konto loomise kinnitamiseks sisesta oma parool';
 $lang['fail-wrong-pass'] = 'Sisestatud parool on vale';
 $lang['fail-exists'] = 'Selle e-maili aadressiga konto juba eksisteerib';
-$lang['creation-success'] = 'Konto edukalt loodud';
+$lang['creation-success'] = 'Konto edukalt loodud. Konto aktiveerimise juhised saadetud loodud konto e-mailile.';
 
 $lang['activate-title'] = 'Konto aktiveerimine';
 $lang['password-repeat'] = "Parooli kordus";
