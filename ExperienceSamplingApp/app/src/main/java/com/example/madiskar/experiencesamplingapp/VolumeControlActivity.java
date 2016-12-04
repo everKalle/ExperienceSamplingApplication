@@ -9,7 +9,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -17,6 +19,8 @@ public class VolumeControlActivity extends FragmentActivity {
 
     public SeekBar seekBar;
     public TextView highText;
+    public Button okButton;
+    public Button cancelButton;
     private SharedPreferences spref;
 
     @Override
@@ -45,6 +49,8 @@ public class VolumeControlActivity extends FragmentActivity {
 
         seekBar = (SeekBar) findViewById(R.id.volumeSeekBar);
         highText = (TextView) findViewById(R.id.highTextView);
+        okButton = (Button) findViewById(R.id.ok);
+        cancelButton = (Button) findViewById(R.id.cancel);
 
         spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
 
@@ -56,6 +62,9 @@ public class VolumeControlActivity extends FragmentActivity {
             editor.putInt("volume", 50);
             editor.apply();
         }
+
+        final int oldVolume = spref.getInt("volume", -1);
+
         highText.setText(String.valueOf(seekBar.getProgress()));
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -82,6 +91,26 @@ public class VolumeControlActivity extends FragmentActivity {
                 editor.putInt("volume", currentValue);
                 editor.apply();
                 seekBar.setProgress(currentValue);
+            }
+        });
+
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("volume", String.valueOf(spref.getInt("volume",0)));
+                finish();
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = spref.edit();
+                editor.putInt("volume", oldVolume);
+                editor.apply();
+                seekBar.setProgress(oldVolume);
+                Log.v("volume", String.valueOf(spref.getInt("volume",0)));
+                finish();
             }
         });
 

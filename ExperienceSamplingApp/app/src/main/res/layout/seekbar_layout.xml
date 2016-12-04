@@ -62,4 +62,26 @@
         android:layout_alignBaseline="@+id/highTextView"
         />
 
+    <Button
+        android:id="@+id/cancel"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:textColor="@color/colorAccent"
+        android:layout_below="@+id/lowTextView"
+        android:layout_toRightOf="@+id/lowTextView"
+        android:layout_toEndOf="@+id/lowTextView" />
+
+    <Button
+        android:id="@+id/ok"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:textColor="@color/colorAccent"
+        android:layout_below="@+id/highTextView"
+        android:layout_toLeftOf="@+id/highTextView"
+        android:layout_toStartOf="@+id/highTextView" />
+
 </RelativeLayout>
