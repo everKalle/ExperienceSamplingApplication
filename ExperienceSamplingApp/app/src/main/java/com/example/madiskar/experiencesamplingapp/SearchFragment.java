@@ -6,7 +6,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -24,6 +28,8 @@ public class SearchFragment extends ListFragment {
     private ArrayList<Study> filteredStudies;
     private ArrayList<Study> studies;
 
+    private TextView noResultsTxt;
+
     private boolean keywordsCheckboxIsChecked;
     private boolean endDateCheckBoxIsChecked;
     private boolean matchAllCheckboxIsChecked;
@@ -35,6 +41,18 @@ public class SearchFragment extends ListFragment {
     private int endYear;
     private int endMonth;
     private int endDay;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        final View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        noResultsTxt = (TextView) view.findViewById(R.id.no_results);
+
+        noResultsTxt.setVisibility(View.GONE);
+
+        return view;
+    }
 
 
     @Override
@@ -102,7 +120,7 @@ public class SearchFragment extends ListFragment {
                     protected void onPostExecute(String response) {
                         //progressDialog.dismiss();  See above
                         if(response.equals("failure")) {
-                            Toast.makeText(getActivity().getApplicationContext(), R.string.no_studies, Toast.LENGTH_SHORT).show();
+                            noResultsTxt.setVisibility(View.VISIBLE);
                             SearchResultsListAdapter srla = new SearchResultsListAdapter(getActivity(), filteredStudies);
                             setListAdapter(srla);
                         } else {

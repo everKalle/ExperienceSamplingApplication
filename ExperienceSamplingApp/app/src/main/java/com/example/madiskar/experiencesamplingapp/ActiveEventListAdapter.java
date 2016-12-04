@@ -24,10 +24,12 @@ public class ActiveEventListAdapter extends BaseAdapter {
 
     private Activity mActivity;
     private ArrayList<Event> events;
+    private EventFragment eventFragment;
 
-    public ActiveEventListAdapter(Activity activity, ArrayList<Event> events) {
+    public ActiveEventListAdapter(Activity activity, ArrayList<Event> events, EventFragment eventFragment) {
         this.mActivity = activity;
         this.events = events;
+        this.eventFragment = eventFragment;
     }
     @Override
     public int getCount() {
@@ -113,6 +115,8 @@ public class ActiveEventListAdapter extends BaseAdapter {
     }
 
     public void updateEvents() {
+        if (EventDialogFragment.activeEvents.size() == 0)
+            eventFragment.noEvents();
         notifyDataSetChanged();
     }
 

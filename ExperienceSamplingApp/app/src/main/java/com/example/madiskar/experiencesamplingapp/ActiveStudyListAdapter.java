@@ -32,11 +32,13 @@ import java.util.Calendar;
 public class ActiveStudyListAdapter extends BaseAdapter  {
     private Context mContext;
     private ArrayList<Study> studies;
+    private StudyFragment studyFragment;
     private String token;
 
-    public ActiveStudyListAdapter(Context context, ArrayList<Study> studies) {
+    public ActiveStudyListAdapter(Context context, ArrayList<Study> studies, StudyFragment studyFragment) {
         this.mContext = context;
         this.studies = studies;
+        this.studyFragment =studyFragment;
         SharedPreferences spref = mContext.getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         token = spref.getString("token", "none");
     }
@@ -98,17 +100,17 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                 if(studies.get(position).isPublic()) {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.public_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
                             + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2] + "\n\n" +
-                                "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
-                                "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
-                                "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
-                                "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
+                            "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
+                            "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
+                            "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
+                            "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
                 } else {
                     alertDialogBuilder.setMessage(mContext.getString(R.string.private_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
                             + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2] + "\n\n" +
-                                "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
-                                "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
-                                "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
-                                "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
+                            "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
+                            "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
+                            "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
+                            "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
                 }
                 alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
@@ -186,11 +188,16 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(studyRef.getId()), DBHandler.getInstance(mContext), new RunnableResponse() {
                                         @Override
                                         public void processFinish(String output) {
-                                        	//TODO: handle more server responses
+                                            //TODO: handle more server responses
                                             Log.i("QUITTING STUDY", output);
                                         }
                                     });
                                     ExecutorSupplier.getInstance().forBackgroundTasks().execute(leaveStudyTask);
+
+                                    Log.v("STUDYSID ALLES", String.valueOf(studies.size()));
+                                    if (studies.size() == 1) {
+                                        studyFragment.noStudies();
+                                    }
 
                                     studies.remove(position);
                                     Toast.makeText(mContext, mContext.getString(R.string.study_left), Toast.LENGTH_SHORT).show();

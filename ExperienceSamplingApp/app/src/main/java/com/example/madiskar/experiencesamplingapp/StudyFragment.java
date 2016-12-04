@@ -34,6 +34,8 @@ public class StudyFragment extends ListFragment {
     private Boolean from_menu;
     private ActiveStudyListAdapter asla;
     private TextView noStudiesTxt;
+    private ProgressBar progress;
+    private TextView progressText;
 
 
     @Override
@@ -49,9 +51,9 @@ public class StudyFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_study, container, false);
 
-        final ProgressBar progress = (ProgressBar) view.findViewById(R.id.myStudiesProgressBar);
+        progress = (ProgressBar) view.findViewById(R.id.myStudiesProgressBar);
         final FloatingActionButton floatUpdate = (FloatingActionButton) view.findViewById(R.id.floatingUpdateButton);
-        final TextView progressText = (TextView) view.findViewById(R.id.myStudiesProgressBarText);
+        progressText = (TextView) view.findViewById(R.id.myStudiesProgressBarText);
         noStudiesTxt = (TextView) view.findViewById(R.id.no_studies);
         progress.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.VISIBLE);
@@ -75,12 +77,12 @@ public class StudyFragment extends ListFragment {
                                 progress.setVisibility(View.GONE);
                                 progressText.setVisibility(View.GONE);
                                 floatUpdate.setVisibility(View.VISIBLE);
-                                asla = new ActiveStudyListAdapter(getActivity(), filtered);
+                                asla = new ActiveStudyListAdapter(getActivity(), filtered, StudyFragment.this);
                                 setListAdapter(asla);
                             } else {
                                 progress.setVisibility(View.GONE);
                                 progressText.setVisibility(View.GONE);
-                                noStudiesTxt.setVisibility(View.VISIBLE);
+                                noStudies();
                             }
                         }
                     }, 230); //Time for nav driver to close, for nice animations
@@ -90,12 +92,12 @@ public class StudyFragment extends ListFragment {
                         progress.setVisibility(View.GONE);
                         progressText.setVisibility(View.GONE);
                         floatUpdate.setVisibility(View.VISIBLE);
-                        asla = new ActiveStudyListAdapter(getActivity(), filtered);
+                        asla = new ActiveStudyListAdapter(getActivity(), filtered, StudyFragment.this);
                         setListAdapter(asla);
                     } else {
                         progress.setVisibility(View.GONE);
                         progressText.setVisibility(View.GONE);
-                        noStudiesTxt.setVisibility(View.VISIBLE);
+                        noStudies();
                     }
                 }
             }
@@ -163,7 +165,6 @@ public class StudyFragment extends ListFragment {
         ArrayList<Study> studiesClone = new ArrayList<>(studies);
         for (Study study: studiesClone) {
             if (Calendar.getInstance().after(study.getEndDate())) {
-                Log.i("ops", "siin me olemegi");
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
                 Intent intent = new Intent(getActivity().getApplicationContext(), QuestionnaireActivity.class);
                 ResponseReceiver.cancelExistingAlarm(getActivity(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
@@ -235,10 +236,14 @@ public class StudyFragment extends ListFragment {
                     noStudiesTxt.setVisibility(View.VISIBLE);
                 if(newList.size() > 0)
                     noStudiesTxt.setVisibility(View.GONE);
-                asla = new ActiveStudyListAdapter(getActivity(), newList);
+                asla = new ActiveStudyListAdapter(getActivity(), newList, StudyFragment.this);
                 setListAdapter(asla);
             }
         });
+    }
+
+    public void noStudies() {
+        noStudiesTxt.setVisibility(View.VISIBLE);
     }
 
 
