@@ -119,8 +119,8 @@ public class Test2EventActivity {
         eventStopButton.click();
 
         //Make sure that notifications are closed
-        if (mDevice.hasObject(By.pkg("com.android.systemui")))
-            mDevice.pressBack();
+        /*if (mDevice.hasObject(By.pkg("com.android.systemui")))
+            mDevice.pressBack();*/
 
         ViewInteraction appCompatImageButton3 = onView(
                 allOf(withContentDescription("Open"),

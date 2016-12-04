@@ -116,7 +116,7 @@ public class TestJoinStudyActivity {
 
         ViewInteraction appCompatButton6 = onView(
                 allOf(withId(android.R.id.button2), withText("OK")));
-        appCompatButton6.perform(scrollTo(), click());
+        appCompatButton6.perform(click());
 
         ViewInteraction studyExists2 = onView(
                 allOf(withText("Android join testing")));
