@@ -59,7 +59,7 @@ public class Test2EventActivity {
     @Test
     public void eventActivityTest() throws Exception {
 
-        /*ViewInteraction appCompatEditText = onView(
+        ViewInteraction appCompatEditText = onView(
                 withId(R.id.email_input));
         appCompatEditText.perform(scrollTo(), click());
 
@@ -80,9 +80,9 @@ public class Test2EventActivity {
                         withParent(allOf(withId(R.id.action_bar),
                                 withParent(withId(R.id.action_bar_container)))),
                         isDisplayed()));
-        appCompatImageButton.check(matches(isDisplayed()));*/
+        appCompatImageButton.check(matches(isDisplayed()));
 
-        /*ViewInteraction appCompatButton2 = onView(
+        ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.event_button), withText("Event"),
                         withParent(childAtPosition(
                                 withId(android.R.id.list),
@@ -116,13 +116,13 @@ public class Test2EventActivity {
 
         UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
         assertTrue("Event stop button exists", eventStopButton.exists());
-        eventStopButton.click();*/
+        eventStopButton.click();
 
         //Make sure that notifications are closed
-        /*if (mDevice.hasObject(By.pkg("com.android.systemui")))
-            mDevice.pressBack();*/
+        if (mDevice.hasObject(By.pkg("com.android.systemui")))
+            mDevice.pressBack();
 
-        /*ViewInteraction appCompatImageButton3 = onView(
+        ViewInteraction appCompatImageButton3 = onView(
                 allOf(withContentDescription("Open"),
                         withParent(allOf(withId(R.id.action_bar),
                                 withParent(withId(R.id.action_bar_container)))),
@@ -139,7 +139,7 @@ public class Test2EventActivity {
 
         ViewInteraction appCompatButton4 = onView(
                 allOf(withId(R.id.button_login), withText("Login")));
-        appCompatButton4.check(matches(isDisplayed()));*/
+        appCompatButton4.check(matches(isDisplayed()));
     }
 
     /*

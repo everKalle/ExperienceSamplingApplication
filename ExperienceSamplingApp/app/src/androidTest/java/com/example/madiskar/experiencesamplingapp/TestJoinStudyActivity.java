@@ -39,7 +39,7 @@ public class TestJoinStudyActivity {
 
     @Test
     public void joinStudyActivityTest() {
-        /*ViewInteraction appCompatEditText3 = onView(
+        ViewInteraction appCompatEditText3 = onView(
                 allOf(withId(R.id.email_input)));
         appCompatEditText3.perform(scrollTo(), replaceText("test@test.com"), closeSoftKeyboard());
 
@@ -49,7 +49,7 @@ public class TestJoinStudyActivity {
 
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.button_login), withText("Login")));
-        appCompatButton.perform(scrollTo(), click());*/
+        appCompatButton.perform(scrollTo(), click());
 
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Open"),
@@ -89,7 +89,7 @@ public class TestJoinStudyActivity {
 
         ViewInteraction appCompatButton4 = onView(
                 allOf(withId(android.R.id.button2), withText("YES")));
-        appCompatButton4.perform(scrollTo(), click());
+        appCompatButton4.perform(click());
 
         ViewInteraction appCompatImageButton2 = onView(
                 allOf(withContentDescription("Open"),

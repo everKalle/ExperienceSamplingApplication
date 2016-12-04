@@ -107,7 +107,7 @@ public class QuestionnaireActivityTest {
         appCompatButton6.perform(click());
 
 
-        /*ViewInteraction appCompatImageButton10 = onView(
+        ViewInteraction appCompatImageButton10 = onView(
                 allOf(withContentDescription("Open"),
                         withParent(allOf(withId(R.id.action_bar),
                                 withParent(withId(R.id.action_bar_container)))),
@@ -124,7 +124,7 @@ public class QuestionnaireActivityTest {
 
         ViewInteraction appCompatButton9 = onView(
                 allOf(withId(R.id.button_login), withText("Login")));
-        appCompatButton9.check(matches(isDisplayed()));*/
+        appCompatButton9.check(matches(isDisplayed()));
 
     }
 
