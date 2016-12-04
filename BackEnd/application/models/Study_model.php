@@ -367,7 +367,7 @@ class Study_model extends CI_Model {
 		$this->db->where('participant_id',$target_user);
 		$query = $this->db->get();
 
-		if($query -> num_rows() == 0) {
+		if($query -> num_rows() < 1) {
 			date_default_timezone_set('Europe/Helsinki');
 			$data = array(
 			   'participant_id' => $target_user ,
