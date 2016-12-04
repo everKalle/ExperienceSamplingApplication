@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -38,6 +39,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 
         SharedPreferences spref = context.getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         token = spref.getString("token", "none");
+        String lastSync = spref.getString("lastSync", "none");
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -48,59 +50,69 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             // do nothing
         }
 
+        Calendar current = Calendar.getInstance();
+        long difference = 300002;
+        if(!lastSync.equals("none")) {
+            difference = current.getTimeInMillis() - DBHandler.stringToCalendar(lastSync).getTimeInMillis(); //Time from last sync, right now the limit is 5 minutes
+        }
+        Log.i("difference", String.valueOf(difference));
+        if(lastSync.equals("none") || difference > 300000) {
+            if (networkInfo != null && networkInfo.isConnected() && !token.equals("none")) {
+                if (((networkType == ConnectivityManager.TYPE_MOBILE || networkType == ConnectivityManager.TYPE_MOBILE_DUN) && !mobileSyncAllowed) || networkType == ConnectivityManager.TYPE_DUMMY) {
+                    Log.i("NETWORK STATE CHANGED", "DON'T SYNC");
+                } else {
+                    Log.i("NETWORK STATE CHANGED", "TRY TO SYNC DATA");
+                    SharedPreferences.Editor editor = spref.edit();
+                    editor.putString("lastSync", DBHandler.calendarToString(current));
+                    editor.apply();
 
-        if (networkInfo != null && networkInfo.isConnected() && !token.equals("none")) {
-            if(((networkType == ConnectivityManager.TYPE_MOBILE || networkType == ConnectivityManager.TYPE_MOBILE_DUN) && !mobileSyncAllowed) || networkType == ConnectivityManager.TYPE_DUMMY) {
-                Log.i("NETWORK STATE CHANGED", "DON'T SYNC");
-            } else {
-                Log.i("NETWORK STATE CHANGED", "TRY TO SYNC DATA");
-
-                SyncResultDataTask syncResultDataTask = new SyncResultDataTask(true, mydb, token, new RunnableResponse() {
-                    @Override
-                    public void processFinish(String output) {
-                        Log.i("UPLOADED DATA:", output);
-                        Log.i("STARTING SYNC:", "Study info");
+                    SyncResultDataTask syncResultDataTask = new SyncResultDataTask(true, mydb, token, new RunnableResponse() {
+                        @Override
+                        public void processFinish(String output) {
+                            Log.i("UPLOADED DATA:", output);
+                            Log.i("STARTING SYNC:", "Study info");
 
 
-                        SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, true, new StudyDataSyncResponse() {
-                            @Override
-                            public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
-                                if (output.equals("invalid_token")) {
-                                    Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.auth_sync_fail));
-                                } else if (output.equals("nothing")) {
-                                    Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
-                                } else if (!output.equals("dberror")) {
-                                    for (int i = 0; i < updatedStudies.size(); i++) {
-                                        Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
-                                        cancelStudy(oldStudies.get(i), false, false);
-                                        setUpNewStudyAlarms(updatedStudies.get(i));
-                                    }
-                                    for (Study s : cancelledStudies) {
-                                        Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
-                                        for (Study ks : allStudies) {
-                                            if (ks.getId() == s.getId()) {
-                                                allStudies.remove(ks);
-                                                break;
-                                            }
+                            SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, true, new StudyDataSyncResponse() {
+                                @Override
+                                public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
+                                    if (output.equals("invalid_token")) {
+                                        Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.auth_sync_fail));
+                                    } else if (output.equals("nothing")) {
+                                        Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
+                                    } else if (!output.equals("dberror")) {
+                                        for (int i = 0; i < updatedStudies.size(); i++) {
+                                            Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
+                                            cancelStudy(oldStudies.get(i), false, false);
+                                            setUpNewStudyAlarms(updatedStudies.get(i));
                                         }
-                                        cancelStudy(s, true, true);
+                                        for (Study s : cancelledStudies) {
+                                            Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
+                                            for (Study ks : allStudies) {
+                                                if (ks.getId() == s.getId()) {
+                                                    allStudies.remove(ks);
+                                                    break;
+                                                }
+                                            }
+                                            cancelStudy(s, true, true);
+                                        }
+                                        Log.i("Study sync:", context.getApplicationContext().getString(R.string.update_success));
+                                    } else {
+                                        Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
                                     }
-                                    Log.i("Study sync:", context.getApplicationContext().getString(R.string.update_success));
-                                } else {
-                                    Log.i("FINISHED SYNC:", context.getApplicationContext().getString(R.string.fetch_sync_fail));
                                 }
-                            }
-                        });
-                        ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
+                            });
+                            ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
 
-                    }
-                });
+                        }
+                    });
 
-                ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncResultDataTask);
+                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncResultDataTask);
+                }
+
+            } else {
+                Log.i("NETWORK STATE CHANGED", "DON'T SYNC");
             }
-
-        } else {
-            Log.i("NETWORK STATE CHANGED", "DON'T SYNC");
         }
     }
 

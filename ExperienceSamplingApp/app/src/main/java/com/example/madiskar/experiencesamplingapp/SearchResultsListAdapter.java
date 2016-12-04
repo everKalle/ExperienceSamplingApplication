@@ -65,6 +65,49 @@ public class SearchResultsListAdapter extends BaseAdapter {
         String duration = DBHandler.calendarToString(studies.get(position).getBeginDate()) + " - \n" + DBHandler.calendarToString(this.studies.get(position).getEndDate());
         durationView.setText(duration);
 
+        nameView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                alertDialogBuilder.setTitle(studies.get(position).getName());
+                String[] beepfree = studies.get(position).getDefaultBeepFree().getPeriodAsString().split(" ");
+                String[] startSplit = beepfree[0].split(":");
+                String[] endSplit = beepfree[1].split(":");
+                if(startSplit[1].equals("0")) {
+                    startSplit[1] = "00";
+                } if(endSplit[1].equals("0")) {
+                    endSplit[1] = "00";
+                } if(startSplit[0].equals("0")) {
+                    startSplit[0] = "00";
+                } if(endSplit[0].equals("0")) {
+                    endSplit[0] = "00";
+                }
+                if(studies.get(position).isPublic()) {
+                    alertDialogBuilder.setMessage(mContext.getString(R.string.public_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
+                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2] + "\n\n" +
+                            "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
+                            "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
+                            "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
+                            "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
+                } else {
+                    alertDialogBuilder.setMessage(mContext.getString(R.string.private_study) + "\n\n" + mContext.getString(R.string.study_active_hours) + " "
+                            + endSplit[0] + ":" + endSplit[1] + ":" + endSplit[2] + " - " + startSplit[0] + ":" + startSplit[1] + ":" + startSplit[2] + "\n\n" +
+                            "Postpone time is " + studies.get(position).getPostponeTime() + "\n\n" +
+                            "Minimum time between notifications is " + studies.get(position).getMinTimeBetweenNotifications() + "\n\n" +
+                            "Postpone allowed: " + String.valueOf(studies.get(position).getPostponable())  + "\n\n" +
+                            "Maximum number of notifications per day: " + studies.get(position).getNotificationsPerDay());
+                }
+                alertDialogBuilder.setPositiveButton(mContext.getString(R.string.ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
+
         Button joinBtn = (Button) view.findViewById(R.id.join_button);
 
         joinBtn.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +145,8 @@ public class SearchResultsListAdapter extends BaseAdapter {
                                         } else if(output.equals("nothing")) {
                                             showFailToast();
                                             Log.i("JOINED STUDY", "FAULTY QUERY");
+                                        } else if(output.equals("exists")) {
+                                            showAlreadyFinishedToast();
                                         } else {
                                             showFailToast();
                                         }
@@ -145,6 +190,15 @@ public class SearchResultsListAdapter extends BaseAdapter {
         });
     }
 
+
+    private void showAlreadyFinishedToast() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, mContext.getApplicationContext().getString(R.string.already_finished), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void showFailToast() {
         mHandler.post(new Runnable() {

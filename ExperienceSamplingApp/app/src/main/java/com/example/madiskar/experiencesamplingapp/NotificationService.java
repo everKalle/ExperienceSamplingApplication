@@ -77,16 +77,41 @@ public class NotificationService extends IntentService {
 
         Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
         if (!Calendar.getInstance().before(study.getBeginDate())) {
+
+            sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            int dailyNotCount = sharedPref.getInt(String.valueOf(index), 0);
+            Calendar rightNow = Calendar.getInstance();
+            int hour = rightNow.get(Calendar.HOUR_OF_DAY);
+            int minutes = rightNow.get(Calendar.MINUTE);
+            Log.i("dailycount", String.valueOf(dailyNotCount));
+
+            String time = sharedPref.getString("TIME" + String.valueOf(study.getId()), "");
+            Log.i("Time", time);
+            if (!time.equals("")) {
+                String[] parts = time.split(":");
+                int hourPart = Integer.valueOf(parts[0]);
+                int minutePart = Integer.valueOf(parts[1]);
+
+                if (hour < hourPart) {
+
+                    editor.putInt(String.valueOf(study.getId()), 0);
+                    editor.apply();
+                    dailyNotCount = 0;
+                }
+            }
+            // STORE THE TIME OF THE NOTIFICATION
+            editor.putString("TIME" + String.valueOf(study.getId()), hour + ":" + minutes);
+            editor.apply();
+
+
             if (!beepFreePeriod(study)) {
 
-                sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
-                int dailyNotCount = sharedPref.getInt(String.valueOf(index), 0);
 
                 Log.v("PAEVANE", String.valueOf(dailyNotCount));
 
                 int soundVolume = sharedPref.getInt("volume", -1);
                 if (soundVolume == -1) {
-                    SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putInt("volume", 50);
                     editor.apply();
                     soundVolume = 50;
@@ -94,29 +119,6 @@ public class NotificationService extends IntentService {
 
                 Log.v("sound vol", String.valueOf(soundVolume));
 
-                Calendar rightNow = Calendar.getInstance();
-                int hour = rightNow.get(Calendar.HOUR_OF_DAY);
-                int minutes = rightNow.get(Calendar.MINUTE);
-
-                String time = sharedPref.getString("TIME" + String.valueOf(study.getId()), "");
-                if (!time.equals("")) {
-                    String[] parts = time.split(":");
-                    int hourPart = Integer.valueOf(parts[0]);
-                    int minutePart = Integer.valueOf(parts[1]);
-
-                    if (hour < hourPart) {
-
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putInt(String.valueOf(study.getId()), 0);
-                        editor.apply();
-                        dailyNotCount = 0;
-                    }
-                }
-
-
-                SharedPreferences.Editor editor = sharedPref.edit(); // STORE THE TIME OF THE NOTIFICATION
-                editor.putString("TIME" + String.valueOf(study.getId()), hour + ":" + minutes);
-                editor.apply();
 
                 Log.v("nimi", study.getName());
                 Log.v("aja teema", String.valueOf(!Calendar.getInstance().after(study.getEndDate())));
@@ -125,7 +127,7 @@ public class NotificationService extends IntentService {
 
                 if (!Calendar.getInstance().after(study.getEndDate())) {
                     if (dailyNotCount < study.getNotificationsPerDay()) {
-
+                        Log.i("Siin", "saab notti visata kyll");
                         editor = sharedPref.edit();
                         editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
                         editor.apply();

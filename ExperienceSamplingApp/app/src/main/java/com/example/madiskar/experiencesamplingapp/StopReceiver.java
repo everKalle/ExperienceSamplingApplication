@@ -18,9 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 
-/**
- * Created by Joosep on 23.10.2016.
- */
+
 public class StopReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
