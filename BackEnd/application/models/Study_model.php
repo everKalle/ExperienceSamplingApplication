@@ -366,7 +366,7 @@ class Study_model extends CI_Model {
 		$this->db->where('survey_id',$study_id);
 		$this->db->where('participant_id',$target_user);
 		$query = $this->db->get();
-		$c = $query -> num_rows();
+
 		if($query -> num_rows() < 1) {
 			date_default_timezone_set('Europe/Helsinki');
 			$data = array(
@@ -378,7 +378,7 @@ class Study_model extends CI_Model {
 			if ($this->db->insert('partipant_to_study', $data)){
 				return True;
 			} else {
-				return $c;
+				return "dberror";
 			}
 		} else {
 			return "exists";

@@ -276,7 +276,7 @@ class Study extends CI_Controller {
           if ($success === TRUE){
             echo "success";
           } else {
-            echo "dberror";
+            echo $success;
           }
         } else {
           echo "invalid_study";
