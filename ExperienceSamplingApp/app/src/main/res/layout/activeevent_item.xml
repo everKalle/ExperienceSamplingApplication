@@ -10,14 +10,14 @@
         android:id="@+id/active_event"
         android:layout_marginTop="15dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:focusable="false"
         android:layout_marginLeft="15dp"
+        android:layout_marginStart="15dp"
         android:clickable="false"
-        android:layout_marginRight="15dp" />
+        android:layout_toLeftOf="@+id/stop_button"
+        android:layout_toStartOf="@+id/stop_button" />
 
     <Button
         android:layout_width="wrap_content"
@@ -29,7 +29,9 @@
         android:clickable="true"
         android:focusable="false"
         android:enabled="true"
-        android:layout_alignBaseline="@+id/active_event"
-        android:layout_alignRight="@+id/active_event"
-        android:layout_alignEnd="@+id/active_event" />
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_alignTop="@+id/active_event"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

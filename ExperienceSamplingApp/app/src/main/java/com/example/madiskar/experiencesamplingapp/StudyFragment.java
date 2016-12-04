@@ -36,6 +36,7 @@ public class StudyFragment extends ListFragment {
     private TextView noStudiesTxt;
     private ProgressBar progress;
     private TextView progressText;
+    private SharedPreferences spref;
 
 
     @Override
@@ -51,6 +52,7 @@ public class StudyFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_study, container, false);
 
+        spref = getActivity().getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         progress = (ProgressBar) view.findViewById(R.id.myStudiesProgressBar);
         final FloatingActionButton floatUpdate = (FloatingActionButton) view.findViewById(R.id.floatingUpdateButton);
         floatUpdate.setVisibility(View.VISIBLE);
@@ -105,50 +107,66 @@ public class StudyFragment extends ListFragment {
             @Override
             public void onClick(View v) {
                 if (isNetworkAvailable()) {
-                    SharedPreferences pref = view.getContext().getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                    String lastFabSync = spref.getString("lastFabSync", "none");
+                    Calendar current = Calendar.getInstance();
+                    long difference = 60002;
+                    if(!lastFabSync.equals("none")) {
+                        difference = current.getTimeInMillis() - DBHandler.stringToCalendar(lastFabSync).getTimeInMillis(); //Time from last sync, right now the limit is 5 minutes
+                    }
+                    Log.i("difference", String.valueOf(difference));
 
-                    final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
-                    progressDialog.setIndeterminate(true);
-                    progressDialog.setMessage(getString(R.string.update_studies));
-                    progressDialog.setCanceledOnTouchOutside(false);
-                    progressDialog.show();
+                    if (lastFabSync.equals("none") || difference > 60000) {
+                        SharedPreferences pref = view.getContext().getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
 
-                    SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
-                        @Override
-                        public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
-                            if (output.equals("invalid_token")) {
-                                Log.i("Study Sync", getString(R.string.auth_sync_fail));
-                            } else if (output.equals("nothing")) {
-                                Log.i("Study Sync", getString(R.string.fetch_sync_fail));
-                            } else if(!output.equals("dberror")){
-                                for (Study s : newStudies) {
-                                    Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");
-                                    setUpNewStudyAlarms(s);
-                                }
-                                for (int i=0; i<updatedStudies.size(); i++) {
-                                    Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
-                                    cancelStudy(oldStudies.get(i), false, false);
-                                    setUpNewStudyAlarms(updatedStudies.get(i));
-                                }
-                                for (Study s : cancelledStudies) {
-                                    Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
-                                    for(Study ks : allStudies) {
-                                        if(ks.getId() == s.getId()) {
-                                            allStudies.remove(ks);
-                                            break;
-                                        }
+                        SharedPreferences.Editor editor = spref.edit();
+                        editor.putString("lastFabSync", DBHandler.calendarToString(current));
+                        editor.apply();
+
+                        final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Dark_Dialog);
+                        progressDialog.setIndeterminate(true);
+                        progressDialog.setMessage(getString(R.string.update_studies));
+                        progressDialog.setCanceledOnTouchOutside(false);
+                        progressDialog.show();
+
+                        SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
+                            @Override
+                            public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
+                                if (output.equals("invalid_token")) {
+                                    Log.i("Study Sync", getString(R.string.auth_sync_fail));
+                                } else if (output.equals("nothing")) {
+                                    Log.i("Study Sync", getString(R.string.fetch_sync_fail));
+                                } else if (!output.equals("dberror")) {
+                                    for (Study s : newStudies) {
+                                        Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");
+                                        setUpNewStudyAlarms(s);
                                     }
-                                    cancelStudy(s, true, true);
+                                    for (int i = 0; i < updatedStudies.size(); i++) {
+                                        Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
+                                        cancelStudy(oldStudies.get(i), false, false);
+                                        setUpNewStudyAlarms(updatedStudies.get(i));
+                                    }
+                                    for (Study s : cancelledStudies) {
+                                        Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
+                                        for (Study ks : allStudies) {
+                                            if (ks.getId() == s.getId()) {
+                                                allStudies.remove(ks);
+                                                break;
+                                            }
+                                        }
+                                        cancelStudy(s, true, true);
+                                    }
+                                    progressDialog.dismiss();
+                                    updateUI(allStudies);
+                                    Log.i("Study sync:", getString(R.string.update_success));
+                                } else {
+                                    Log.i("FINISHED SYNC:", "study sync failed");
                                 }
-                                progressDialog.dismiss();
-                                updateUI(allStudies);
-                                Log.i("Study sync:", getString(R.string.update_success));
-                            } else {
-                                Log.i("FINISHED SYNC:", "study sync failed");
                             }
-                        }
-                    });
-                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
+                        });
+                        ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
+                    } else {
+                        Toast.makeText(view.getContext(), view.getContext().getString(R.string.sync_too_often), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(view.getContext(), view.getContext().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
                 }

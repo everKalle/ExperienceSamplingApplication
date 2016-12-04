@@ -57,6 +57,7 @@
     <string name="no_studies">No such studies found</string>
     <string name="wrong_format">Wrong email or password format</string>
     <string name="no_internet">Internet connection is not available</string>
+    <string name="sync_too_often">You can\'t update studies more often than once every minute</string>
     <string name="wait">Please Wait, Logging In...</string>
     <string name="log_fail">Logging in failed</string>
     <string name="wrong">Wrong email or password</string>
@@ -103,6 +104,7 @@
     <string name="study_join_success">Joining successful</string>
     <string name="study_join_fail">Joining failed</string>
     <string name="no_active_studies">No Active Studies</string>
+    <string name="already_finished">You have already completed this study</string>
     <string name="pref_sync">Allow data sync over mobile internet</string>
     <string name="no_active_events">No Active Events</string>
     <string name="no_search_results">No Matching Studies Found</string>
