@@ -237,7 +237,7 @@ public void cancelStudy(final Study study, final boolean cancelEvents, final boo
             @Override
             public void run() {
                 if(newList.size() == 0)
-                    noStudies()
+                    noStudies();
                 if(newList.size() > 0)
                     noStudiesTxt.setVisibility(View.GONE);
                 asla = new ActiveStudyListAdapter(getActivity(), newList, StudyFragment.this);
