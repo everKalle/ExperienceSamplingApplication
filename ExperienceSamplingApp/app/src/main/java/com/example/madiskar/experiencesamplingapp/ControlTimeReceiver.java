@@ -28,11 +28,6 @@ public class ControlTimeReceiver extends BroadcastReceiver {
         int controlTime = intent.getIntExtra("controlTime", 0);
         String eventName = intent.getStringExtra("eventName");
 
-        //NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        //manager.cancel(notificationId);
-        //DBHandler mydb = DBHandler.getInstance(context);
-        //mydb.insertEventResult(eventId, controlTime);
-
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences sharedPref = context.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         int alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
@@ -68,7 +63,6 @@ public class ControlTimeReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.ic_events);
 
         final NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        // Log.v("Unique notification", String.valueOf(index));
         manager.notify(index, builder.build());
         index--;
     }

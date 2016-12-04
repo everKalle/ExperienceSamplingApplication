@@ -47,8 +47,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
 
     public void indexBasedUpdateAdapter(int id, BeepFerePeriod bfp) {
         beepFerePeriods.set(id, bfp);
-
-        //and call notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -56,7 +54,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
     public void updateAdapter(ArrayList<BeepFerePeriod> arrylst) {
         this.beepFerePeriods = arrylst;
 
-        //and call notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -73,8 +70,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
         }
 
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //View mainView = inflater.inflate(R.layout.beepfree_period_container,null);
-        //LinearLayout linearLayout = (LinearLayout) mainView.findViewById(R.id.newLayout);
 
         DBHandler myDb = DBHandler.getInstance(mContext);
         final ArrayList<BeepFerePeriod> bfps = myDb.getBeepFreePeriods();
@@ -110,17 +105,9 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
 
         Button editBtn = (Button) convertView.findViewById(R.id.beepfree_edit);
         Button disableBtn = (Button) convertView.findViewById(R.id.beepfree_disable);
-        //Button addBtn = (Button) mainView.findViewById(R.id.beepfree_addnew);
 
         FragmentActivity activity = (FragmentActivity)(mContext);
         final FragmentManager fm = activity.getSupportFragmentManager();
-
-        /*addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
 
         editBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -128,7 +115,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 DialogFragment dialogFragment = new BeepfreePeriodPickerFragment();
                 dialogFragment.setTargetFragment(dialogFragment, 1);
                 BeepFerePeriod bfp = beepFerePeriods.get(position);
-                // Log.v("bfp IDDDDD", String.valueOf(bfp.getId()));
                 Bundle b = new Bundle();
                 b.putBoolean("new", false);
                 b.putInt("id", bfp.getId());
@@ -169,7 +155,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
             public void onClick(View v) {
                 // quit study here //
                 AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
-                //alertDialog.setCanceledOnTouchOutside(false);
                 alertDialog.setTitle(R.string.disable_beepfree_period);
                 alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.yes),
                         new DialogInterface.OnClickListener() {
@@ -196,8 +181,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 alertDialog.show();
             }
         });
-
-        //linearLayout.addView(convertView);
 
         return convertView;
 

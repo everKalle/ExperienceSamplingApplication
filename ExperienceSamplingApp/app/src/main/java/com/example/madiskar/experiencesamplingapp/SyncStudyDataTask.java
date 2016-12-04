@@ -70,7 +70,6 @@ public class SyncStudyDataTask implements Runnable {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
-                //break;
             }
 
             JSONArray jsonArray = DBHandler.parseJsonString(sb.toString());

@@ -17,6 +17,7 @@ public class PostponeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.v("joulud", "JOULUD ON KAES!");
 
         Bundle extras = intent.getExtras();
 
@@ -46,7 +47,6 @@ public class PostponeReceiver extends BroadcastReceiver {
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + postponeTime * 60 * 1000,
                 pendingIntent);
-        //context.startActivity(scheduledIntent);
 
     }
 }

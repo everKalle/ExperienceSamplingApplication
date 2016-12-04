@@ -2,6 +2,7 @@ package com.example.madiskar.experiencesamplingapp;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -75,18 +76,13 @@ public class NotificationService extends IntentService {
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
 
         Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
-        // Log.v("SIIN", "");
         if (!Calendar.getInstance().before(study.getBeginDate())) {
             if (!beepFreePeriod(study)) {
-                //Log.v("DailyNotValue", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
-                // Log.v("COUNTER", String.valueOf(ResponseReceiver.dailyNotificationCount.get(index)));
-                // Log.v("ALLOWED COUNTER", String.valueOf(notificationsPerDay));
-
 
                 sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
                 int dailyNotCount = sharedPref.getInt(String.valueOf(index), 0);
 
-                Log.v("PAEVANE NOTTIDE ARV", String.valueOf(dailyNotCount));
+                Log.v("PAEVANE", String.valueOf(dailyNotCount));
 
                 int soundVolume = sharedPref.getInt("volume", -1);
                 if (soundVolume == -1) {
@@ -97,7 +93,6 @@ public class NotificationService extends IntentService {
                 }
 
                 Log.v("sound vol", String.valueOf(soundVolume));
-                //Log.v("DAILYNOTS", String.valueOf(study.getName()) + " " + String.valueOf(dailyNotCount));
 
                 Calendar rightNow = Calendar.getInstance();
                 int hour = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -166,26 +161,32 @@ public class NotificationService extends IntentService {
                         refuseIntent.putExtra("notificationId", index);
                         refuseIntent.putExtra("StudyId", index);
 
-                        //okIntent.putExtra("QUESTIONNAIRE", study.getQuesstionnaire());
                         okIntent.putExtra("StudyId", study.getId());
                         okIntent.putExtra("notificationId", index);
                         postponeIntent.putExtra("notificationId", index);
                         postponeIntent.putExtra("StudyId", study.getId());
                         postponeIntent.putExtra("uniqueValue", Integer.valueOf(uniqueValue3));
 
+
                         PendingIntent okPendingIntent = PendingIntent.getActivity(this, Integer.valueOf(uniqueValue), okIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                         PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
-                        PendingIntent postponePendingIntent = PendingIntent.getBroadcast(getBaseContext(), -Integer.valueOf(uniqueValue3), postponeIntent, 0);
+                        PendingIntent postponePendingIntent = PendingIntent.getBroadcast(this, -Integer.valueOf(uniqueValue3), postponeIntent, 0);
 
                         builder.setContentTitle(study.getName())
+                                .setPriority(Notification.PRIORITY_MAX)
+                                .setWhen(0)
                                 .setOngoing(true)
                                 .setColor(getResources().getColor(R.color.colorAccent))
                                 .setContentText(getString(R.string.questionnaire))
-                                .setSmallIcon(R.drawable.ic_events)
+                                .setSmallIcon(R.drawable.ic_questionnaire)
                                 .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
                                 .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent)
-                                .addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent).build();
                         ;
+
+                        if (study.getPostponable()) {
+                            Log.v("postponable", "YES");
+                            builder.addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent);
+                        }
 
                         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                                 index,
@@ -193,7 +194,7 @@ public class NotificationService extends IntentService {
                                 PendingIntent.FLAG_UPDATE_CURRENT);
                         builder.setContentIntent(pendingIntent);
 
-                        final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+                        final NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         manager.notify(index, builder.build());
 
                         Handler h = new Handler(Looper.getMainLooper());
@@ -204,16 +205,6 @@ public class NotificationService extends IntentService {
                                 manager.cancel(index);
                             }
                         }, delay);
-                    } else {
-
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
-                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                        am.cancel(pendingIntent);
-
-                        ResponseReceiver rr = new ResponseReceiver(study);
-                        rr.setupAlarm(mContext, false);
-
-                        //TODO: add daily notification resets
                     }
                 } else {
                     Log.v("Jah, jouab", "siia");
@@ -241,19 +232,6 @@ public class NotificationService extends IntentService {
     }
 
 
-    /*
-    public static void modifyBeepFreePeriod(int index, BeepFerePeriod bfp) {
-        beepFreePeriods.set(index, bfp);
-    }
-
-    /*
-    public static void removeBeepFreePeriod(int index) {
-        beepFreePeriods.remove(index);
-        for (int i = index; i < beepFreePeriods.size(); i++)
-            beepFreePeriods.get(i).setId(beepFreePeriods.get(i).getId()-1);
-    }
-    */
-
     public static boolean beepFreePeriod(Study study) {
         Calendar c = Calendar.getInstance();
         int hours = c.get(Calendar.HOUR_OF_DAY);
@@ -261,7 +239,6 @@ public class NotificationService extends IntentService {
         boolean beepfree = false;
         ArrayList<BeepFerePeriod> beepFrees = new ArrayList<>(DBHandler.getInstance(mContext).getBeepFreePeriods());
         beepFrees.add(study.getDefaultBeepFree());
-        // Log.v("SIZE", String.valueOf(beepFrees.size()));
         Log.v("jajajajajajajajaj", "ei");
         for (int i = 0; i < beepFrees.size(); i++) {
             BeepFerePeriod bfp = beepFrees.get(i);

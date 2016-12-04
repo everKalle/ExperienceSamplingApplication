@@ -148,14 +148,12 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                 // quit study here //
                 if(isNetworkAvailable()) {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-                    //alertDialog.setCanceledOnTouchOutside(false);
                     final Study studyRef = studies.get(position);
 
                     SharedPreferences sp = mContext.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putInt(String.valueOf(studyRef.getId()), 0);
                     editor.apply();
-                    //Log.i("QUITTING THIS @#!$", studyRef.getName());
                     if (EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()).size() < 1)
                         alertDialogBuilder.setMessage(mContext.getString(R.string.quit_study) +" \"" + studyRef.getName() + "\"?");
                     else
@@ -180,7 +178,6 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     try {
                                         Intent intent = new Intent(mContext, QuestionnaireActivity.class);
                                         ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((studyRef.getId() + 1) + "00002"), false);
-                                        //Log.v("midagi juhtus", "kden");
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -188,7 +185,6 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(studyRef.getId()), DBHandler.getInstance(mContext), new RunnableResponse() {
                                         @Override
                                         public void processFinish(String output) {
-                                            //TODO: handle more server responses
                                             Log.i("QUITTING STUDY", output);
                                         }
                                     });

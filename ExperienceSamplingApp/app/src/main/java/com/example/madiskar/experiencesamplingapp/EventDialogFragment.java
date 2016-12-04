@@ -47,7 +47,6 @@ public class EventDialogFragment extends DialogFragment {
         if (studyToNotificationIdMap.get((int)studyId) == null)
             studyToNotificationIdMap.put((int)studyId, new ArrayList<Integer>());
 
-        //View view = getActivity().getLayoutInflater().inflate(R.layout.event_dialog_layout, null);
         final String[] items = new String[events.length];
         for (int i = 0; i < events.length; i++) {
             items[i] = events[i].getName();
@@ -99,7 +98,6 @@ public class EventDialogFragment extends DialogFragment {
                                 Log.v("VALUES", Arrays.toString(values.toArray()));
                                 studyToNotificationIdMap.put((int) studyId, values);
 
-                                //Log.v("IDDD", String.valueOf(selectedItemId));
                                 Intent stopIntent = new Intent(getContext(), StopReceiver.class);
 
                                 final int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
@@ -111,7 +109,6 @@ public class EventDialogFragment extends DialogFragment {
                                 stopIntent.putExtra("notificationId", uniqueValue);
                                 stopIntent.putExtra("controlNotificationId", uniqueId);
                                 stopIntent.putExtra("studyId", studyId);
-                                //Log.v("EVENT", events[selectedItemId].getName());
                                 stopIntent.putExtra("eventId", events[selectedItemId].getId());
                                 Calendar calendar = Calendar.getInstance();
                                 events[selectedItemId].setStartYear(calendar.get(calendar.YEAR));
@@ -137,7 +134,6 @@ public class EventDialogFragment extends DialogFragment {
 
                                 NotificationManager manager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
                                 if (selectedItem != null) {
-                                    //Log.v("Unique", String.valueOf(uniqueValue));
                                     manager.notify(uniqueValue, mBuilder.build());
                                     int controlTime = events[selectedItemId].getControlTime();
                                     Log.v("controlTime", String.valueOf(controlTime));
@@ -155,7 +151,6 @@ public class EventDialogFragment extends DialogFragment {
                                     Log.v("controlTimeMillis", String.valueOf(multiplier));
 
                                     Intent controltimeIntent = new Intent(getContext(), ControlTimeReceiver.class);
-                                    //controltimeIntent.putExtra("notificationId", uniqueValue);
                                     controltimeIntent.putExtra("eventId", events[selectedItemId].getId());
                                     controltimeIntent.putExtra("controlTime", (int) controlTime);
                                     controltimeIntent.putExtra("eventName", events[selectedItemId].getName());

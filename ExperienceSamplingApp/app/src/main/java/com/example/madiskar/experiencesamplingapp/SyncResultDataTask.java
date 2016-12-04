@@ -59,7 +59,6 @@ public class SyncResultDataTask implements Runnable {
                         mydb.deleteAnswerEntry(Long.parseLong(id));
                         sb.append("success,");
                     } else {
-                        //TODO: handle more server responses here
                         sb.append("fail,");
                         Log.i("SyncAllDataTask", "Error while trying to send data to server, skipping this row");
                     }
@@ -90,7 +89,6 @@ public class SyncResultDataTask implements Runnable {
                         mydb.deleteEventResultEntry(Long.parseLong(id));
                         sb.append("success,");
                     } else {
-                        //TODO: handle more server responses here
                         sb.append("fail,");
                         Log.i("SyncAllDataTask", "Error while trying to send data to server, skipping this row");
                     }
@@ -136,7 +134,6 @@ public class SyncResultDataTask implements Runnable {
                 String line = null;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
-                    //break;
                 }
                 returnVal = sb.toString();
             } catch (Exception e) {
@@ -168,5 +165,4 @@ public class SyncResultDataTask implements Runnable {
         }
         return returnVal;
     }
-
 }

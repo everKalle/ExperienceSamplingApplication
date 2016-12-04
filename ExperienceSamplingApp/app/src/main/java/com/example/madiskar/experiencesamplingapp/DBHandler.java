@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 public class DBHandler extends SQLiteOpenHelper {
     private static DBHandler mInstance = null;
-    //private SQLiteDatabase db = null;
 
 
     public static final int DATABASE_VERSION = 1;
@@ -129,7 +128,6 @@ public class DBHandler extends SQLiteOpenHelper {
             db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
-            //db.execSQL("DELETE FROM " + BeepFreePeriodEntry.TABLE_NAME);
             db.setTransactionSuccessful();
         } catch(Exception e) {
             e.printStackTrace();
@@ -457,7 +455,6 @@ public class DBHandler extends SQLiteOpenHelper {
     public ArrayList<BeepFerePeriod> getBeepFreePeriods() {
         SQLiteDatabase db = getReadableDatabase();
 
-        //db.beginTransaction();
         Cursor cur = db.rawQuery("SELECT * FROM " + BeepFreePeriodEntry.TABLE_NAME, null);
         cur.moveToFirst();
 
@@ -467,18 +464,14 @@ public class DBHandler extends SQLiteOpenHelper {
             while (!cur.isAfterLast()) {
                 long id = cur.getLong(cur.getColumnIndex(BeepFreePeriodEntry._ID));
                 String beepfreeTime = cur.getString(cur.getColumnIndex(BeepFreePeriodEntry.BEEPFREE_TIME));
-                //Log.v("WOOOOI", beepfreeTime);
                 String[] parts = beepfreeTime.split(":");
-                //Log.v("wot is dis", String.valueOf(parts.length));
                 BeepFerePeriod beepFerePeriod = stringToBeepFreeWithDots((int) id, parts[0], parts[1]);
                 beepFerePeriods.add(beepFerePeriod);
                 cur.moveToNext();
             }
-            //db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            //db.endTransaction();
             cur.close();
         }
         return beepFerePeriods;
@@ -606,12 +599,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
-            //db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
-            //Event[] studyEvents = getStudyEvents(studyID);
-            //for(Event e : studyEvents) {
-            //    clearEventResults(e.getId());
-            //}
             db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -658,7 +646,7 @@ public class DBHandler extends SQLiteOpenHelper {
         }
         return cal;
     }
-    
+
 
     public static String hashSha256(String s) {
         MessageDigest md = null;

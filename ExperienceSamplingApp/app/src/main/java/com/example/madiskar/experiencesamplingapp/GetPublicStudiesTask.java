@@ -55,7 +55,6 @@ public class GetPublicStudiesTask implements Runnable {
             String line = null;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
-                //break;
             }
             myStudies = mydb.getAllStudies();
             response.processFinish(sb.toString(), jsonArrayToPublicStudyArray(DBHandler.parseJsonString(sb.toString())));

@@ -73,7 +73,6 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
 
         PendingIntent alarmIntent = getPendingIntent(context, intent, id);
 
-        //cancelExistingAlarm(context, intent, 0);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (firstTime) {

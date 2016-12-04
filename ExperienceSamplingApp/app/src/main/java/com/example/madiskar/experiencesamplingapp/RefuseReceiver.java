@@ -17,7 +17,7 @@ public class RefuseReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         int notificationId = intent.getIntExtra("notificationId", 0);
-        int studyId = intent.getIntExtra("StudyId", 0); //TODO: Need to get long, but since in notificationservice we put in int, so we get from here aswell
+        int studyId = intent.getIntExtra("StudyId", 0);
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
 
@@ -34,12 +34,10 @@ public class RefuseReceiver extends BroadcastReceiver {
                 (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
-                //Log.i("SERVER SAVE RESPONSE", output);
                 if(output.equals("invalid_study")) {
                     Log.i("Answers to server: ", "This study no longer exists");
                 } else if(output.equals("invalid_token")) {
                     Log.i("Answers to server: ", "Account authentication failed");
-                    //Toast.makeText(context.getApplicationContext(), "Account authentication failed", Toast.LENGTH_LONG).show();
                 } else if(output.equals("nothing")) {
                     Log.i("Answers to server: ", "Faulty query");
                 } else if(output.equals("success")) {

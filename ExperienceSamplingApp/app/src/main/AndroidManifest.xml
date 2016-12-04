@@ -46,9 +46,7 @@
         <receiver
             android:name=".ControlTimeReceiver"
             android:process=":remote" />
-        <receiver
-            android:name=".PostponeReceiver"
-            android:process=":remote" />
+        <receiver android:name=".PostponeReceiver" />
         <receiver android:name=".RefuseReceiver" />
 
         <activity

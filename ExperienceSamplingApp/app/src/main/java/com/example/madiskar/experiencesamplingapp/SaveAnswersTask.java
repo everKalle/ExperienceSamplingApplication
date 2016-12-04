@@ -73,7 +73,6 @@ public class SaveAnswersTask implements Runnable {
                 String line = null;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
-                    //break;
                 }
                 response.processFinish(sb.toString());
             } catch (Exception e) {

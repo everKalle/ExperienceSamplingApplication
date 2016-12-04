@@ -63,7 +63,6 @@ public class SearchFragment extends ListFragment {
         GetPublicStudiesTask getPublicStudiesTask = new GetPublicStudiesTask(DBHandler.getInstance(getActivity().getApplicationContext()), new RunnableResponseArray() {
             @Override
             public void processFinish(String message, ArrayList<Study> study_list) {
-                //TODO: maybe handle server responses here later?
                 Log.i("PUBLIC STUDIES", message);
                 studies = study_list;
                 filteredStudies = new ArrayList<>(studies);
@@ -150,13 +149,6 @@ public class SearchFragment extends ListFragment {
 
         for (Study s: studies) {
             String studyName = s.getName().toLowerCase();
-
-            /*String[] keywordsInStudy = studyName.split("\\W");
-            Set<String> studyKeywordsSet = new HashSet<String>(Arrays.asList(keywordsInStudy));
-
-            if (!Collections.disjoint(keywordsSet,studyKeywordsSet)) // if the two sets have any keywords in common, add the study to the filteredStudies list
-                filteredStudies.add(s);
-            */
 
             if (!matchAllCheckboxIsChecked) {
                 for (String keyword : keywordsArray) {

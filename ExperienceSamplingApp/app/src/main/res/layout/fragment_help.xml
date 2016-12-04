@@ -60,7 +60,7 @@
                 android:layout_marginTop="14dp"
                 android:layout_marginLeft="14dp"
                 android:layout_marginRight="14dp"/>
-            </RelativeLayout>
+        </RelativeLayout>
 
     </ScrollView>
 

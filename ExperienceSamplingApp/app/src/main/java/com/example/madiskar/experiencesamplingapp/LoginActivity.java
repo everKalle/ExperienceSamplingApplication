@@ -146,7 +146,6 @@ public class LoginActivity extends AppCompatActivity {
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
-                        //break;
                     }
                     return sb.toString();
 
@@ -175,7 +174,6 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(final String result) {
-                //Log.i("LOGGING-IN PROCESS", result);
                 if(result.equals("nothing")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();

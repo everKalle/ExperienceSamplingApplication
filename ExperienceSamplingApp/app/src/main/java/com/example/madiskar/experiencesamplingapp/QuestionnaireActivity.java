@@ -133,7 +133,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
             }
         });
         Button back = (Button) findViewById(R.id.previousquestionbutton);
-        back.setVisibility(View.INVISIBLE); // TODO: Implement back button functionality
+        back.setVisibility(View.INVISIBLE);
         final Context mContext = this;
 
         Button cancel = (Button) findViewById(R.id.cancel_questionnaire_button);
@@ -177,13 +177,10 @@ public class QuestionnaireActivity extends AppCompatActivity {
         SaveAnswersTask saveAnswersTask = new SaveAnswersTask(token, Long.toString(studyId), answersAsString, isNetworkAvailable(), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
-                //Log.i("SERVER SAVE RESPONSE", output);
                 if (output.equals("invalid_study")) {
                     Log.i("Answers to server: ", getString(R.string.no_exist));
-                    //Toast.makeText(getApplicationContext(), R.string.no_exist, Toast.LENGTH_LONG).show();
                 } else if (output.equals("invalid_token")) {
                     Log.i("Answers to server: ", getString(R.string.auth_fail));
-                    //Toast.makeText(getApplicationContext(), R.string.auth_fail, Toast.LENGTH_LONG).show();
                 } else if (output.equals("nothing")) {
                     Log.i("Answers to server: ", "Faulty query");
                 } else if (output.equals("success")) {
@@ -284,4 +281,3 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
 
 }
-

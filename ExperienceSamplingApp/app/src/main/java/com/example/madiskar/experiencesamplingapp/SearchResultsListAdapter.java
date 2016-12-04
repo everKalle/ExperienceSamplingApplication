@@ -96,15 +96,12 @@ public class SearchResultsListAdapter extends BaseAdapter {
                                         } else if(output.equals("invalid_study")) {
                                             Log.i("JOINED STUDY", "INVALID STUDY");
                                             showFailToast();
-                                            //Toast.makeText(mContext, "This study doesn't exist", Toast.LENGTH_LONG).show();
                                         } else if(output.equals("invalid_token")) {
                                             Log.i("JOINED STUDY", "INVALID TOKEN");
                                             showFailToast();
-                                            //Toast.makeText(mContext, "Account authentication failed", Toast.LENGTH_LONG).show();
                                         } else if(output.equals("nothing")) {
                                             showFailToast();
                                             Log.i("JOINED STUDY", "FAULTY QUERY");
-                                            //Toast.makeText(mContext, "Faulty query", Toast.LENGTH_LONG).show();
                                         } else {
                                             showFailToast();
                                         }

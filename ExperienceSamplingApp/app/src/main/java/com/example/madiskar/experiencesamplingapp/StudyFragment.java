@@ -118,10 +118,8 @@ public class StudyFragment extends ListFragment {
                         public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
                             if (output.equals("invalid_token")) {
                                 Log.i("Study Sync", getString(R.string.auth_sync_fail));
-                                //Toast.makeText(view.getContext(), view.getContext().getString(R.string.auth_sync_fail), Toast.LENGTH_LONG).show();
                             } else if (output.equals("nothing")) {
                                 Log.i("Study Sync", getString(R.string.fetch_sync_fail));
-                                //Toast.makeText(view.getContext(), view.getContext().getString(R.string.fetch_sync_fail), Toast.LENGTH_LONG).show();
                             } else if(!output.equals("dberror")){
                                 for (Study s : newStudies) {
                                     Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");

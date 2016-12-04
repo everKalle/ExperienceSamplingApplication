@@ -146,7 +146,6 @@ public class RegisterActivity extends AppCompatActivity {
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
-                        //break;
                     }
                     return sb.toString();
 

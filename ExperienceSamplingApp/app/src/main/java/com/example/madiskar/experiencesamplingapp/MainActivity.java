@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         setContentView(R.layout.activity_main);
 
         SharedPreferences spref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
@@ -81,12 +81,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         mMenuItems.add(new MenuItem(getString(R.string.logout), getString(R.string.logcurrent), R.drawable.ic_logout));
         mMenuItems.add(new MenuItem(getString(R.string.exit), getString(R.string.runbackground), R.drawable.ic_exit));
 
-        //BeepFerePeriod bfp = new BeepFerePeriod(0,3,30,5,30);
-        //bfpArrayList.add(bfp);
-        //DBHandler dbHandler = DBHandler.getInstance(getApplicationContext());
-        //dbHandler.insertBeepFreePeriod(bfp);
-        // DrawerLayout
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
         // Populate the drawer menu with options
@@ -117,8 +111,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                //Log.d(TAG, "onDrawerClosed: " + getTitle());
-
                 invalidateOptionsMenu();
             }
         };
@@ -143,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     private void loadFragment(String itemName, boolean from_menu) {
         FragmentManager fragmentManager = getFragmentManager();
         if(itemName.equals("My Studies")) {
-        	setTitle(itemName);
+            setTitle(itemName);
             Fragment fragment = new StudyFragment();
             Bundle args = new Bundle();
             args.putBoolean("fromNav", from_menu);
@@ -169,9 +161,9 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .addToBackStack("Help")
                     .commit();
         }
-	    else if (itemName.equals("Settings")) {
+        else if (itemName.equals("Settings")) {
             setTitle(itemName);
-       	    getFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .replace(R.id.mainContent, new SettingsFragment(), "Settings")
                     .addToBackStack(null)
                     .commit();
@@ -386,8 +378,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                         b.putInt("identificator", beepFreeId);
                         dialogFragment.setArguments(b);
                         dialogFragment.show(fm, "timePicker");
-                        //periods.add(dialogFragment.getCreatedBeepFreePeriod());
-                        //adapter.updateAdapter(periods);
                         dialog.dismiss();
                     }
                 });
@@ -401,13 +391,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         AlertDialog alert = builder.create();
         alert.show();
 
-
-
-
-
-        //DialogFragment newFragment = new BeepfreePeriodPickerFragment();
-        //newFragment.
-        // newFragment.show(getSupportFragmentManager(), "timePicker");
     }
 
     @Override
@@ -419,11 +402,9 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     @Override
     public void onDialogPositiveClick(BeepfreePeriodPickerFragment dialog) {
         BeepFerePeriod bfp = dialog.getCreatedBeepFreePeriod();
-        //bfpArrayList.add(bfp);
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         mydb.insertBeepFreePeriod(bfp);
         Log.v("MUUTUS", String.valueOf(mydb.getBeepFreePeriods().size()));
-        //NotificationService.addBeepFreePeriod(bfp);
         adapter.updateAdapter(mydb.getBeepFreePeriods());
     }
 
@@ -432,7 +413,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     }
 
     public static void removeItem(int position) {
-        //NotificationService.removeBeepFreePeriod(position);
     }
 
     @Override
@@ -441,8 +421,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         mydb.editBeepFree(bfp);
         adapter.indexBasedUpdateAdapter(bfp.getId(), bfp);
-
-        //  NotificationService.modifyBeepFreePeriod(bfp.getId(), bfp);
     }
 
 
