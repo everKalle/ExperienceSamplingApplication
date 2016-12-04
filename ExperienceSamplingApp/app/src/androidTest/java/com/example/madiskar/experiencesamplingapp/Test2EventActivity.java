@@ -82,7 +82,7 @@ public class Test2EventActivity {
                         isDisplayed()));
         appCompatImageButton.check(matches(isDisplayed()));*/
 
-        ViewInteraction appCompatButton2 = onView(
+        /*ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.event_button), withText("Event"),
                         withParent(childAtPosition(
                                 withId(android.R.id.list),
@@ -116,7 +116,7 @@ public class Test2EventActivity {
 
         UiObject eventStopButton = mDevice.findObject(new UiSelector().textMatches("STOP|Stop|stop"));
         assertTrue("Event stop button exists", eventStopButton.exists());
-        eventStopButton.click();
+        eventStopButton.click();*/
 
         //Make sure that notifications are closed
         /*if (mDevice.hasObject(By.pkg("com.android.systemui")))
