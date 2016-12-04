@@ -119,8 +119,14 @@ public class Test2EventActivity {
         eventStopButton.click();
 
         //Make sure that notifications are closed
-        /*if (mDevice.hasObject(By.pkg("com.android.systemui")))
-            mDevice.pressBack();*/
+        UiSelector notificationStakScroller = new UiSelector().packageName("com.android.systemui")
+                .className("android.view.ViewGroup")
+                .resourceId(
+                        "com.android.systemui:id/notification_stack_scroller");
+        UiObject notificationStackScrollerUiObject = mDevice.findObject(notificationStakScroller);
+        if (notificationStackScrollerUiObject.exists()){
+            mDevice.pressBack();
+        }
 
         ViewInteraction appCompatImageButton3 = onView(
                 allOf(withContentDescription("Open"),
@@ -133,7 +139,7 @@ public class Test2EventActivity {
                 allOf(childAtPosition(
                         allOf(withId(R.id.menuList),
                                 withParent(withId(R.id.drawerPane))),
-                        4),
+                        5),
                         isDisplayed()));
         relativeLayout.perform(click());
 

@@ -133,7 +133,7 @@ public class TestJoinStudyActivity {
                 allOf(childAtPosition(
                         allOf(withId(R.id.menuList),
                                 withParent(withId(R.id.drawerPane))),
-                        4),
+                        5),
                         isDisplayed()));
         relativeLayout3.perform(click());
 
