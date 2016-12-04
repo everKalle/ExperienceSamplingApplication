@@ -14,13 +14,11 @@
         android:entries="@array/alarmToneEntries"
         android:entryValues="@array/alarmToneValues"
         android:defaultValue="0"/>
-    <ListPreference
-        android:key="app_language"
-        android:title="@string/pref_language"
-        android:summary="Language of the app"
-        android:entries="@array/LanguageEntries"
-        android:entryValues="@array/LanguageValues"
-        android:defaultValue="0"/>
+    <CheckBoxPreference
+        android:key="pref_sync"
+        android:title="@string/pref_sync"
+        android:defaultValue="false"
+    />
     <Preference android:title="@string/pref_alarm_volume"
         android:key="changeVolume"
         android:summary="@string/change_volume">

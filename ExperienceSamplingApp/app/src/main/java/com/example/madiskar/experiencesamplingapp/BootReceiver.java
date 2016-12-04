@@ -18,26 +18,9 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-
-        // TODO: correct this implementation
-
         ArrayList<Study> studies = DBHandler.getInstance(context).getAllStudies();
 
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         for(Study s : studies) {
-            /*
-            int interval = s.getMinTimeBetweenNotifications();
-            Log.v("BOOTINTERVALL", String.valueOf(interval));
-            String name = s.getName();
-            String[] textQuestions = s.questionsAsText();
-            int notificationsPerDay = s.getNotificationsPerDay();
-            PendingIntent alarmIntent = ResponseReceiver.getPendingIntent(context, intent, interval, name, textQuestions, notificationsPerDay, s.getId());
-
-            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + interval * 10 * 1000,
-                    interval * 10 * 1000,
-                    alarmIntent);
-            */
             ResponseReceiver rR = new ResponseReceiver(s);
             rR.setupAlarm(context, true);
         }

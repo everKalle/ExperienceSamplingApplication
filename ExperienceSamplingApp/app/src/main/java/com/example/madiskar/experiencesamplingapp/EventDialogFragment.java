@@ -74,7 +74,7 @@ public class EventDialogFragment extends DialogFragment {
                             }
                         }
 
-                        if (!alreadyExists) {
+                        if (selectedItem != null && !alreadyExists) {
                             int uniqueValue = 10000 + (int) studyId;
                             Log.v("UniqueValue", String.valueOf(uniqueValue));
 
@@ -169,7 +169,8 @@ public class EventDialogFragment extends DialogFragment {
                             }
                         }
                         else
-                            Toast.makeText(getContext(), "The selected event is already active!", Toast.LENGTH_SHORT).show();
+                          if (selectedItem != null)
+                            Toast.makeText(getContext(), "The selected event " + selectedItem + " is already active!", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
