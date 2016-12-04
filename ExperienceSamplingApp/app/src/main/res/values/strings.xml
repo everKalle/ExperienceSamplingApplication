@@ -100,4 +100,5 @@
     <string name="study_join_success">Joining successful</string>
     <string name="study_join_fail">Joining failed</string>
     <string name="no_active_studies">No Active Studies</string>
+    <string name="pref_sync">Allow data sync over mobile internet</string>
 </resources>
