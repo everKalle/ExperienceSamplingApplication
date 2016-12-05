@@ -10,28 +10,27 @@
         android:textColor="@color/colorAccent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginStart="37dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="5dp"
         android:textStyle="bold"
-        android:layout_marginTop="72dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginTop="78dp"
+        android:layout_alignBaseline="@+id/volumeSeekBar"
+        android:layout_alignParentLeft="true" />
     <SeekBar
         android:id="@+id/volumeSeekBar"
         android:progressDrawable="@drawable/progress"
         android:scrollbarSize="@dimen/activity_horizontal_margin"
         android:layout_width="wrap_content"
-        android:minWidth="200dp"
+        android:minWidth="172dp"
+        android:maxWidth="172dp"
         android:layout_marginTop="150dp"
         android:layout_height="wrap_content"
         android:maxHeight="10dp"
         android:max="100"
-        android:layout_marginLeft="1dp"
-        android:layout_marginRight="1dp"
+        android:paddingRight="15dp"
+        android:paddingLeft="15dp"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/lowTextView"
-        android:layout_toEndOf="@+id/lowTextView" />
+        android:layout_toRightOf="@+id/lowTextView" />
     <TextView
         android:text="100"
         android:textColor="@color/colorAccent"
@@ -39,10 +38,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:layout_marginTop="72dp"
-        android:layout_alignParentTop="true"
+        android:paddingRight="20dp"
+        android:ems="10"
         android:layout_toRightOf="@+id/volumeSeekBar"
-        android:layout_toEndOf="@+id/volumeSeekBar" />
+        android:layout_alignTop="@+id/lowTextView" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -55,5 +54,34 @@
         android:paddingLeft="10dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_toRightOf="@+id/highTextView"
+        android:layout_alignBaseline="@+id/highTextView"
+        />
+
+    <Button
+        android:id="@+id/cancel"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:textColor="@color/colorAccent"
+        android:layout_below="@+id/lowTextView"
+        android:layout_toRightOf="@+id/lowTextView"
+        android:layout_toEndOf="@+id/lowTextView" />
+
+    <Button
+        android:id="@+id/ok"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:textColor="@color/colorAccent"
+        android:layout_below="@+id/highTextView"
+        android:layout_toLeftOf="@+id/highTextView"
+        android:layout_toStartOf="@+id/highTextView" />
 
 </RelativeLayout>

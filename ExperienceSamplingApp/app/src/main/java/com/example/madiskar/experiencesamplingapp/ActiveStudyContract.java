@@ -16,11 +16,11 @@ public class ActiveStudyContract {
         public static final String COLUMN_ENDDATE = "endDate";
         public static final String COLUMN_STUDYLENGTH = "studyLength";
         public static final String COLUMN_NOTIFICATIONSPERDAY = "notificationsPerDay";
-        public static final String COLUMN_NOTIFICATIONINTERVAL = "notificationInterval";
         public static final String COLUMN_MINTIMEBETWEENNOTIFICATIONS = "minTimeBetweenNotifications";
         public static final String COLUMN_POSTPONETIME = "postponeTime";
         public static final String COLUMN_POSTPONABLE = "postponable";
         public static final String COLUMN_DEFAULTBEEPFREE = "default_beepfree";
+        public static final String COLUMN_ISPUBLIC = "isPublic";
     }
 
     public static class QuestionEntry implements  BaseColumns {

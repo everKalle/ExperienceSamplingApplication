@@ -26,12 +26,11 @@
             android:enabled="true"
             android:exported="false" />
 
-        <receiver android:name=".NetworkChangeReceiver" >
+        <receiver android:name=".NetworkChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
         <receiver android:name=".ResponseReceiver" />
         <receiver
             android:name=".BootReceiver"
@@ -47,9 +46,7 @@
         <receiver
             android:name=".ControlTimeReceiver"
             android:process=":remote" />
-        <receiver
-            android:name=".PostponeReceiver"
-            android:process=":remote" />
+        <receiver android:name=".PostponeReceiver" />
         <receiver android:name=".RefuseReceiver" />
 
         <activity
@@ -58,21 +55,34 @@
         <activity
             android:name=".RegisterActivity"
             android:noHistory="true"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name="ChangePasswordActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".LoginActivity"
             android:noHistory="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".VolumeControlActivity"
+        <activity
+            android:name=".VolumeControlActivity"
             android:configChanges="orientation"
             android:screenOrientation="sensor"
-            android:theme="@style/Theme.AppCompat.Dialog" ></activity>
+            android:theme="@style/Theme.AppCompat.Dialog" />
+        <activity android:name=".VolumeDialog"
+            android:theme="@style/Theme.AppCompat.Dialog">
+        </activity>
     </application>
 
 </manifest>

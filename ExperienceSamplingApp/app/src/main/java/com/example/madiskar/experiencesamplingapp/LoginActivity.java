@@ -9,9 +9,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.JsonReader;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -24,12 +21,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -94,13 +88,13 @@ public class LoginActivity extends AppCompatActivity {
     private boolean login() {
 
         if (!validateInput()) {
-            Toast.makeText(getBaseContext(), "Wrong email or password format", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), getString(R.string.wrong_format), Toast.LENGTH_LONG).show();
             loginbtn.setEnabled(true);
             return false;
         }
 
         if(!isNetworkAvailable()) {
-            Toast.makeText(getBaseContext(), "Internet connection is not available", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), getString(R.string.no_internet) , Toast.LENGTH_LONG).show();
             loginbtn.setEnabled(true);
             return false;
         }
@@ -109,7 +103,8 @@ public class LoginActivity extends AppCompatActivity {
 
         final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Please Wait, Logging In...");
+        progressDialog.setMessage(getString(R.string.wait));
+        progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
         new AsyncTask<String, Void, String>() {
@@ -128,8 +123,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     //send data
                     connection.setRequestMethod("POST");
-                    connection.setReadTimeout(10000);
-                    connection.setConnectTimeout(15000);
+                    connection.setReadTimeout(15000);
+                    connection.setConnectTimeout(20000);
                     connection.setDoOutput(true);
 
                     wr = new OutputStreamWriter(connection.getOutputStream());
@@ -143,7 +138,6 @@ public class LoginActivity extends AppCompatActivity {
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
-                        //break;
                     }
                     return sb.toString();
 
@@ -172,42 +166,41 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(final String result) {
-                //Log.i("LOGGING-IN PROCESS", result);
                 if(result.equals("nothing")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Logging in failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.log_fail), Toast.LENGTH_LONG).show();
 
                 } else if(result.equals("invalid")) {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Wrong email or password", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.wrong), Toast.LENGTH_LONG).show();
 
-                } else if(!result.equals("Connection has not yet been established")) {
+                } else if(!result.equals(getString(R.string.not_established))) {
                     final Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     progressDialog.dismiss();
 
                     final ProgressDialog fetchDataDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
                     fetchDataDialog.setIndeterminate(true);
-                    fetchDataDialog.setMessage("Please Wait, Fetching Data...");
+                    fetchDataDialog.setMessage(getString(R.string.fetching));
+                    fetchDataDialog.setCanceledOnTouchOutside(false);
                     fetchDataDialog.show();
-                    GetParticipantStudiesTask task1 = new GetParticipantStudiesTask(new AsyncResponse() {
+                    GetParticipantStudiesTask task1 = new GetParticipantStudiesTask(result, new RunnableResponse() {
                         @Override
                         public void processFinish(String output) {
                             if(output.equals("invalid_token")) {
                                 loginbtn.setEnabled(true);
                                 fetchDataDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), "Account authentication failed", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, getString(R.string.auth_fail), Toast.LENGTH_LONG).show();
                             } else if(output.equals("nothing")) {
                                 loginbtn.setEnabled(true);
                                 fetchDataDialog.dismiss();
-                                Toast.makeText(getApplicationContext(), "Failed to fetch data", Toast.LENGTH_LONG).show();
+                                Toast.makeText(LoginActivity.this, getString(R.string.fetch_fail), Toast.LENGTH_LONG).show();
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
-                                Log.i("LOGGING SERVER RESPONSE", output);
-                                //mydb.clearTables();
+                                mydb.clearTables();
                                 JSONArray jsonArray = DBHandler.parseJsonString(output);
-                                Study[] studies = DBHandler.jsonArrayToStudyArray(jsonArray);
+                                ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray, true);
 
                                 for (Study s : studies) { // add studies to local db and also set up alarms
                                     mydb.insertStudy(s);
@@ -228,12 +221,12 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                     });
-                    task1.execute(result);
+                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(task1);
 
                 } else {
                     loginbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Logging in failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.log_fail), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -248,12 +241,12 @@ public class LoginActivity extends AppCompatActivity {
         String pwd = pwdField.getText().toString();
 
         if(email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailField.setError("Enter valid email");
+            emailField.setError(getString(R.string.enter_valid));
             isValid = false;
         }
 
         if(pwd.isEmpty() || pwd.length() > 16 || pwd.length() < 6) {
-            pwdField.setError("Enter valid password");
+            pwdField.setError(getString(R.string.enter_pass));
             isValid = false;
         }
         return isValid;

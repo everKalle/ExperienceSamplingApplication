@@ -1,8 +1,7 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
-public interface AsyncResponse {
+public interface RunnableResponse {
 
     void processFinish(String output);
-
 }

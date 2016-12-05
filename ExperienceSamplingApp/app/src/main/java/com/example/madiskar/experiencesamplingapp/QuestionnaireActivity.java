@@ -1,25 +1,23 @@
 package com.example.madiskar.experiencesamplingapp;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 
 public class QuestionnaireActivity extends AppCompatActivity {
 
@@ -43,21 +41,23 @@ public class QuestionnaireActivity extends AppCompatActivity {
         token = spref.getString("token", "none");
 
         Bundle extras = getIntent().getExtras();
-        Questionnaire questionnaire = extras.getParcelable("QUESTIONNAIRE"); //TODO: remove this, and instead put studyId as parcelable
+        studyId = extras.getLong("StudyId");
 
-        final int notificationId = extras.getInt("notificationId");
-        NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.cancel(notificationId);
+        try {
+            final int notificationId = extras.getInt("notificationId");
+            NotificationManager manager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(notificationId);
+        } catch (Exception e) {
+            // do nothing
+        }
 
-        studyId = questionnaire.getStudyId();
-        //ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
+        ArrayList<Question> questionsArr = mydb.getStudyQuestions(studyId);
 
-        questions = questionnaire.getQuestions();
+        questions = new Question[questionsArr.size()];
         answers = new String[questions.length];
-        //questions = new Question[questionsArr.size()];
 
         for(int j = 0; j < questions.length; j++) {
-            //questions[j] = questionsArr.get(j);
+            questions[j] = questionsArr.get(j);
             answers[j] = "-";
         }
 
@@ -66,7 +66,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         final Button next = (Button) findViewById(R.id.nextquestionbutton);
         if(questions.length == 1)
-            next.setText("Submit");
+            next.setText(R.string.submit);
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,7 +117,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 }
 
                 if(currentQNumber == answers.length-1) {
-                    next.setText("Submit");
+                    next.setText(R.string.submit);
                 } else if(currentQNumber == answers.length) {
                     saveAnswers(null);
                     finish();
@@ -129,14 +129,31 @@ public class QuestionnaireActivity extends AppCompatActivity {
             }
         });
         Button back = (Button) findViewById(R.id.previousquestionbutton);
-        back.setVisibility(View.INVISIBLE); // TODO: Implement back button functionality
+        back.setVisibility(View.INVISIBLE);
+        final Context mContext = this;
 
         Button cancel = (Button) findViewById(R.id.cancel_questionnaire_button);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveAnswers("user-cancelled-this-questionnaire");
-                finish();
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                alertDialogBuilder.setTitle(getString(R.string.cancel_questionnaire));
+                alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveAnswers("user-cancelled-this-questionnaire");
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+                alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
             }
         });
 
@@ -153,27 +170,12 @@ public class QuestionnaireActivity extends AppCompatActivity {
             answersAsString = alternative;
         }
 
-        SaveAnswersTask saveAnswersTask = new SaveAnswersTask(new AsyncResponse() {
+        SaveAnswersTask saveAnswersTask = new SaveAnswersTask(token, Long.toString(studyId), answersAsString, isNetworkAvailable(), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
-                //Log.i("SERVER SAVE RESPONSE", output);
-                if (output.equals("invalid_study")) {
-                    Toast.makeText(getApplicationContext(), "This study no longer exists", Toast.LENGTH_LONG).show();
-                } else if (output.equals("invalid_token")) {
-                    Toast.makeText(getApplicationContext(), "Account authentication failed", Toast.LENGTH_LONG).show();
-                } else if (output.equals("nothing")) {
-                    Log.i("Answers to server: ", "Faulty query");
-                } else if (output.equals("success")) {
-                    Log.i("Answers to server: ", "Success");
-                } else if (output.equals("saved-to-local")) {
-                    Log.i("Answers to server: ", "Internet connection unavailable, saving to local storage");
-                } else {
-                    Log.i("Answers to server: ", "Something bad happened");
-                }
             }
-        }, isNetworkAvailable(), mydb);
-        saveAnswersTask.execute(token, Long.toString(studyId), answersAsString);
-        Log.i("SAVING ANSWERS", answersAsString);
+        });
+        ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveAnswersTask);
     }
 
 
@@ -261,4 +263,3 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
 
 }
-

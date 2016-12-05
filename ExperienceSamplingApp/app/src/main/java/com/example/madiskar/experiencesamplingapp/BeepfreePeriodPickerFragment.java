@@ -3,29 +3,15 @@ package com.example.madiskar.experiencesamplingapp;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.text.format.DateFormat;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 public class BeepfreePeriodPickerFragment extends DialogFragment {
 
@@ -53,14 +39,9 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // Verify that the host activity implements the callback interface
         try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
             mListener = (BeepFreePeriodListener) activity;
         } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
         }
     }
 
@@ -153,10 +134,10 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
 
         builder.setView(view);
 
-        builder.setTitle("Set beepfree period");
+        builder.setTitle(R.string.set_beepfree);
 
 
-        builder.setNegativeButton("Cancel",
+        builder.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener(){
                     public void onClick(DialogInterface dialog, int whichButton) {
                         mListener.onDialogNegativeClick(BeepfreePeriodPickerFragment.this);
@@ -164,7 +145,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                     }
                 }
         );
-        builder.setPositiveButton("Set",
+        builder.setPositiveButton(R.string.set,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -179,7 +160,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                 getDialog().dismiss();
                             }
                             else
-                                Toast.makeText(getContext(), "Overlapping beepfree period!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), R.string.overlap, Toast.LENGTH_LONG).show();
                         }
                         else {
                            boolean overlap = checkBeepFreeOverlap(beepFerePeriod, existingStartHours, existingEndHours, existingStartMinutes, existingEndMinutes, false);
@@ -188,7 +169,7 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                 getDialog().dismiss();
                             }
                             else
-                                Toast.makeText(getContext(), "Overlapping beepfree period!", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), R.string.overlap, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -199,25 +180,26 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
 
     public static boolean checkBeepFreeOverlap(BeepFerePeriod beepFerePeriod, ArrayList<Integer> existingStartHours, ArrayList<Integer> existingEndHours, ArrayList<Integer> existingStartMinutes, ArrayList<Integer> existingEndMinutes, boolean edit) {
 
-        Log.v("aaaaaaaaaa", "a");
-        for (Integer b: existingEndHours)
-            Log.v("endHour", b.toString());
-        Log.v("aaaaaaaaaa", "a");
-        Log.v("bbbbbbbbbb", "b");
-        for (Integer b: existingEndMinutes)
-            Log.v("endMinute", b.toString());
-        Log.v("bbbbbbbbbb", "b");
-        Log.v("wut", beepFerePeriod.toString());
         boolean overlap = false;
         for (int i = 0; i < existingStartHours.size(); i++) {
+
+            Calendar calendarBeepStart = Calendar.getInstance();
+            Calendar calendarBeepEnd = Calendar.getInstance();
+            Calendar calendarExistingStart = Calendar.getInstance();
+            Calendar calendarExistingEnd = Calendar.getInstance();
+
+            calendarBeepStart.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, beepFerePeriod.getStartTimeHour(), beepFerePeriod.getStartTimeMinute());
+            calendarBeepEnd.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, beepFerePeriod.getEndTimeHour(), beepFerePeriod.getEndTimeMinute());
+            calendarExistingStart.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, existingStartHours.get(i), existingStartMinutes.get(i));
+            calendarExistingEnd.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, existingEndHours.get(i),existingEndMinutes.get(i));
+
 
            if (edit && i == beepFerePeriod.getId()) {
                continue;
            }
 
             if (existingStartHours.get(i) > existingEndHours.get(i)) { // 22.00 - 2.30
-                if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) { // 20.00 - 4.00
-                    Log.v("lap 0", "siin");
+                if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour() || beepFerePeriod.getStartTimeHour() == beepFerePeriod.getEndTimeHour() && beepFerePeriod.getStartTimeMinute() > beepFerePeriod.getEndTimeMinute()) { // 20.00 - 4.00
                     overlap = true;
                 }
                 else { // 1.00 - 13.00
@@ -232,15 +214,28 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                         overlap = true;
                                 }
                                 else {
-                                    Log.v("lap 1", "siin");
                                     overlap = true;
                                 }
                             }
                         }
                         else {
-                            Log.v("lap 2", "siin");
                             overlap = true;
                         }
+                    }
+                    else {
+                        calendarExistingEnd.add(Calendar.DATE, 1);
+
+                        if (beepFerePeriod.getStartTimeHour() > beepFerePeriod.getEndTimeHour()) {
+                            calendarBeepEnd.add(Calendar.DATE, 1);
+                        }
+                        if (calendarBeepStart.after(calendarExistingStart) && calendarBeepStart.before(calendarExistingEnd) ||
+                                calendarBeepStart.get(Calendar.HOUR) == calendarExistingStart.get(Calendar.HOUR) &&
+                                calendarBeepStart.get(Calendar.MINUTE) == calendarExistingStart.get(Calendar.MINUTE) && calendarBeepStart.before(calendarExistingEnd) ||
+                                calendarBeepStart.get(Calendar.HOUR) == calendarExistingStart.get(Calendar.HOUR) &&
+                                        calendarBeepStart.get(Calendar.MINUTE) == calendarExistingStart.get(Calendar.MINUTE) && calendarBeepEnd.get(Calendar.HOUR) == calendarExistingEnd.get(Calendar.HOUR) &&
+                                calendarBeepEnd.get(Calendar.MINUTE) == calendarExistingEnd.get(Calendar.MINUTE))
+                            overlap = true;
+
                     }
                 }
             }
@@ -253,7 +248,6 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() < existingStartMinutes.get(i)) { // ... - 3.00 and 3.30 - ...
                             }
                             else {
-                                Log.v("lap 3", "siin");
                                 overlap = true;
                             }
                         }
@@ -262,17 +256,14 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                         if (beepFerePeriod.getStartTimeHour() == existingEndHours.get(i) && beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) { // 21.40 - 1.30 and 13.00 - 21.30
                             if (beepFerePeriod.getEndTimeHour() <= existingStartHours.get(i)) { // 21.40 - 1.30 and 13.00 - 21.30
                                 if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i) && beepFerePeriod.getEndTimeMinute() >= existingStartMinutes.get(i)) { // 21.40 - 13.30 and 13.00 - 21.30
-                                    Log.v("lap 4", "siin");
                                     overlap = true;
                                 }
                             }
                             else { // beepFerePeriod.getEndTimeHour() > existingStartHours.get(i) ->  21.40 - 14.30 and 13.00 - 21.30
-                                Log.v("lap 5", "siin");
                                 overlap = true;
                             }
                         }
                         else { //beepFerePeriod.getStartTimeHour() < existingEndHours.get(i) -> 21.00 - 1.30 and 1.00 - 22.00
-                            Log.v("lap 6", "siin");
                             overlap = true;
                         }
                     }
@@ -289,12 +280,10 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                                     && beepFerePeriod.getStartTimeHour() == existingEndHours.get(i)) {
                             }
                             else {
-                                Log.v("lap 7", "siin");
                                 overlap = true;
                             }
                         }
                         else {
-                            Log.v("lap 8", "siin");
                             overlap = true;
                         }
                     }
@@ -302,22 +291,18 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                         if (beepFerePeriod.getStartTimeHour() < existingStartHours.get(i) && beepFerePeriod.getEndTimeHour() >= existingStartHours.get(i)) { //  13.00 - 22.00 and 18.00 - 23.00
                             if (beepFerePeriod.getEndTimeHour() == existingStartHours.get(i)) { // 13.00 - 22.00 and 22.30 - 23.00
                                 if (beepFerePeriod.getEndTimeMinute() >= existingStartMinutes.get(i)) {
-                                    Log.v("lap 9", "siin");
                                     overlap = true;
                                 }
                             }
                             else {
-                                Log.v("lap 10", "siin");
                                 overlap = true;
                             }
                         }
                         //  5.33 - 21.56 and 3.30 - 5.30
                         else if (beepFerePeriod.getStartTimeHour() <= existingEndHours.get(i) && beepFerePeriod.getEndTimeHour() >= existingEndHours.get(i)) {
-                            Log.v("OLEN SIIN..", "ops");
                             if (beepFerePeriod.getStartTimeHour() == existingEndHours.get(i) && beepFerePeriod.getStartTimeMinute() > existingEndMinutes.get(i)) {
                             }
                             else {
-                                Log.v("lap 11", "siin");
                                 overlap = true;
                             }
                         }
@@ -326,12 +311,10 @@ public class BeepfreePeriodPickerFragment extends DialogFragment {
                             if (existingEndHours.get(i) >= beepFerePeriod.getStartTimeHour()) {
                                 if (existingEndHours.get(i) == beepFerePeriod.getStartTimeHour()) {
                                     if (existingEndMinutes.get(i) >= beepFerePeriod.getStartTimeMinute()){
-                                        Log.v("lap 12", "siin");
                                         overlap = true;
                                     }
                                 }
                                 else {
-                                    Log.v("lap 13", "siin");
                                     overlap = true;
                                 }
                             }

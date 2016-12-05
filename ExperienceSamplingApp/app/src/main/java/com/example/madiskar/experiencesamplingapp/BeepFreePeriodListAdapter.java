@@ -1,6 +1,5 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,22 +7,16 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.lang.Math.*;
+
 import java.util.ArrayList;
 
-/**
- * Created by joosep41 on 8.10.2016.
- */
 
 public class BeepFreePeriodListAdapter extends BaseAdapter {
 
@@ -47,8 +40,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
 
     public void indexBasedUpdateAdapter(int id, BeepFerePeriod bfp) {
         beepFerePeriods.set(id, bfp);
-
-        //and call notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -56,7 +47,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
     public void updateAdapter(ArrayList<BeepFerePeriod> arrylst) {
         this.beepFerePeriods = arrylst;
 
-        //and call notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -73,8 +63,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
         }
 
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //View mainView = inflater.inflate(R.layout.beepfree_period_container,null);
-        //LinearLayout linearLayout = (LinearLayout) mainView.findViewById(R.id.newLayout);
 
         DBHandler myDb = DBHandler.getInstance(mContext);
         final ArrayList<BeepFerePeriod> bfps = myDb.getBeepFreePeriods();
@@ -110,17 +98,9 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
 
         Button editBtn = (Button) convertView.findViewById(R.id.beepfree_edit);
         Button disableBtn = (Button) convertView.findViewById(R.id.beepfree_disable);
-        //Button addBtn = (Button) mainView.findViewById(R.id.beepfree_addnew);
 
         FragmentActivity activity = (FragmentActivity)(mContext);
         final FragmentManager fm = activity.getSupportFragmentManager();
-
-        /*addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });*/
 
         editBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -128,7 +108,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 DialogFragment dialogFragment = new BeepfreePeriodPickerFragment();
                 dialogFragment.setTargetFragment(dialogFragment, 1);
                 BeepFerePeriod bfp = beepFerePeriods.get(position);
-                // Log.v("bfp IDDDDD", String.valueOf(bfp.getId()));
                 Bundle b = new Bundle();
                 b.putBoolean("new", false);
                 b.putInt("id", bfp.getId());
@@ -169,25 +148,22 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
             public void onClick(View v) {
                 // quit study here //
                 AlertDialog alertDialog = new AlertDialog.Builder(mContext).create();
-                //alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.setTitle("Are you sure you want to disable this beepfree period?");
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+                alertDialog.setTitle(R.string.disable_beepfree_period);
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, mContext.getString(R.string.yes),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 beepFerePeriods.remove(position);
-                                for (int i = 0; i < beepFerePeriods.size(); i++)
-                                    Log.v("BeepFreePeriod algul - ", String.valueOf(beepFerePeriods.get(i).getId()));
+
                                 for (int i = position; i < beepFerePeriods.size(); i++)
                                     beepFerePeriods.get(i).setId(beepFerePeriods.get(i).getId()-1);
                                 notifyDataSetChanged();
-                                for (int i = 0; i < beepFerePeriods.size(); i++)
-                                    Log.v("BeepFreePeriod prst - ", String.valueOf(beepFerePeriods.get(i).getId()));
+
                                 DBHandler.getInstance(mContext).deleteBeepFreeEntry(position);
-                                Toast.makeText(mContext, "Beepfree period removed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, R.string.beepfree_removed, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
                         });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, mContext.getString(R.string.no),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
@@ -196,8 +172,6 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                 alertDialog.show();
             }
         });
-
-        //linearLayout.addView(convertView);
 
         return convertView;
 

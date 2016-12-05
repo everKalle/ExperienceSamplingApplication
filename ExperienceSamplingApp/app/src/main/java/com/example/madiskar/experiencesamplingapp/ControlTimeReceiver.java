@@ -6,15 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
-import android.os.SystemClock;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
 
-/**
- * Created by Joosep on 23.10.2016.
- */
+
 public class ControlTimeReceiver extends BroadcastReceiver {
 
     private final static int MAX_VOLUME = 100;
@@ -22,16 +18,10 @@ public class ControlTimeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.v("Here i am 2", "ops");
         long eventId = intent.getLongExtra("eventId", 0);
         int notificationId = intent.getIntExtra("notificationId", 0);
         int controlTime = intent.getIntExtra("controlTime", 0);
         String eventName = intent.getStringExtra("eventName");
-
-        //NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        //manager.cancel(notificationId);
-        //DBHandler mydb = DBHandler.getInstance(context);
-        //mydb.insertEventResult(eventId, controlTime);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences sharedPref = context.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
@@ -60,19 +50,16 @@ public class ControlTimeReceiver extends BroadcastReceiver {
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
-        builder.setContentTitle("Controltime has passed")
+        builder.setContentTitle(context.getString(R.string.controltime))
                 .setOngoing(false)
                 .setAutoCancel(true)
                 .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setContentText("Controltime for event "  + "\"" + eventName + "\"" + " has passed")
+                .setContentText(context.getString(R.string.control_event)  + " \"" + eventName + "\" " + context.getString(R.string.passed))
                 .setSmallIcon(R.drawable.ic_events);
 
         final NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        // Log.v("Unique notification", String.valueOf(index));
         manager.notify(index, builder.build());
         index--;
-
-        //TODO: Send a chime or something, to the user to notify him/her that the event has reached its control time
     }
 
 }

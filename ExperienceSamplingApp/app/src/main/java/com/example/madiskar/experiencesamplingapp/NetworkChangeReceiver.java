@@ -1,49 +1,151 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
     private String token;
     private DBHandler mydb;
+    private Context mContext;
+    private Handler mHandler = new Handler();
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.i("NETWORK STATE CHANGED", "CHECK IF CONNECTION IS AVAILABLE");
+    public void onReceive(final Context context, Intent intent) {
 
+        mContext = context;
         mydb = DBHandler.getInstance(context);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        boolean mobileSyncAllowed = settings.getBoolean("pref_sync", false);
 
         SharedPreferences spref = context.getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         token = spref.getString("token", "none");
+        String lastSync = spref.getString("lastSync", "none");
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            Log.i("NETWORK STATE CHANGED", "TRY TO SYNC DATA");
-
-            SyncAllDataTask syncAllDataTask = new SyncAllDataTask(new AsyncResponse() {
-                @Override
-                public void processFinish(String output) {
-                    //String[] parts = output.split(Pattern.quote(","));
-                    Log.i("LOG SYNC OUTPUT", output);
-                    //TODO: Sync study object data also
-                }
-            }, true, mydb);
-
-            syncAllDataTask.execute(token);
-
-        } else {
-            Log.i("NETWORK STATE CHANGED", "NO CONNECTION AVAILABLE");
+        int networkType = -1;
+        try {
+            networkType = networkInfo.getType();
+        } catch (NullPointerException e) {
+            // do nothing
         }
+
+        Calendar current = Calendar.getInstance();
+        long difference = 120002;
+        if(!lastSync.equals("none")) {
+            difference = current.getTimeInMillis() - DBHandler.stringToCalendar(lastSync).getTimeInMillis(); //Time from last sync, right now the limit is 2 minutes
+        }
+        if(lastSync.equals("none") || difference > 120000) {
+            if (networkInfo != null && networkInfo.isConnected() && !token.equals("none")) {
+                if (((networkType == ConnectivityManager.TYPE_MOBILE || networkType == ConnectivityManager.TYPE_MOBILE_DUN) && !mobileSyncAllowed) || networkType == ConnectivityManager.TYPE_DUMMY) {
+                        //do nothing, connection not allowed
+                } else {
+                    SharedPreferences.Editor editor = spref.edit();
+                    editor.putString("lastSync", DBHandler.calendarToString(current));
+                    editor.apply();
+
+                    SyncResultDataTask syncResultDataTask = new SyncResultDataTask(true, mydb, token, new RunnableResponse() {
+                        @Override
+                        public void processFinish(String output) {
+
+
+                            SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, true, new StudyDataSyncResponse() {
+                                @Override
+                                public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
+                                    try {
+	                                    if (output.equals("invalid_token")) {
+	                                        //do nothing
+	                                    } else if (output.equals("nothing")) {
+	                                        //do nothing
+	                                    } else if (!output.equals("dberror")) {
+	                                        for (int i = 0; i < updatedStudies.size(); i++) {
+	                                            cancelStudy(oldStudies.get(i), false, false);
+	                                            setUpNewStudyAlarms(updatedStudies.get(i));
+	                                        }
+	                                        for (Study s : cancelledStudies) {
+	                                            for (Study ks : allStudies) {
+	                                                if (ks.getId() == s.getId()) {
+	                                                    allStudies.remove(ks);
+	                                                    break;
+	                                                }
+	                                            }
+	                                            cancelStudy(s, true, true);
+	                                        }
+	                                    } else {
+	                                        //authentication failed, do nothing
+	                                    }
+	                                } catch (Exception e) {
+	                                	// something went wrong, probably server connection timed out
+	                                }
+                            }
+                            });
+                            ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
+
+                        }
+                    });
+
+                    ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncResultDataTask);
+                }
+
+            } else {
+                //nothing
+            }
+        }
+    }
+
+    public void cancelStudy(final Study study, final boolean cancelEvents, final boolean removeStudy) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                NotificationService.cancelNotification(mContext.getApplicationContext(), (int) study.getId());
+                Intent intent = new Intent(mContext.getApplicationContext(), QuestionnaireActivity.class);
+                ResponseReceiver.cancelExistingAlarm(mContext.getApplicationContext(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext.getApplicationContext(), (int) study.getId(), new Intent(mContext.getApplicationContext(), ResponseReceiver.class), 0);
+                AlarmManager am = (AlarmManager) mContext.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                am.cancel(pendingIntent);
+                if(cancelEvents) {
+                    for (Event event : EventDialogFragment.activeEvents) {
+                        if (event.getStudyId() == study.getId()) {
+                            Intent stopIntent = new Intent(mContext.getApplicationContext(), StopReceiver.class);
+                            stopIntent.putExtra("start", event.getStartTimeCalendar());
+                            stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("studyId", event.getStudyId());
+                            stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("eventId", event.getId());
+                            mContext.getApplicationContext().sendBroadcast(stopIntent);
+                        }
+                    }
+                }
+                if(removeStudy) {
+                    DBHandler.getInstance(mContext.getApplicationContext()).deleteStudyEntry(study.getId());
+                }
+            }
+        });
+    }
+
+
+    private void setUpNewStudyAlarms(final Study s) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ResponseReceiver rR = new ResponseReceiver(s);
+                rR.setupAlarm(mContext.getApplicationContext(), true);
+            }
+        });
     }
 }

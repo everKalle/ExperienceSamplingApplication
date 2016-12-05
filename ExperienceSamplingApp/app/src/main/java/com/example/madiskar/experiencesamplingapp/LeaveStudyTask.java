@@ -1,7 +1,5 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.os.AsyncTask;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,29 +11,33 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
 
-public class LeaveStudyTask extends AsyncTask<String, Void, String> {
+public class LeaveStudyTask implements Runnable {
 
-    private AsyncResponse response = null;
+    private RunnableResponse response = null;
     private String link = "https://experiencesampling.herokuapp.com/index.php/study/participant_leave_study";
     private DBHandler mydb;
+    private String token;
+    private String study_id;
 
 
-    public LeaveStudyTask(AsyncResponse response, DBHandler mydb) {
+    public LeaveStudyTask(String token, String study_id, DBHandler mydb, RunnableResponse response) {
         this.response = response;
         this.mydb = mydb;
+        this.token = token;
+        this.study_id = study_id;
     }
 
 
     @Override
-    protected String doInBackground(String... params) {
+    public void run() {
 
         HttpsURLConnection connection = null;
         OutputStreamWriter wr = null;
         BufferedReader reader = null;
 
         try {
-            String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(params[0], "UTF-8");
-            data += "&" + URLEncoder.encode("study_id", "UTF-8") + "=" + URLEncoder.encode(params[1], "UTF-8");
+            String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
+            data += "&" + URLEncoder.encode("study_id", "UTF-8") + "=" + URLEncoder.encode(study_id, "UTF-8");
 
             connection = (HttpsURLConnection) new URL(link).openConnection();
             SSLContext sc;
@@ -45,8 +47,8 @@ public class LeaveStudyTask extends AsyncTask<String, Void, String> {
 
             //send data
             connection.setRequestMethod("POST");
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.setConnectTimeout(20000);
             connection.setDoOutput(true);
 
             wr = new OutputStreamWriter(connection.getOutputStream());
@@ -62,10 +64,11 @@ public class LeaveStudyTask extends AsyncTask<String, Void, String> {
                 sb.append(line);
                 //break;
             }
-            mydb.deleteStudyEntry(Long.parseLong(params[1]));
-            return sb.toString();
+            mydb.deleteStudyEntry(Long.parseLong(study_id));
+            response.processFinish(sb.toString());
         } catch (Exception e) {
-            return "Exception: " + e.getMessage();
+            e.printStackTrace();
+            response.processFinish("Exception: " + e.getMessage());
         } finally {
             if (wr != null) {
                 try {
@@ -87,9 +90,4 @@ public class LeaveStudyTask extends AsyncTask<String, Void, String> {
         }
     }
 
-
-    @Override
-    protected void onPostExecute(String result) {
-        response.processFinish(result);
-    }
 }

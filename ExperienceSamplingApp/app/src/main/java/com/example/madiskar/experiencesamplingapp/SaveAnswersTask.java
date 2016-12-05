@@ -1,11 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,23 +13,30 @@ import java.util.Calendar;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
-public class SaveAnswersTask extends AsyncTask<String, Void, String> {
 
-    private AsyncResponse response = null;
+public class SaveAnswersTask implements Runnable {
+
+    private RunnableResponse response = null;
     private String link = "https://experiencesampling.herokuapp.com/index.php/study/store_study_results";
     private boolean networkAvailable;
     private DBHandler mydb;
+    private String answers;
+    private String token;
+    private String studyId;
 
 
-    public SaveAnswersTask(AsyncResponse response, boolean networkAvailable, DBHandler mydb) {
+    public SaveAnswersTask(String token, String studyId, String answers, boolean networkAvailable, DBHandler mydb, RunnableResponse response) {
         this.response = response;
         this.networkAvailable = networkAvailable;
         this.mydb = mydb;
+        this.token = token;
+        this.studyId = studyId;
+        this.answers = answers;
     }
 
 
     @Override
-    protected String doInBackground(String... params) {
+    public void run() {
 
         if(networkAvailable) {
             HttpsURLConnection connection = null;
@@ -42,9 +44,9 @@ public class SaveAnswersTask extends AsyncTask<String, Void, String> {
             BufferedReader reader = null;
 
             try {
-                String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(params[0], "UTF-8");
-                data += "&" + URLEncoder.encode("study_id", "UTF-8") + "=" + URLEncoder.encode(params[1], "UTF-8");
-                data += "&" + URLEncoder.encode("answers", "UTF-8") + "=" + URLEncoder.encode(escapeChars(params[2]), "UTF-8");
+                String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
+                data += "&" + URLEncoder.encode("study_id", "UTF-8") + "=" + URLEncoder.encode(studyId, "UTF-8");
+                data += "&" + URLEncoder.encode("answers", "UTF-8") + "=" + URLEncoder.encode(escapeChars(answers), "UTF-8");
 
                 connection = (HttpsURLConnection) new URL(link).openConnection();
                 SSLContext sc;
@@ -54,8 +56,8 @@ public class SaveAnswersTask extends AsyncTask<String, Void, String> {
 
                 //send data
                 connection.setRequestMethod("POST");
-                connection.setReadTimeout(10000);
-                connection.setConnectTimeout(15000);
+                connection.setReadTimeout(15000);
+                connection.setConnectTimeout(20000);
                 connection.setDoOutput(true);
 
                 wr = new OutputStreamWriter(connection.getOutputStream());
@@ -69,17 +71,15 @@ public class SaveAnswersTask extends AsyncTask<String, Void, String> {
                 String line = null;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
-                    //break;
                 }
-                return sb.toString();
+                response.processFinish(sb.toString());
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d("SaveAnswersTask", "Error while trying to send data to server, saving to local instead");
-                if(!params[0].equals("none")) {
-                    mydb.insertAnswer(Integer.parseInt(params[1]), escapeChars(params[2]), DBHandler.calendarToString(Calendar.getInstance()));
-                    return "saved-to-local";
+                if(!token.equals("none")) {
+                    mydb.insertAnswer(Integer.parseInt(studyId), escapeChars(answers), DBHandler.calendarToString(Calendar.getInstance()));
+                    response.processFinish("saved-to-local");
                 } else {
-                    return "invalid_token";
+                    response.processFinish("invalid_token");
                 }
             } finally {
                 if (wr != null) {
@@ -101,18 +101,12 @@ public class SaveAnswersTask extends AsyncTask<String, Void, String> {
                 }
             }
         } else {
-            if(!params[0].equals("none")) {
-                mydb.insertAnswer(Integer.parseInt(params[1]), escapeChars(params[2]), DBHandler.calendarToString(Calendar.getInstance()));
-                return "saved-to-local";
+            if(!token.equals("none")) {
+                mydb.insertAnswer(Integer.parseInt(studyId), escapeChars(answers), DBHandler.calendarToString(Calendar.getInstance()));
+                response.processFinish("saved-to-local");
             } else
-                return "invalid_token";
+                response.processFinish("invalid_token");
         }
-    }
-
-
-    @Override
-    protected void onPostExecute(String result) {
-        response.processFinish(result);
     }
 
 

@@ -1,17 +1,7 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
-import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.regex.Pattern;
+
 
 
 public class Study {
@@ -22,16 +12,16 @@ public class Study {
     private Calendar endDate;
     private int studyLength;
     private int notificationsPerDay;
-    private int notificationInterval; // TODO: REMOVE THIS, CURRENTLY  notificationInterval = minTimeBetweenNotifications
     private int minTimeBetweenNotifications;
     private int postponeTime;
     private boolean postponable;
     private Event[] events;
     private BeepFerePeriod defaultBeepFree;
+    private boolean isPublic;
 
     public Study(long id, String name, Questionnaire qBatch, Calendar beginDate, Calendar endDate, int studyLength,
-                 int notificationsPerDay, int notificationInterval, int postponeTime, boolean postponable,
-                 int minTimeBetweenNotifications, Event[] events, BeepFerePeriod defaultBeepFree){
+                 int notificationsPerDay, int postponeTime, boolean postponable,
+                 int minTimeBetweenNotifications, Event[] events, BeepFerePeriod defaultBeepFree, boolean isPublic) {
         this.id = id;
         this.name = name;
         this.qBatch = qBatch;
@@ -39,12 +29,12 @@ public class Study {
         this.endDate = endDate;
         this.studyLength = studyLength;
         this.notificationsPerDay = notificationsPerDay;
-        this.notificationInterval = notificationInterval;
         this.postponeTime = postponeTime;
         this.postponable = postponable;
         this.minTimeBetweenNotifications = minTimeBetweenNotifications;
         this.events = events;
         this.defaultBeepFree = defaultBeepFree;
+        this.isPublic = isPublic;
     }
 
 
@@ -84,10 +74,6 @@ public class Study {
         return notificationsPerDay;
     }
 
-    public int getNotificationInterval() {
-        return notificationInterval;
-    }
-
     public int getPostponeTime() {
         return postponeTime;
     }
@@ -104,5 +90,9 @@ public class Study {
 
     public Event[] getEvents() {
         return events;
+    }
+
+    public boolean isPublic() {
+        return this.isPublic;
     }
 }

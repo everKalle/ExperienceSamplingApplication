@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -75,19 +74,19 @@ public class RegisterActivity extends AppCompatActivity {
         String pwdConfirm = pwdFieldConfirm.getText().toString();
 
         if(email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailField.setError("Enter valid email");
+            emailField.setError(getString(R.string.enter_valid));
             isValid = false;
         }
 
         if(pwd.isEmpty() || pwd.length() > 16 || pwd.length() < 6) {
-            pwdField.setError("Enter valid password");
-            Toast.makeText(getBaseContext(), "Password must be between 6 and 16 characters", Toast.LENGTH_LONG).show();
+            pwdField.setError(getString(R.string.enter_pass));
+            Toast.makeText(getBaseContext(), R.string.pass_length, Toast.LENGTH_LONG).show();
             isValid = false;
         }
 
         if(!pwd.equals(pwdConfirm)) {
-            Toast.makeText(getBaseContext(), "Passwords don't match", Toast.LENGTH_LONG).show();
-            pwdFieldConfirm.setError("Passwords don't match");
+            Toast.makeText(getBaseContext(), R.string.no_match, Toast.LENGTH_LONG).show();
+            pwdFieldConfirm.setError(getString(R.string.no_match));
             isValid = false;
         }
 
@@ -103,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if(!isNetworkAvailable()) {
-            Toast.makeText(getBaseContext(), "Internet connection is not available", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), R.string.no_internet, Toast.LENGTH_LONG).show();
             registerbtn.setEnabled(true);
             return false;
         }
@@ -112,7 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         final ProgressDialog progressDialog = new ProgressDialog(RegisterActivity.this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Please Wait, Creating Account...");
+        progressDialog.setMessage(getString(R.string.creating_account));
         progressDialog.show();
 
         new AsyncTask<String, Void, String>() {
@@ -131,8 +130,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                     //send data
                     connection.setRequestMethod("POST");
-                    connection.setReadTimeout(10000);
-                    connection.setConnectTimeout(15000);
+                    connection.setReadTimeout(15000);
+                    connection.setConnectTimeout(20000);
                     connection.setDoOutput(true);
 
                     wr = new OutputStreamWriter(connection.getOutputStream());
@@ -146,7 +145,6 @@ public class RegisterActivity extends AppCompatActivity {
                     String line = null;
                     while ((line = reader.readLine()) != null) {
                         sb.append(line);
-                        //break;
                     }
                     return sb.toString();
 
@@ -174,25 +172,24 @@ public class RegisterActivity extends AppCompatActivity {
             }
             @Override
             protected void onPostExecute(String result) {
-                Log.i("REGISTERING PROCESS", result);
                 if(result.equals("nothing")) {
                     registerbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Registering failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.register_fail, Toast.LENGTH_LONG).show();
                 } else if(result.equals("exists")) {
                     registerbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "This email address has already been used", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.used_email, Toast.LENGTH_LONG).show();
                 } else if(result.equals("success")) {
                     Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Account creation was successful", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.create_success, Toast.LENGTH_SHORT).show();
                     startActivity(intent);
                     finish();
                 } else {
                     registerbtn.setEnabled(true);
                     progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Registering failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.register_fail, Toast.LENGTH_LONG).show();
                 }
             }
         }.execute(emailField.getText().toString(), DBHandler.hashSha256(pwdField.getText().toString()));
@@ -208,6 +205,7 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
 }

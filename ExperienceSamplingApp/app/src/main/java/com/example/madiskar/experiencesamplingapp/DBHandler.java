@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 import com.example.madiskar.experiencesamplingapp.ActiveStudyContract.*;
 
 import org.json.JSONArray;
@@ -17,14 +16,12 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
 
 public class DBHandler extends SQLiteOpenHelper {
     private static DBHandler mInstance = null;
-    //private SQLiteDatabase db = null;
 
 
     public static final int DATABASE_VERSION = 1;
@@ -37,10 +34,10 @@ public class DBHandler extends SQLiteOpenHelper {
                     + ActiveStudyEntry.COLUMN_ENDDATE + " TEXT NOT NULL, "
                     + ActiveStudyEntry.COLUMN_STUDYLENGTH + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY + " INTEGER NOT NULL, "
-                    + ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_POSTPONETIME + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_POSTPONABLE + " INTEGER NOT NULL, "
+                    + ActiveStudyEntry.COLUMN_ISPUBLIC + " INTEGER NOT NULL, "
                     + ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE + " TEXT"
                     + ")";
     public static final String SQL_CREATE_TABLE_QUESTION =
@@ -89,19 +86,10 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String SQL_DELETE_TABLE_BEEPFREE_PERIODS = "DROP TABLE IF EXISTS " + BeepFreePeriodEntry.TABLE_NAME;
 
     public static synchronized DBHandler getInstance(Context context) {
-        // Use application context
         if (mInstance == null)
             mInstance = new DBHandler(context.getApplicationContext());
         return mInstance;
     }
-
-    /*
-    private synchronized SQLiteDatabase getDbInstance() {
-        //if (db == null)
-        //    db = mInstance.getWritableDatabase();
-        return this.getWritableDatabase();
-    }
-    */
 
     private DBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -138,7 +126,6 @@ public class DBHandler extends SQLiteOpenHelper {
             db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
-            //db.execSQL("DELETE FROM " + BeepFreePeriodEntry.TABLE_NAME);
             db.setTransactionSuccessful();
         } catch(Exception e) {
             e.printStackTrace();
@@ -181,6 +168,15 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
+    public boolean isStudyInDb(Study s) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cur = db.rawQuery("SELECT * FROM " + ActiveStudyEntry.TABLE_NAME + " WHERE " + ActiveStudyEntry._ID + " = " + s.getId() + " ORDER BY " + ActiveStudyEntry._ID, null);
+        boolean returnVal = cur.getCount() > 0;
+        cur.close();
+        return returnVal;
+    }
+
+
     public ArrayList<Study> getAllStudies() {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -194,7 +190,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 long id = cur.getLong(cur.getColumnIndex(ActiveStudyEntry._ID));
                 int studyLength = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_STUDYLENGTH));
                 int notificationsPerDay = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY));
-                int notificationInterval = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL));
                 int minTimeBetweenNotification = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
                 int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
                 String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
@@ -207,13 +202,14 @@ public class DBHandler extends SQLiteOpenHelper {
                 Event[] events = getStudyEvents(id);
                 Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
                 Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
-                boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+                boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONABLE))) == 1);
+                boolean isPublic = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ISPUBLIC))) == 1);
                 String[] defBeepFree = (cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE))).split(Pattern.quote(" "));
                 BeepFerePeriod defaultBeepFree = stringToBeepFree(0, defBeepFree[0], defBeepFree[1]);
 
                 Study newStudy = new Study(
                         id, name, qnaire, beginDate, endDate, studyLength,
-                        notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree);
+                        notificationsPerDay, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
                 studies.add(newStudy);
                 cur.moveToNext();
             }
@@ -272,7 +268,6 @@ public class DBHandler extends SQLiteOpenHelper {
         try{
             int studyLength = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_STUDYLENGTH));
             int notificationsPerDay = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY));
-            int notificationInterval = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL));
             int minTimeBetweenNotification = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS));
             int postponeTime = cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME));
             String name = cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_NAME));
@@ -285,13 +280,14 @@ public class DBHandler extends SQLiteOpenHelper {
             Event[] events = getStudyEvents(id);
             Calendar beginDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_BEGINDATE)));
             Calendar endDate = stringToCalendar(cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ENDDATE)));
-            boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONETIME))) == 1);
+            boolean postPonable = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_POSTPONABLE))) == 1);
+            boolean isPublic = ((cur.getInt(cur.getColumnIndex(ActiveStudyEntry.COLUMN_ISPUBLIC))) == 1);
             String[] defBeepFree = (cur.getString(cur.getColumnIndex(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE))).split(Pattern.quote(" "));
             BeepFerePeriod defaultBeepFree = stringToBeepFree(0, defBeepFree[0], defBeepFree[1]);
 
             Study newStudy = new Study(
                     id, name, qnaire, beginDate, endDate, studyLength,
-                    notificationsPerDay, notificationInterval, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree);
+                    notificationsPerDay, postponeTime, postPonable, minTimeBetweenNotification, events, defaultBeepFree, isPublic);
             s = newStudy;
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -339,7 +335,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
     public long insertStudy(Study study) {
         SQLiteDatabase db = getWritableDatabase();
-        long returnid = -1;
+        long returnValue = -1;
 
         db.beginTransaction();
         try {
@@ -350,23 +346,67 @@ public class DBHandler extends SQLiteOpenHelper {
             values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
             values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
             values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
-            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONINTERVAL, study.getNotificationInterval());
             values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
             values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
             values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
+            values.put(ActiveStudyEntry.COLUMN_ISPUBLIC, ((study.isPublic()) ? 1 : 0));
             values.put(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE, (study.getDefaultBeepFree().getPeriodAsString()));
             for (Question q : study.getQuesstionnaire().getQuestions())
                 insertQuestion(q, study.getId());
             for (Event e : study.getEvents())
                 insertEvent(e, study.getId());
-            returnid = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
+            returnValue = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
             db.setTransactionSuccessful();
         } catch (Exception e){
             e.printStackTrace();
         } finally {
             db.endTransaction();
         }
-        return returnid;
+        return returnValue;
+    }
+
+
+    public long updateStudyEntry(Study study) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        long returnValue = -1;
+
+        db.beginTransaction();
+        try {
+            values.put(ActiveStudyEntry.COLUMN_NAME, study.getName());
+            values.put(ActiveStudyEntry.COLUMN_BEGINDATE, calendarToString(study.getBeginDate()));
+            values.put(ActiveStudyEntry.COLUMN_ENDDATE, calendarToString(study.getEndDate()));
+            values.put(ActiveStudyEntry.COLUMN_STUDYLENGTH, study.getStudyLength());
+            values.put(ActiveStudyEntry.COLUMN_NOTIFICATIONSPERDAY, study.getNotificationsPerDay());
+            values.put(ActiveStudyEntry.COLUMN_MINTIMEBETWEENNOTIFICATIONS, study.getMinTimeBetweenNotifications());
+            values.put(ActiveStudyEntry.COLUMN_POSTPONETIME, study.getPostponeTime());
+            values.put(ActiveStudyEntry.COLUMN_POSTPONABLE, ((study.getPostponable()) ? 1 : 0));
+            values.put(ActiveStudyEntry.COLUMN_ISPUBLIC, ((study.isPublic()) ? 1 : 0));
+            values.put(ActiveStudyEntry.COLUMN_DEFAULTBEEPFREE, (study.getDefaultBeepFree().getPeriodAsString()));
+            db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(study.getId())});
+            for (Question q : study.getQuesstionnaire().getQuestions())
+                insertQuestion(q, study.getId());
+            db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(study.getId())});
+            for (Event e : study.getEvents())
+                insertEvent(e, study.getId());
+            returnValue = db.update(ActiveStudyEntry.TABLE_NAME, values, ActiveStudyEntry._ID + "=" + study.getId(), null);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+        return returnValue;
+    }
+
+
+    private long updateEventEntry(Event event) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(EventEntry.COLUMN_NAME, event.getName());
+        values.put(EventEntry.COLUMN_CONTROLTIME, event.getControlTime());
+        values.put(EventEntry.COLUMN_UNIT, event.getUnit());
+        return db.update(EventEntry.TABLE_NAME, values, EventEntry._ID + "=" + event.getId(), null);
     }
 
 
@@ -413,7 +453,6 @@ public class DBHandler extends SQLiteOpenHelper {
     public ArrayList<BeepFerePeriod> getBeepFreePeriods() {
         SQLiteDatabase db = getReadableDatabase();
 
-        //db.beginTransaction();
         Cursor cur = db.rawQuery("SELECT * FROM " + BeepFreePeriodEntry.TABLE_NAME, null);
         cur.moveToFirst();
 
@@ -423,18 +462,14 @@ public class DBHandler extends SQLiteOpenHelper {
             while (!cur.isAfterLast()) {
                 long id = cur.getLong(cur.getColumnIndex(BeepFreePeriodEntry._ID));
                 String beepfreeTime = cur.getString(cur.getColumnIndex(BeepFreePeriodEntry.BEEPFREE_TIME));
-                //Log.v("WOOOOI", beepfreeTime);
                 String[] parts = beepfreeTime.split(":");
-                //Log.v("wot is dis", String.valueOf(parts.length));
                 BeepFerePeriod beepFerePeriod = stringToBeepFreeWithDots((int) id, parts[0], parts[1]);
                 beepFerePeriods.add(beepFerePeriod);
                 cur.moveToNext();
             }
-            //db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            //db.endTransaction();
             cur.close();
         }
         return beepFerePeriods;
@@ -562,12 +597,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
-            db.delete(AnswerEntry.TABLE_NAME, AnswerEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
-            Event[] studyEvents = getStudyEvents(studyID);
-            for(Event e : studyEvents) {
-                clearEventResults(e.getId());
-            }
             db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -614,7 +644,7 @@ public class DBHandler extends SQLiteOpenHelper {
         }
         return cal;
     }
-    
+
 
     public static String hashSha256(String s) {
         MessageDigest md = null;
@@ -672,8 +702,8 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    public static Study[] jsonArrayToStudyArray(JSONArray jsonArray) {
-        Study[] studyArray = new Study[jsonArray.length()];
+    public static ArrayList<Study> jsonArrayToStudyArray(JSONArray jsonArray, boolean blockFinishedStudies) {
+        ArrayList<Study> studyList = new ArrayList<>();
 
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -683,12 +713,18 @@ public class DBHandler extends SQLiteOpenHelper {
                 int notificationsPerDay = jsonStudy.getInt("study-beeps-per-day");
                 int minTimeBetweenNotifications = jsonStudy.getInt("study-min-time-between-beeps");
                 String joinDate = jsonStudy.getString("join_date");
+                Calendar realStartDate = stringToCalendar(jsonStudy.getString("study-start-date"));
                 BeepFerePeriod defaultBeepFree = stringToBeepFree(0, jsonStudy.getString("study-beep-end-time"), jsonStudy.getString("study-beep-start-time"));
                 int postponeTime = jsonStudy.getInt("study-postpone-time");
                 boolean allowPostpone = (jsonStudy.getInt("study-allow-postpone") == 1);
                 boolean studyDurationForUser = (jsonStudy.getInt("study-duration-for-user") == 1);
+                boolean isPublic = (jsonStudy.getInt("study-is-public") == 1);
                 Calendar beginDate = stringToCalendar(joinDate);
                 Calendar endDate = stringToCalendar(joinDate);
+                if(beginDate.before(realStartDate)) {
+                    beginDate = realStartDate;
+                    endDate = realStartDate;
+                }
                 Calendar realEndDate = stringToCalendar(jsonStudy.getString("study-end-date"));
                 int studyLengthForUser = jsonStudy.getInt("study-duration-time");
                 if(studyDurationForUser) {
@@ -697,6 +733,11 @@ public class DBHandler extends SQLiteOpenHelper {
                         endDate = realEndDate;
                 } else {
                     endDate = realEndDate;
+                }
+                if(blockFinishedStudies) {
+                    if (endDate.before(Calendar.getInstance())) {
+                        continue;
+                    }
                 }
 
                 JSONArray questionArray = jsonStudy.getJSONArray("questions");
@@ -733,15 +774,14 @@ public class DBHandler extends SQLiteOpenHelper {
                     events[g] = new Event(eventID, studyID, title, controltime, controltimeUnit);
                 }
 
-                studyArray[i] = new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
-                        minTimeBetweenNotifications, postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree);
-                //TODO: currently notificationinterval = minTimeBetweenNotifications, redo this system.
+                studyList.add(new Study(studyID, name, qnaire, beginDate, endDate, studyLengthForUser, notificationsPerDay,
+                        postponeTime, allowPostpone, minTimeBetweenNotifications, events, defaultBeepFree, isPublic));
             }
 
         } catch (org.json.JSONException e) {
             e.printStackTrace();
         }
-        return studyArray;
+        return studyList;
     }
 
 }
