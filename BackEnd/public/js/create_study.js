@@ -1,22 +1,20 @@
-var questionCount = 0;
-
 function add_question(){
 	$("#questionHolder").append('<div class="panel panel-default" id="question-panel-' + questionCount + '">' + 
 		  '<div class="panel-body">' +
 		  	'<div class="form-horizontal">' +
 		      '<div class="form-group">' +
-		        '<label class="control-label col-sm-3" for="question-type-' + questionCount + '">Küsimuse tüüp: </label>' +
+		        '<label class="control-label col-sm-3" for="question-type-' + questionCount + '">' + lang['question-type'] +': </label>' +
 		        '<div class="col-sm-7">' + 
 				    '<select class="form-control input-sm" name="question[' + questionCount + '][question-type]" id="question-type-' + questionCount + '" onChange="modifyType(' + questionCount + ');">' +
-				      '<option value="freetext" selected>Vabatekst</option>' + 
-				      '<option value="multichoice">Valikvastustega</option>' + 
+				      '<option value="freetext" selected>' + lang['question-type-freetext'] +'</option>' + 
+				      '<option value="multichoice">' + lang['question-type-multichoice'] +'</option>' + 
 				    '</select>' + 
 			    '</div>' + 
 		      '</div>' + 
 		      	'<div class="form-group">' + 
-			        '<label class="control-label col-sm-3" for="question-title-' + questionCount + '">Küsimus: </label>' + 
+			        '<label class="control-label col-sm-3" for="question-title-' + questionCount + '">' + lang['freetext-question'] +': </label>' + 
 			        '<div class="col-sm-7">' + 
-			          '<input class="form-control" type="text" id="question-title-' + questionCount + '" name="question[' + questionCount + '][question-title]" size="100" placeholder="Küsimus" required/>' + 
+			          '<input class="form-control" type="text" id="question-title-' + questionCount + '" name="question[' + questionCount + '][question-title]" size="100" placeholder="' + lang['freetext-question'] +'" required/>' + 
 			        '</div>' + 
 			      '</div>' + 
 			  '<div id="question-data-holder-' + questionCount + '">' + 
@@ -35,7 +33,7 @@ function add_question(){
 }
 
 function remove_question(){
-	var r = confirm("Kustuta viimane küsimus?");
+	var r = confirm(lang['remove-question-confirm']);
 	if (r) {
 		if (questionCount > 0){
 			$("#question-panel-" + (questionCount-1)).remove();
@@ -57,29 +55,29 @@ function modifyType(index){
 	} else if (type == "multichoice") {
 		$("#question-data-holder-" + index).html('<hr>'+
 						'<div class="form-group">'+
-					    '<label class="control-label col-sm-3" for="question-multichoice-single-choice-' + index + '">Valida saab: </label>'+
+					    '<label class="control-label col-sm-3" for="question-multichoice-single-choice-' + index + '">' + lang['multichoice-can-choose'] +': </label>'+
 					      '<div class="col-sm-7">'+
-					      	'<input type="radio" name="question[' + index + '][question-multichoice-single-choice]" value="1" checked> Ühe vastusevariandi<br>' +
-          					'<input type="radio" name="question[' + index + '][question-multichoice-single-choice]" value="0"> Mitu vastusevarianti' +
+					      	'<input type="radio" name="question[' + index + '][question-multichoice-single-choice]" value="1" checked> ' + lang['multichoice-one-choice'] +'<br>' +
+          					'<input type="radio" name="question[' + index + '][question-multichoice-single-choice]" value="0"> ' + lang['multichoice-multi-choice'] +
 					    '</div>'+
 					  '</div>' +
 						'<hr>'+
 			  		  '<div class="form-group">'+
-					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-0">Vastusevariandid: </label>'+
+					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-0">' + lang['multichoice-title'] +': </label>'+
 					      '<div class="col-sm-7">'+
-					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-0" name="question[' + index + '][question-multichoice-0]" size="100" placeholder="Vastusevariant 1" required/>'+
+					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-0" name="question[' + index + '][question-multichoice-0]" size="100" placeholder="' + lang['multichoice-title-placeholder'] +' 1" required/>'+
 					    '</div>'+
 					  '</div>'+
 					  '<div class="form-group">'+
 					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-1">&nbsp;</label>'+
 					      '<div class="col-sm-7">'+
-					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-1" name="question[' + index + '][question-multichoice-1]" size="100" placeholder="Vastusevariant 2" required/>'+
+					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-1" name="question[' + index + '][question-multichoice-1]" size="100" placeholder="' + lang['multichoice-title-placeholder'] +' 2" required/>'+
 					    '</div>'+
 					  '</div>' +
 					  '<div class="form-group" id="multichoice-add-group-' + index + '">'+
 					  	'<label class="control-label col-sm-3" for="no-target">&nbsp;</label>'+
 					  	'<div class="col-sm-7">'+
-					  		'<button id="multichoice-add-button-' + index + '" type="button" class="btn btn-default" onClick="addMultichoice(' + index + ',2);">Lisa vastusevariant</button>'+
+					  		'<button id="multichoice-add-button-' + index + '" type="button" class="btn btn-default" onClick="addMultichoice(' + index + ',2);">' + lang['multichoice-add'] +'</button>'+
 					  	'</div>'+
 					  '</div>')
 	}
@@ -90,14 +88,14 @@ function addMultichoice(index, choice_index){
 	$("#question-data-holder-" + index).append('<div class="form-group" id="multichoice-answer-group-' + index + '-' + choice_index + '">'+
 					    '<label class="control-label col-sm-3" for="question-multichoice-' + index + '-' + choice_index + '">&nbsp;</label>'+
 					      '<div class="col-sm-7">'+
-					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-' + choice_index + '" name="question[' + index + '][question-multichoice-' + choice_index + ']" size="100"  placeholder="Vastusevariant ' + (choice_index + 1) + '" required/>'+
+					      '<input class="form-control" type="text" id="question-multichoice-' + index + '-' + choice_index + '" name="question[' + index + '][question-multichoice-' + choice_index + ']" size="100"  placeholder="' + lang['multichoice-title-placeholder'] +' ' + (choice_index + 1) + '" required/>'+
 					    '</div>'+
 					  '</div>');
 	$("#question-data-holder-" + index).append('<div class="form-group" id="multichoice-add-group-' + index + '">'+
 					  	'<label class="control-label col-sm-3" for="no-target">&nbsp;</label>'+
 					  	'<div class="col-sm-7">'+
-					  		'<button id="multichoice-add-button-' + index + '" type="button" class="btn btn-default" onClick="addMultichoice(' + index + ',' + (choice_index + 1) + ');">Lisa vastusevariant</button>&nbsp;&nbsp;'+
-					  		'<button id="multichoice-remove-button-' + index + '" type="button" class="btn btn-danger" onClick="removeMultichoice(' + index + ',' + choice_index + ');">Eemalda viimane vastusevariant</button>' +
+					  		'<button id="multichoice-add-button-' + index + '" type="button" class="btn btn-default" onClick="addMultichoice(' + index + ',' + (choice_index + 1) + ');">' + lang['multichoice-add'] +'</button>&nbsp;&nbsp;'+
+					  		'<button id="multichoice-remove-button-' + index + '" type="button" class="btn btn-danger" onClick="removeMultichoice(' + index + ',' + choice_index + ');">' + lang['multichoice-remove'] +'</button>' +
 					  	'</div>'+
 					  '</div>');
 }
@@ -105,38 +103,37 @@ function addMultichoice(index, choice_index){
 function removeMultichoice(index, choice_index){
 	$("#multichoice-add-group-" + index).remove();
 	$("#multichoice-answer-group-" + index + "-" + choice_index).remove();
-	var removeButtonString = '<button id="multichoice-remove-button-' + index + '" type="button" class="btn btn-danger" onClick="removeMultichoice(' + index + ',' + (choice_index - 1) + ');">Eemalda viimane vastusevariant</button>';
+	var removeButtonString = '<button id="multichoice-remove-button-' + index + '" type="button" class="btn btn-danger" onClick="removeMultichoice(' + index + ',' + (choice_index - 1) + ');">' + lang['multichoice-remove'] +'</button>';
 	if (choice_index == 2) {
 		removeButtonString = '';
 	}
 	$("#question-data-holder-" + index).append('<div class="form-group" id="multichoice-add-group-' + index + '">'+
 					  	'<label class="control-label col-sm-3" for="no-target">&nbsp;</label>'+
 					  	'<div class="col-sm-7">'+
-					  		'<button id="multichoice-add-button-' + index + '" type="button" class="btn btn-default" onClick="addMultichoice(' + index + ',' + choice_index + ');">Lisa vastusevariant</button>&nbsp;&nbsp;'+
+					  		'<button id="multichoice-add-button-' + index + '" type="button" class="btn btn-default" onClick="addMultichoice(' + index + ',' + choice_index + ');">' + lang['multichoice-add'] +'</button>&nbsp;&nbsp;'+
 					  		removeButtonString +
 					  	'</div>'+
 					  '</div>');
 }
 
-var eventCount = 0;
 function add_event(){
 	$("#eventHolder").append('<div class="panel panel-default" id="event-panel-' + eventCount + '">' +
 			'<div class="panel-body">' +
 		  	'<div class="form-horizontal">' +
 		      	'<div class="form-group">' +
-			        '<label class="control-label col-sm-3" for="event-title-' + eventCount + '">Sündmuse nimi: </label>' +
+			        '<label class="control-label col-sm-3" for="event-title-' + eventCount + '">' + lang['event-name'] +': </label>' +
 			        '<div class="col-sm-7">' +
-			          '<input class="form-control" type="text" id="event-title-' + eventCount + '" name="event[' + eventCount +'][event-title]" size="100" placeholder="Sündmuse nimi" required/>' +
+			          '<input class="form-control" type="text" id="event-title-' + eventCount + '" name="event[' + eventCount +'][event-title]" size="100" placeholder="' + lang['event-name'] +'" required/>' +
 			        '</div>' +
 			    '</div>' +
 			    '<div class="form-group">' +
-			        '<label class="control-label col-sm-3" for="event-control-time-' + eventCount + '">Kontrollaeg: </label>' +
+			        '<label class="control-label col-sm-3" for="event-control-time-' + eventCount + '">' + lang['event-control-time'] +': </label>' +
 			        '<div class="col-sm-7 form-inline">' +
 			          	'<input class="form-control input-sm" type="number" id="event-control-time-' + eventCount + '" name="event[' + eventCount +'][event-control-time]" size="5" min="1" placeholder="0" required/>&nbsp;&nbsp;' +
           				'<select class="form-control input-sm" name="event[' + eventCount + '][event-control-time-unit]">' +
-			            '<option value="m">minutit</option>' +
-			            '<option value="h" selected>tundi</option>' +
-			            '<option value="d">päeva</option>' +
+			            '<option value="m">' + lang['minutes'] +'</option>' +
+			            '<option value="h" selected>' + lang['hours'] +'</option>' +
+			            '<option value="d">' + lang['days'] +'</option>' +
 			          '</select>' +
 			        '</div>' +
 			    '</div>' +
@@ -151,7 +148,7 @@ function add_event(){
 }
 
 function remove_event(){
-	var r = confirm("Kustuta viimane sündmus?");
+	var r = confirm(lang['remove-event-confirm']);
 	if (r) {
 		if (eventCount > 0){
 			$("#event-panel-" + (eventCount-1)).remove();
@@ -164,6 +161,17 @@ function remove_event(){
 	}
 }
 
+/*
+
+	'invalid-date' : '<?php echo $this->lang->line('invalid-date'); ?>',
+		'invalid-time' : '<?php echo $this->lang->line('invalid-time'); ?>',
+		'begin-must-be-before-end' : '<?php echo $this->lang->line('begin-must-be-before-end'); ?>',
+		'begin-must-be-after-today' : '<?php echo $this->lang->line('begin-must-be-after-today'); ?>',
+		'duration-must-be-shorter' : '<?php echo $this->lang->line('duration-must-be-shorter'); ?>',
+		'beeps-dont-fit' : '<?php echo $this->lang->line('beeps-dont-fit'); ?>',
+		'beep-start-time-before-end-time' : '<?php echo $this->lang->line('beep-start-time-before-end-time'); ?>'
+*/
+
 $("#study-start-date").on("propertychange keyup paste input", function(){
 	if (($("#study-start-date").val().length) == 10){
 	    var date = new Date($("#study-start-date").val());
@@ -175,11 +183,11 @@ $("#study-start-date").on("propertychange keyup paste input", function(){
 		    }
 	    } else {
 	    	$("#study-start-date-group").addClass("has-error");
-	    	$("#study-start-date").get(0).setCustomValidity("Vigane kuupäev");
+	    	$("#study-start-date").get(0).setCustomValidity(lang['invalid-date']);
 	    }
     } else {
     	$("#study-start-date-group").addClass("has-error");
-	    $("#study-start-date").get(0).setCustomValidity("Vigane kuupäev");
+	    $("#study-start-date").get(0).setCustomValidity(lang['invalid-date']);
     }
 });
 
@@ -194,11 +202,11 @@ $("#study-end-date").on("propertychange keyup paste input", function(){
 	    	}
 	    } else {
 	    	$("#study-end-date-group").addClass("has-error");
-	    	$("#study-end-date").get(0).setCustomValidity("Vigane kuupäev");
+	    	$("#study-end-date").get(0).setCustomValidity(lang['invalid-date']);
 	    }
     } else {
     	$("#study-end-date-group").addClass("has-error");
-	    $("#study-end-date").get(0).setCustomValidity("Vigane kuupäev");
+	    $("#study-end-date").get(0).setCustomValidity(lang['invalid-date']);
     }
 });
 
@@ -208,23 +216,14 @@ function comparedates(){
 	    var startDate = new Date($("#study-start-date").val());
 	    if (endDate instanceof Date && startDate instanceof Date && startDate.toString() != "Invalid Date" && endDate.toString() != "Invalid Date"){
 		    if (startDate < endDate){
-		    	var currentDate = new Date();
-		    	if (currentDate <= startDate){
-			    	$("#study-end-date").get(0).setCustomValidity("");
-			    	$("#study-start-date-group").removeClass("has-error");
-			    	$("#study-end-date-group").removeClass("has-error");
-			    	$("#study-date-help").hide();	
-			    	$("#study-date-help-too-early").hide();
-					checkDuration();
-				} else {
-					$("#study-end-date").get(0).setCustomValidity("Alguskuupäev peab olema hilisem praegusest kuupäevast.");
-			    	$("#study-start-date-group").addClass("has-error");
-			    	$("#study-end-date-group").addClass("has-error");
-			    	$("#study-date-help").hide();
-			    	$("#study-date-help-too-early").show();
-				}
+			    $("#study-end-date").get(0).setCustomValidity("");
+			    $("#study-start-date-group").removeClass("has-error");
+			    $("#study-end-date-group").removeClass("has-error");
+			    $("#study-date-help").hide();	
+			    $("#study-date-help-too-early").hide();
+				checkDuration();
 		    } else {
-		    	$("#study-end-date").get(0).setCustomValidity("Alguskuupäev peab eelnema lõppkuupäevale.");
+		    	$("#study-end-date").get(0).setCustomValidity(lang['begin-must-be-before-end']);
 		    	$("#study-start-date-group").addClass("has-error");
 		    	$("#study-end-date-group").addClass("has-error");
 		    	$("#study-date-help").show();
@@ -239,7 +238,7 @@ $("#study-beep-start-time").on("propertychange keyup paste input", function(){
 		$("#study-beep-start-time").get(0).setCustomValidity("");
 		comparetimes();
 	} else {
-		$("#study-beep-start-time").get(0).setCustomValidity("Vigane kellaaeg.");
+		$("#study-beep-start-time").get(0).setCustomValidity(lang['invalid-time']);
 	}
 });
 
@@ -248,7 +247,7 @@ $("#study-beep-end-time").on("propertychange keyup paste input", function(){
 		$("#study-beep-end-time").get(0).setCustomValidity("");
 		comparetimes();
 	} else {
-		$("#study-beep-end-time").get(0).setCustomValidity("Vigane kellaaeg.");
+		$("#study-beep-end-time").get(0).setCustomValidity(lang['invalid-time']);
 	}
 });
 
@@ -280,7 +279,7 @@ function comparetimes(){
 				$("#study-beep-time-group").removeClass("has-error");
 				$("#study-time-help-before").hide();
 			} else {
-				$("#study-beep-end-time").get(0).setCustomValidity("Piiksude algusaeg peab eelnema lõppajale.");
+				$("#study-beep-end-time").get(0).setCustomValidity(lang['beep-start-time-before-end-time']);
 				$("#study-beep-time-group").addClass("has-error");
 				$("#study-time-help-before").show();
 			}
@@ -305,7 +304,7 @@ function checkBeepPeriod(){
 			$("#study-beep-amt-group").removeClass("has-error");
 			$("#study-beep-amt-help").hide();
 		} else {
-			$("#study-beeps-per-day").get(0).setCustomValidity("Piiksude arv ei mahu piiksude perioodi sisse ära.");
+			$("#study-beeps-per-day").get(0).setCustomValidity(lang['beeps-dont-fit']);
 			$("#study-beep-amt-group").addClass("has-error");
 			$("#study-beep-amt-help").show();
 		}
@@ -355,7 +354,7 @@ function checkDuration(){
 			    	$("#study-duration-group").removeClass("has-error");
 					$("#study-duration-help-exceeded").hide();
 		    	} else {
-		    		$("#study-duration-time").get(0).setCustomValidity("Kestvus ühe kasutaja jaoks on pikem kui kogu uuringu kestvus.");
+		    		$("#study-duration-time").get(0).setCustomValidity(lang['duration-must-be-shorter']);
 			    	$("#study-duration-group").addClass("has-error");
 					$("#study-duration-help-exceeded").show();
 		    	}
@@ -366,4 +365,8 @@ function checkDuration(){
     	$("#study-duration-group").removeClass("has-error");
 		$("#study-duration-help-exceeded").hide();
     }
+}
+
+function togglePanel(id){
+	$("#" + id).slideToggle(500);
 }

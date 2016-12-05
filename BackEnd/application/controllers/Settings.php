@@ -9,7 +9,19 @@ class Settings extends CI_Controller {
         if($this->session->userdata('logged_in')) {
             $this->logged_in = $this->session->userdata('logged_in');   
         }
+        $currentLang = 'estonian';
+      if ($this->session->userdata('language')){
+        $currentLang = $this->session->userdata('language');
+      }
+      $this->lang->load('account', $currentLang);
+      $this->load->helper('language');
+      $this->lang->load('navigation', $currentLang);
   		$this->load->library('form_validation');
+    }
+
+    function set_language($lang){
+      $this->session->set_userdata('language', $lang);
+      redirect('/', 'location');
     }
 
     function index() {
@@ -26,10 +38,11 @@ class Settings extends CI_Controller {
 
 	function update_password() {
 		if($this->logged_in) {
-   		$this->form_validation->set_rules('old_password', 'Vana parool', 'trim|required|callback_oldpassword');
-   		$this->form_validation->set_rules('new_password','Uus parool','trim|required');
-   		$this->form_validation->set_rules('new_password2','Korda uut parooli','trim|required|matches[new_password]');
+   		$this->form_validation->set_rules('old_password', 'Old password', 'trim|required|callback_oldpassword');
+   		$this->form_validation->set_rules('new_password','New password','trim|required');
+   		$this->form_validation->set_rules('new_password2','Repeated password','trim|required|matches[new_password]');
 
+      $this->form_validation->set_message('oldpassword', '%s is wrong');
 
    		if($this->form_validation->run() == FALSE) {
 	    	//Field validation failed.
@@ -43,7 +56,7 @@ class Settings extends CI_Controller {
    		else {
      		$new_pw = $this->input->post('new_password');
 		    $this->user->update_password($this->logged_in['username'],$new_pw);   
-		    //redirect('settings', 'refresh');
+		    redirect('settings', 'location');
    		}
 		} else {
 

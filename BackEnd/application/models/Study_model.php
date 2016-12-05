@@ -361,16 +361,27 @@ class Study_model extends CI_Model {
 	}
 
 	function add_participant($study_id, $target_user) {
-		$data = array(
-		   'participant_id' => $target_user ,
-		   'survey_id' => $study_id ,
-		   'join_date' => date('Y-m-d H:i:s')
-		);
+		$this->db->select('*');
+		$this->db->from('partipant_to_study');
+		$this->db->where('survey_id',$study_id);
+		$this->db->where('participant_id',$target_user);
+		$query = $this->db->get();
 
-		if ($this->db->insert('partipant_to_study', $data)){
-			return True;
+		if($query -> num_rows() < 1) {
+			date_default_timezone_set('Europe/Helsinki');
+			$data = array(
+			   'participant_id' => $target_user ,
+			   'survey_id' => $study_id ,
+			   'join_date' => date('Y-m-d H:i:s')
+			);
+
+			if ($this->db->insert('partipant_to_study', $data)){
+				return True;
+			} else {
+				return "dberror";
+			}
 		} else {
-			return $this->db->error_message();
+			return "exists";
 		}
 	}
 
@@ -382,7 +393,7 @@ class Study_model extends CI_Model {
 	}
 
 	function get_participant_studies($p_id) {
-		$this->db->select('id, study-title, study-start-date, study-end-date, study-duration-for-user, study-beeps-per-day, study-min-time-between-beeps, study-postpone-time, study-allow-postpone, study-language, study-is-public, study-beep-start-time, study-beep-end-time, study-duration-time, join_date');
+		$this->db->select('id, study-title, study-start-date, study-end-date, study-duration-for-user, study-beeps-per-day, study-min-time-between-beeps, study-postpone-time, study-allow-postpone, study-language, study-is-public, study-beep-start-time, study-beep-end-time, study-is-public, study-duration-time, join_date');
 		$this->db->from('view_participant_surveys');
 		$this->db->where('p_id', $p_id);
 		$this->db->where('study-end-date >=', date("y-m-d H:i:s"));
