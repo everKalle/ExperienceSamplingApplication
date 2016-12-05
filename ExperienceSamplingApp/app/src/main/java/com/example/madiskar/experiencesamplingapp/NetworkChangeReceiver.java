@@ -46,13 +46,14 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         }
 
         Calendar current = Calendar.getInstance();
-        long difference = 300002;
+        long difference = 120002;
         if(!lastSync.equals("none")) {
-            difference = current.getTimeInMillis() - DBHandler.stringToCalendar(lastSync).getTimeInMillis(); //Time from last sync, right now the limit is 5 minutes
+            difference = current.getTimeInMillis() - DBHandler.stringToCalendar(lastSync).getTimeInMillis(); //Time from last sync, right now the limit is 2 minutes
         }
-        if(lastSync.equals("none") || difference > 300000) {
+        if(lastSync.equals("none") || difference > 120000) {
             if (networkInfo != null && networkInfo.isConnected() && !token.equals("none")) {
                 if (((networkType == ConnectivityManager.TYPE_MOBILE || networkType == ConnectivityManager.TYPE_MOBILE_DUN) && !mobileSyncAllowed) || networkType == ConnectivityManager.TYPE_DUMMY) {
+                        //do nothing, connection not allowed
                 } else {
                     SharedPreferences.Editor editor = spref.edit();
                     editor.putString("lastSync", DBHandler.calendarToString(current));
@@ -66,24 +67,32 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                             SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(token, mydb, true, new StudyDataSyncResponse() {
                                 @Override
                                 public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
-
-                                    if (!output.equals("dberror")) {
-                                        for (int i = 0; i < updatedStudies.size(); i++) {
-                                            cancelStudy(oldStudies.get(i), false, false);
-                                            setUpNewStudyAlarms(updatedStudies.get(i));
-                                        }
-                                        for (Study s : cancelledStudies) {
-                                            for (Study ks : allStudies) {
-                                                if (ks.getId() == s.getId()) {
-                                                    allStudies.remove(ks);
-                                                    break;
-                                                }
-                                            }
-                                            cancelStudy(s, true, true);
-                                        }
-                                    } else {
-                                    }
-                                }
+                                    try {
+	                                    if (output.equals("invalid_token")) {
+	                                        //do nothing
+	                                    } else if (output.equals("nothing")) {
+	                                        //do nothing
+	                                    } else if (!output.equals("dberror")) {
+	                                        for (int i = 0; i < updatedStudies.size(); i++) {
+	                                            cancelStudy(oldStudies.get(i), false, false);
+	                                            setUpNewStudyAlarms(updatedStudies.get(i));
+	                                        }
+	                                        for (Study s : cancelledStudies) {
+	                                            for (Study ks : allStudies) {
+	                                                if (ks.getId() == s.getId()) {
+	                                                    allStudies.remove(ks);
+	                                                    break;
+	                                                }
+	                                            }
+	                                            cancelStudy(s, true, true);
+	                                        }
+	                                    } else {
+	                                        //authentication failed, do nothing
+	                                    }
+	                                } catch (Exception e) {
+	                                	// something went wrong, probably server connection timed out
+	                                }
+                            }
                             });
                             ExecutorSupplier.getInstance().forBackgroundTasks().execute(syncStudyDataTask);
 
@@ -94,6 +103,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 }
 
             } else {
+                //nothing
             }
         }
     }

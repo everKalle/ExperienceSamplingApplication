@@ -126,26 +126,35 @@ public class StudyFragment extends ListFragment {
                         SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
                             @Override
                             public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
-                                if (!output.equals("dberror")) {
-                                    for (Study s : newStudies) {
-                                        setUpNewStudyAlarms(s);
-                                    }
-                                    for (int i = 0; i < updatedStudies.size(); i++) {
-                                        cancelStudy(oldStudies.get(i), false, false);
-                                        setUpNewStudyAlarms(updatedStudies.get(i));
-                                    }
-                                    for (Study s : cancelledStudies) {
-                                        for (Study ks : allStudies) {
-                                            if (ks.getId() == s.getId()) {
-                                                allStudies.remove(ks);
-                                                break;
-                                            }
+                                try {
+                                    if (output.equals("invalid_token")) {
+                                        //do nothing
+                                    } else if (output.equals("nothing")) {
+                                        //do nothing
+                                    } else if (!output.equals("dberror")) {
+                                        for (Study s : newStudies) {
+                                            setUpNewStudyAlarms(s);
                                         }
-                                        cancelStudy(s, true, true);
+                                        for (int i = 0; i < updatedStudies.size(); i++) {
+                                            cancelStudy(oldStudies.get(i), false, false);
+                                            setUpNewStudyAlarms(updatedStudies.get(i));
+                                        }
+                                        for (Study s : cancelledStudies) {
+                                            for (Study ks : allStudies) {
+                                                if (ks.getId() == s.getId()) {
+                                                    allStudies.remove(ks);
+                                                    break;
+                                                }
+                                            }
+                                            cancelStudy(s, true, true);
+                                        }
+                                        progressDialog.dismiss();
+                                        updateUI(allStudies);
+                                    } else {
+                                        //sync failed, do nothing
                                     }
-                                    progressDialog.dismiss();
-                                    updateUI(allStudies);
-                                } else {
+                                } catch (Exception e) {
+                                    // probably server connection went bad
                                 }
                             }
                         });
