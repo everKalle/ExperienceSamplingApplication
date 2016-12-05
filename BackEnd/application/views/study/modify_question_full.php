@@ -24,7 +24,7 @@
 		      	<div class="form-group">
 			        <label class="control-label col-sm-3" for="question-title-<?php echo $i; ?>"><?php echo $this->lang->line('freetext-question'); ?>: </label>
 			        <div class="col-sm-7">
-			          <input class="form-control" type="text" id="question-title-<?php echo $i; ?>" name="question[<?php echo $i; ?>][question-title]" size="100" placeholder="<?php echo $this->lang->line('freetext-question'); ?>" value="<?php echo $question['id']; ?>" required/>
+			          <input class="form-control" type="text" id="question-title-<?php echo $i; ?>" name="question[<?php echo $i; ?>][question-title]" size="100" placeholder="<?php echo $this->lang->line('freetext-question'); ?>" value="<?php echo $question['question-title']; ?>" required/>
 			        </div>
 			      </div>
 			  <div id="question-data-holder-<?php echo $i; ?>">
