@@ -5,10 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -29,7 +26,6 @@ public class VolumeControlActivity extends FragmentActivity {
 
         AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
-        Log.v("praegu", String.valueOf(currentVolume));
 
         if (currentVolume == 0) {
             Intent intent = new Intent(this, VolumeDialog.class);
@@ -97,7 +93,6 @@ public class VolumeControlActivity extends FragmentActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v("volume", String.valueOf(spref.getInt("volume",0)));
                 finish();
             }
         });
@@ -109,7 +104,6 @@ public class VolumeControlActivity extends FragmentActivity {
                 editor.putInt("volume", oldVolume);
                 editor.apply();
                 seekBar.setProgress(oldVolume);
-                Log.v("volume", String.valueOf(spref.getInt("volume",0)));
                 finish();
             }
         });

@@ -1,7 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,7 +76,6 @@ public class SaveEventResultTask implements Runnable {
                 response.processFinish(sb.toString());
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d("SaveEventResultTask", "Error while trying to send data to server, saving to local instead");
                 if(!token.equals("none")) {
                     mydb.insertEventResult(Long.parseLong(event_id), start_time, end_time);
                     response.processFinish("saved-to-local");

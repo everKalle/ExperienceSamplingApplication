@@ -1,17 +1,7 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
-import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.regex.Pattern;
+
 
 
 public class Study {

@@ -7,24 +7,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+
 
 
 public class ResponseReceiver extends WakefulBroadcastReceiver {
 
-    private static String NOTIFICATION_INTERVAL = "INTERVAL";
-    private static String NOTIFICATION_NAME = "STUDY";
-    private static String STUDY_QUESTIONS = "QUESTIONS";
-    private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private Study study;
     private SharedPreferences sharedPref;
     public static ArrayList<Study> studies = new ArrayList<>();

@@ -8,16 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 
-/**
- * Created by Joosep on 4.10.2016.
- */
 public class PostponeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.v("joulud", "JOULUD ON KAES!");
 
         Bundle extras = intent.getExtras();
 
@@ -30,9 +25,6 @@ public class PostponeReceiver extends BroadcastReceiver {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
 
-        Log.v("STUDYID POSTPONE", String.valueOf(studyId));
-
-        Log.i("POSTPONE", "Postponing right now, ETA " + postponeTime + " minutes.");
 
         Intent scheduledIntent = new Intent(context, QuestionnaireActivity.class);
         scheduledIntent.putExtra("StudyId", studyId);

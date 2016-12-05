@@ -1,8 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
-import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONArray;
 
@@ -92,7 +90,6 @@ public class SyncStudyDataTask implements Runnable {
                         updateCounter ++;
                     }
                 }
-                Log.i("SYNCED STUDY INFO", "Updated Studies: " + updateCounter);
                 response.processFinish(sb.toString(), newStudies, mydb.getAllStudies(), updatedStudies, oldStudies, cancelledStudies);
             } else {
                 int updateCounter = 0;
@@ -104,7 +101,6 @@ public class SyncStudyDataTask implements Runnable {
                         }
                     } else {
                         if(Calendar.getInstance().after(s.getEndDate())) {
-                            Log.i("Study over", "hetkekuup2ev: " + DBHandler.calendarToString(Calendar.getInstance()) + " lopukuupaev: " + DBHandler.calendarToString(s.getEndDate()));
                             cancelledStudies.add(mydb.getStudy(s.getId()));
                             continue;
                         }
@@ -117,7 +113,6 @@ public class SyncStudyDataTask implements Runnable {
                         updateCounter ++;
                     }
                 }
-                Log.i("SYNCED STUDY INFO", "New Studies: " + newStudies.size() + ", Updated Studies: " + updateCounter);
                 response.processFinish(sb.toString(), newStudies, mydb.getAllStudies(), updatedStudies, oldStudies, cancelledStudies);
             }
         }

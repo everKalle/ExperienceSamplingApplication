@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.os.Process;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-
-/**
- * Created by Joosep on 12.11.2016.
- */
 
 public class SearchResultsListAdapter extends BaseAdapter {
 
@@ -133,18 +127,14 @@ public class SearchResultsListAdapter extends BaseAdapter {
                                             DBHandler.getInstance(mContext).insertStudy(studies.get(position));
                                             ResponseReceiver rR = new ResponseReceiver(studies.get(position));
                                             rR.setupAlarm(mContext.getApplicationContext(), true);
-                                            Log.i("JOINED STUDY", studies.get(position).getName());
                                             updateUI(position);
                                             showSuccessToast();
                                         } else if(output.equals("invalid_study")) {
-                                            Log.i("JOINED STUDY", "INVALID STUDY");
                                             showFailToast();
                                         } else if(output.equals("invalid_token")) {
-                                            Log.i("JOINED STUDY", "INVALID TOKEN");
                                             showFailToast();
                                         } else if(output.equals("nothing")) {
                                             showFailToast();
-                                            Log.i("JOINED STUDY", "FAULTY QUERY");
                                         } else if(output.equals("exists")) {
                                             showAlreadyFinishedToast();
                                         } else {

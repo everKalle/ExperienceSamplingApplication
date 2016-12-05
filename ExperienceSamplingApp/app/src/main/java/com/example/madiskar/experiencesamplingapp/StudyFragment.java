@@ -12,15 +12,11 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Process;
 import android.support.design.widget.FloatingActionButton;
-import android.test.suitebuilder.TestMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -113,7 +109,6 @@ public class StudyFragment extends ListFragment {
                     if(!lastFabSync.equals("none")) {
                         difference = current.getTimeInMillis() - DBHandler.stringToCalendar(lastFabSync).getTimeInMillis(); //Time from last sync, right now the limit is 5 minutes
                     }
-                    Log.i("difference", String.valueOf(difference));
 
                     if (lastFabSync.equals("none") || difference > 60000) {
                         SharedPreferences pref = view.getContext().getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
@@ -131,22 +126,15 @@ public class StudyFragment extends ListFragment {
                         SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
                             @Override
                             public void processFinish(String output, ArrayList<Study> newStudies, ArrayList<Study> allStudies, ArrayList<Study> updatedStudies, ArrayList<Study> oldStudies, ArrayList<Study> cancelledStudies) {
-                                if (output.equals("invalid_token")) {
-                                    Log.i("Study Sync", getString(R.string.auth_sync_fail));
-                                } else if (output.equals("nothing")) {
-                                    Log.i("Study Sync", getString(R.string.fetch_sync_fail));
-                                } else if (!output.equals("dberror")) {
+                                if (!output.equals("dberror")) {
                                     for (Study s : newStudies) {
-                                        Log.i("StudyFragment", "Setting up alarms for " + newStudies.size() + " studies");
                                         setUpNewStudyAlarms(s);
                                     }
                                     for (int i = 0; i < updatedStudies.size(); i++) {
-                                        Log.i("STUDIES MODIFIED", "notification data changed for " + updatedStudies.size() + " studies");
                                         cancelStudy(oldStudies.get(i), false, false);
                                         setUpNewStudyAlarms(updatedStudies.get(i));
                                     }
                                     for (Study s : cancelledStudies) {
-                                        Log.i("STUDIES CANCELLED", "removed " + cancelledStudies.size() + " studies");
                                         for (Study ks : allStudies) {
                                             if (ks.getId() == s.getId()) {
                                                 allStudies.remove(ks);
@@ -157,9 +145,7 @@ public class StudyFragment extends ListFragment {
                                     }
                                     progressDialog.dismiss();
                                     updateUI(allStudies);
-                                    Log.i("Study sync:", getString(R.string.update_success));
                                 } else {
-                                    Log.i("FINISHED SYNC:", "study sync failed");
                                 }
                             }
                         });
@@ -207,7 +193,6 @@ public class StudyFragment extends ListFragment {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                Log.i("Deleting study", study.getName());
                 NotificationService.cancelNotification(getActivity().getApplicationContext(), (int) study.getId());
                 Intent intent = new Intent(getActivity().getApplicationContext(), QuestionnaireActivity.class);
                 ResponseReceiver.cancelExistingAlarm(getActivity().getApplicationContext(), intent, Integer.valueOf((study.getId() + 1) + "00002"), false);

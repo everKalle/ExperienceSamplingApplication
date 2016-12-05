@@ -1,19 +1,13 @@
 package com.example.madiskar.experiencesamplingapp;
 
 import android.app.ListFragment;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,9 +15,6 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by Joosep on 12.11.2016.
- */
 
 public class SearchFragment extends ListFragment {
 
@@ -63,15 +54,8 @@ public class SearchFragment extends ListFragment {
         GetPublicStudiesTask getPublicStudiesTask = new GetPublicStudiesTask(DBHandler.getInstance(getActivity().getApplicationContext()), new RunnableResponseArray() {
             @Override
             public void processFinish(String message, ArrayList<Study> study_list) {
-                Log.i("PUBLIC STUDIES", message);
                 studies = study_list;
                 filteredStudies = new ArrayList<>(studies);
-
-                Log.v("UURINGUD", String.valueOf(studies.size()));
-                Log.v("keywordsCheck", String.valueOf(keywordsCheckboxIsChecked));
-                Log.v("matchAllCheck", String.valueOf(matchAllCheckboxIsChecked));
-                Log.v("startDateCheck", String.valueOf(startDateCheckBoxIsChecked));
-                Log.v("endDateCheck", String.valueOf(endDateCheckBoxIsChecked));
 
                 new AsyncTask<Void, Void, String>() {
                     @Override
@@ -86,8 +70,6 @@ public class SearchFragment extends ListFragment {
                             if (endDateCheckBoxIsChecked)
                                 filterEndDate();
                         }
-                        for (Study study: filteredStudies)
-                            Log.v("filtered", study.getName());
                         if (filteredStudies.isEmpty()) {
                             return "failure";
                         } else {

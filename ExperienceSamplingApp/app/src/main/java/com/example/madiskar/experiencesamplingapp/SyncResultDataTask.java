@@ -1,6 +1,5 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -41,7 +40,6 @@ public class SyncResultDataTask implements Runnable {
 
         if(!token.equals("none")) {
             for (String[] s : answers) {
-                Log.i("SyncAllDataTask", "ANSWER:" + Arrays.asList(s).toString());
                 String id = s[0];
                 String studyId = s[1];
                 String answerTxt = s[3];
@@ -60,7 +58,6 @@ public class SyncResultDataTask implements Runnable {
                         sb.append("success,");
                     } else {
                         sb.append("fail,");
-                        Log.i("SyncAllDataTask", "Error while trying to send data to server, skipping this row");
                     }
                 } else {
                     sb.append("fail,");
@@ -69,7 +66,6 @@ public class SyncResultDataTask implements Runnable {
             }
 
             for (String[] s : eventResults) {
-                Log.i("SyncAllDataTask", "EVENT:" + Arrays.asList(s).toString());
                 String id = s[0];
                 String eventId = s[1];
                 String startTime = s[2];
@@ -90,7 +86,6 @@ public class SyncResultDataTask implements Runnable {
                         sb.append("success,");
                     } else {
                         sb.append("fail,");
-                        Log.i("SyncAllDataTask", "Error while trying to send data to server, skipping this row");
                     }
                 } else {
                     sb.append("fail,");
@@ -138,7 +133,6 @@ public class SyncResultDataTask implements Runnable {
                 returnVal = sb.toString();
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i("SyncAllDataTask", "Error while trying to send data to server, skipping this row");
                 return "skipped-this-row";
             } finally {
                 if (wr != null) {
@@ -160,7 +154,6 @@ public class SyncResultDataTask implements Runnable {
                 }
             }
         } else {
-            Log.i("SyncAllDataTask", "Something wrong with connection, skipping this row");
             returnVal = "skipped-this-row";
         }
         return returnVal;

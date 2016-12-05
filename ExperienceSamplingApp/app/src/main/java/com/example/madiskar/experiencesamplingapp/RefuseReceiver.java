@@ -7,10 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
-import android.widget.Toast;
 
-import java.util.Calendar;
 
 public class RefuseReceiver extends BroadcastReceiver {
 
@@ -34,17 +31,6 @@ public class RefuseReceiver extends BroadcastReceiver {
                 (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
-                if(output.equals("invalid_study")) {
-                    Log.i("Answers to server: ", "This study no longer exists");
-                } else if(output.equals("invalid_token")) {
-                    Log.i("Answers to server: ", "Account authentication failed");
-                } else if(output.equals("nothing")) {
-                    Log.i("Answers to server: ", "Faulty query");
-                } else if(output.equals("success")) {
-                    Log.i("Answers to server: ", "Success");
-                } else if(output.equals("saved-to-local")) {
-                    Log.i("Answers to server: ", "Internet connection unavailable, saving to local storage");
-                }
             }
         });
         ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveAnswersTask);

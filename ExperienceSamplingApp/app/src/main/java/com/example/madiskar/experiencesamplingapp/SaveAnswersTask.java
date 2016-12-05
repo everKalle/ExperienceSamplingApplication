@@ -1,8 +1,6 @@
 package com.example.madiskar.experiencesamplingapp;
 
 
-import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -77,7 +75,6 @@ public class SaveAnswersTask implements Runnable {
                 response.processFinish(sb.toString());
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d("SaveAnswersTask", "Error while trying to send data to server, saving to local instead");
                 if(!token.equals("none")) {
                     mydb.insertAnswer(Integer.parseInt(studyId), escapeChars(answers), DBHandler.calendarToString(Calendar.getInstance()));
                     response.processFinish("saved-to-local");

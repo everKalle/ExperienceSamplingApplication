@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -173,7 +172,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
             @Override
             protected void onPostExecute(String result) {
-                Log.i("REGISTERING PROCESS", result);
                 if(result.equals("nothing")) {
                     registerbtn.setEnabled(true);
                     progressDialog.dismiss();

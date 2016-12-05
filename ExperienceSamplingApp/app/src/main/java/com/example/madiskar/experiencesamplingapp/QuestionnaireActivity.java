@@ -11,17 +11,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 
 public class QuestionnaireActivity extends AppCompatActivity {
 
@@ -177,23 +173,9 @@ public class QuestionnaireActivity extends AppCompatActivity {
         SaveAnswersTask saveAnswersTask = new SaveAnswersTask(token, Long.toString(studyId), answersAsString, isNetworkAvailable(), mydb, new RunnableResponse() {
             @Override
             public void processFinish(String output) {
-                if (output.equals("invalid_study")) {
-                    Log.i("Answers to server: ", getString(R.string.no_exist));
-                } else if (output.equals("invalid_token")) {
-                    Log.i("Answers to server: ", getString(R.string.auth_fail));
-                } else if (output.equals("nothing")) {
-                    Log.i("Answers to server: ", "Faulty query");
-                } else if (output.equals("success")) {
-                    Log.i("Answers to server: ", "Success");
-                } else if (output.equals("saved-to-local")) {
-                    Log.i("Answers to server: ", "Internet connection unavailable, saving to local storage");
-                } else {
-                    Log.i("Answers to server: ", "Something bad happened");
-                }
             }
         });
         ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveAnswersTask);
-        Log.i("SAVING ANSWERS", answersAsString);
     }
 
 

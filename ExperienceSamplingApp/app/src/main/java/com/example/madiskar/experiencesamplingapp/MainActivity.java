@@ -5,34 +5,25 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteReadOnlyDatabaseException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.preference.PreferenceManager;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements BeepfreePeriodPickerFragment.BeepFreePeriodListener{
 
@@ -60,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         ArrayList<BeepFerePeriod> bfps = mydb.getBeepFreePeriods();
-        Log.v("KONTROLL", String.valueOf(bfps.size()));
         adapter = new BeepFreePeriodListAdapter(this, bfps);
         adapter.updateAdapter(bfps);
 
@@ -148,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
         }
         else if (itemName.equals("Beepfree period")) {
-            Log.v("wotm8", "m9");
             Fragment fragment = new BeepFreeFragment();
 
             fragmentManager.beginTransaction()
@@ -212,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
                                 try {
                                     for (Study s : studylist) {
-                                        Log.v("dunno", "dunno");
                                         EventDialogFragment.cancelEvents(getApplicationContext(), (int) s.getId());
                                     }
                                 } catch (Exception e) {
@@ -236,10 +224,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                     EventDialogFragment.activeEvents.clear();
                                 } catch (Exception e) {}
                                 EventDialogFragment.studyToNotificationIdMap.clear();
-                                try {
-                                    for (Study s: studylist)
-                                        Log.v("VAIKE KONTROLL", String.valueOf(EventDialogFragment.studyToNotificationIdMap.get(s.getId())) + " " + s.getName() + " " + s.getId());
-                                } catch (Exception e) {}
                                 dialog.dismiss();
                                 startActivity(i);
                                 finish();
@@ -439,7 +423,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                             if (beepFreeId == (int) beepFerePeriod.getId())
                                 beepFreeId++;
                         }
-                        Log.v("identificatior", String.valueOf(beepFreeId));
                         b.putInt("identificator", beepFreeId);
                         dialogFragment.setArguments(b);
                         dialogFragment.show(fm, "timePicker");
@@ -469,7 +452,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
         BeepFerePeriod bfp = dialog.getCreatedBeepFreePeriod();
         DBHandler mydb = DBHandler.getInstance(getApplicationContext());
         mydb.insertBeepFreePeriod(bfp);
-        Log.v("MUUTUS", String.valueOf(mydb.getBeepFreePeriods().size()));
         adapter.updateAdapter(mydb.getBeepFreePeriods());
     }
 
@@ -494,7 +476,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
         Fragment f = getFragmentManager().findFragmentById(R.id.mainContent);
         if (f instanceof StudyFragment) {
-            Log.i("Finish activity", "jah");
             finish();
         }
 

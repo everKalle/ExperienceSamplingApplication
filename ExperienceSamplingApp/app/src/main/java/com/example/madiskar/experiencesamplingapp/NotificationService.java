@@ -6,38 +6,22 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.ToneGenerator;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
 import android.os.Vibrator;
-import android.util.Log;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 
 public class NotificationService extends IntentService {
 
     private int NOTIFICATION_ID;
-    private static String NOTIFICATION_NAME = "STUDY";
-    private static String NOTIFICATION_INTERVAL = "INTERVAL";
-    private static String STUDY_QUESTIONS = "QUESTIONS";
-    private static String DAILY_NOTIFICATION_LIMIT = "LIMIT";
     private int alarmType;
     private int alarmTone;
     public static final String PREFS_NAME = "preferences";
@@ -75,7 +59,6 @@ public class NotificationService extends IntentService {
         alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
 
-        Log.v("vark", String.valueOf(study.getDefaultBeepFree().getStartTimeHour()));
         if (!Calendar.getInstance().before(study.getBeginDate())) {
 
             sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
@@ -84,10 +67,8 @@ public class NotificationService extends IntentService {
             Calendar rightNow = Calendar.getInstance();
             int hour = rightNow.get(Calendar.HOUR_OF_DAY);
             int minutes = rightNow.get(Calendar.MINUTE);
-            Log.i("dailycount", String.valueOf(dailyNotCount));
 
             String time = sharedPref.getString("TIME" + String.valueOf(study.getId()), "");
-            Log.i("Time", time);
             if (!time.equals("")) {
                 String[] parts = time.split(":");
                 int hourPart = Integer.valueOf(parts[0]);
@@ -107,9 +88,6 @@ public class NotificationService extends IntentService {
 
             if (!beepFreePeriod(study)) {
 
-
-                Log.v("PAEVANE", String.valueOf(dailyNotCount));
-
                 int soundVolume = sharedPref.getInt("volume", -1);
                 if (soundVolume == -1) {
                     editor.putInt("volume", 50);
@@ -117,17 +95,8 @@ public class NotificationService extends IntentService {
                     soundVolume = 50;
                 }
 
-                Log.v("sound vol", String.valueOf(soundVolume));
-
-
-                Log.v("nimi", study.getName());
-                Log.v("aja teema", String.valueOf(!Calendar.getInstance().after(study.getEndDate())));
-                Log.v("tapsem aja teema", String.valueOf(Calendar.getInstance()));
-                Log.v("tapsem aja teema 2", String.valueOf(study.getEndDate()));
-
                 if (!Calendar.getInstance().after(study.getEndDate())) {
                     if (dailyNotCount < study.getNotificationsPerDay()) {
-                        Log.i("Siin", "saab notti visata kyll");
                         editor = sharedPref.edit();
                         editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
                         editor.apply();
@@ -186,7 +155,6 @@ public class NotificationService extends IntentService {
                         ;
 
                         if (study.getPostponable()) {
-                            Log.v("postponable", "YES");
                             builder.addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent);
                         }
 
@@ -209,7 +177,6 @@ public class NotificationService extends IntentService {
                         }, delay);
                     }
                 } else {
-                    Log.v("Jah, jouab", "siia");
                     cancelNotification(getApplicationContext(), (int) study.getId());
                     Intent intent = new Intent(mContext, QuestionnaireActivity.class);
                     ResponseReceiver.cancelExistingAlarm(mContext, intent, Integer.valueOf((study.getId() + 1) + "00002"), false);
@@ -241,17 +208,13 @@ public class NotificationService extends IntentService {
         boolean beepfree = false;
         ArrayList<BeepFerePeriod> beepFrees = new ArrayList<>(DBHandler.getInstance(mContext).getBeepFreePeriods());
         beepFrees.add(study.getDefaultBeepFree());
-        Log.v("jajajajajajajajaj", "ei");
         for (int i = 0; i < beepFrees.size(); i++) {
             BeepFerePeriod bfp = beepFrees.get(i);
             int startHour = bfp.getStartTimeHour();
             int startMinute = bfp.getStartTimeMinute();
             int endHour = bfp.getEndTimeHour();
             int endMinute = bfp.getEndTimeMinute();
-            Log.v("kontroll", String.valueOf(hours) + " >= " + String.valueOf(startHour) + " && " + String.valueOf(hours) + " <= " + String.valueOf(endHour));
             if (hours >= startHour && hours <= endHour) {
-                Log.v("kontroll2_1", String.valueOf(hours) + " == " + String.valueOf(startHour) + " && " + String.valueOf(minutes) + " < " + String.valueOf(startMinute));
-                Log.v("kontroll2_2", String.valueOf(hours) + " == " + String.valueOf(endHour) + " && " + String.valueOf(minutes) + " > " + String.valueOf(endMinute));
                 if ((hours == startHour && minutes < startMinute && hours != endHour) || (hours == endHour && minutes > endMinute && hours != startHour)) {
                 }
                 else if (hours == startHour && hours == endHour && startMinute > endMinute && minutes > endMinute && minutes < startMinute) {
@@ -275,8 +238,6 @@ public class NotificationService extends IntentService {
                  beepfree = true;
             }
         }
-        Log.v("jajajajajajajajaj", "ei");
-        Log.v("Beepfree", String.valueOf(beepfree) + " for study " + study.getName());
         return beepfree;
     }
 

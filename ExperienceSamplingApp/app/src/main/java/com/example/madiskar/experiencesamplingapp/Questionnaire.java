@@ -2,10 +2,6 @@ package com.example.madiskar.experiencesamplingapp;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class Questionnaire implements Parcelable{

@@ -3,7 +3,6 @@ package com.example.madiskar.experiencesamplingapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Arrays;
 
 
 public class MultipleChoiceQuestion extends Question {
