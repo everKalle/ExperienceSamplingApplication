@@ -59,7 +59,7 @@ public class ControlTimeReceiver extends BroadcastReceiver {
                 .setOngoing(false)
                 .setAutoCancel(true)
                 .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setContentText(R.string.control_event  + " \"" + eventName + "\" " + R.string.passed)
+                .setContentText(context.getString(R.string.control_event)  + " \"" + eventName + "\" " + context.getString(R.string.passed))
                 .setSmallIcon(R.drawable.ic_events);
 
         final NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

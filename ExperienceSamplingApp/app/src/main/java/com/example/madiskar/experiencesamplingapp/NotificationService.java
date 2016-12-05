@@ -140,7 +140,7 @@ public class NotificationService extends IntentService {
                             } else if (alarmTone == 1)
                                 mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
                             else
-                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
+                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_3);
                             if (!started) {
                                 float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
                                 mediaPlayer.setVolume(volume, volume);

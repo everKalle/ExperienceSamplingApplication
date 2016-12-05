@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
 
                                 try {
                                     for (Study s : studylist) {
+                                        Log.v("dunno", "dunno");
                                         EventDialogFragment.cancelEvents(getApplicationContext(), (int) s.getId());
                                     }
                                 } catch (Exception e) {
@@ -231,7 +232,14 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                 }catch (Exception e) {
                                     e.printStackTrace();
                                 }
+                                try {
+                                    EventDialogFragment.activeEvents.clear();
+                                } catch (Exception e) {}
                                 EventDialogFragment.studyToNotificationIdMap.clear();
+                                try {
+                                    for (Study s: studylist)
+                                        Log.v("VAIKE KONTROLL", String.valueOf(EventDialogFragment.studyToNotificationIdMap.get(s.getId())) + " " + s.getName() + " " + s.getId());
+                                } catch (Exception e) {}
                                 dialog.dismiss();
                                 startActivity(i);
                                 finish();

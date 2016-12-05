@@ -179,11 +179,27 @@ public class EventDialogFragment extends DialogFragment {
     }
 
     public static void cancelEvents(Context ctx, int studyId) {
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
-        ArrayList<Integer> notifIdArrayList = studyToNotificationIdMap.get(studyId);
-        //TODO: error here when quitting study, doesnt crash the app but shows in logcat
-        for (int notifyId : notifIdArrayList)
-            nMgr.cancel(notifyId);
+        try {
+            String ns = Context.NOTIFICATION_SERVICE;
+            NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
+            Log.v("String val", String.valueOf(studyId));
+            ArrayList<Integer> notifIdArrayList = studyToNotificationIdMap.get(studyId);
+
+            for (int notifyId : notifIdArrayList) {
+                nMgr.cancel(notifyId);
+            }
+            for (Event event: activeEvents)  {
+                int uniqueId = uniqueControlValueMap.get((int)event.getId());
+                Log.v("uniqueId", String.valueOf(uniqueId));
+                Intent controltimeIntent = new Intent(ctx, ControlTimeReceiver.class);
+                controltimeIntent.putExtra("eventId", event.getId());
+                controltimeIntent.putExtra("controlTime", (int) event.getControlTime());
+                controltimeIntent.putExtra("eventName", event.getName());
+                controltimeIntent.putExtra("notificationId", uniqueId);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, uniqueId, controltimeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                AlarmManager alarmManager = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.cancel(pendingIntent);
+            }
+        } catch (Exception e) {}
     }
 }
