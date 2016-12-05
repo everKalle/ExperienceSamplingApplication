@@ -1,7 +1,5 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.os.AsyncTask;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

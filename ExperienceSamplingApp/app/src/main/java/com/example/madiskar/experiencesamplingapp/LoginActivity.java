@@ -9,9 +9,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.JsonReader;
-import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -24,14 +21,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -206,7 +198,6 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, getString(R.string.fetch_fail), Toast.LENGTH_LONG).show();
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
-                                Log.i("LOGGING SERVER RESPONSE", output);
                                 mydb.clearTables();
                                 JSONArray jsonArray = DBHandler.parseJsonString(output);
                                 ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray, true);

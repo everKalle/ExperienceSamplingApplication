@@ -4,9 +4,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by madiskar on 13/11/2016.
- */
 
 public class ExecutorSupplier {
 

@@ -3,7 +3,6 @@ package com.example.madiskar.experiencesamplingapp;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.CheckBox;
-import android.widget.GridLayout;
 import android.widget.TableLayout;
 
 import java.util.ArrayList;

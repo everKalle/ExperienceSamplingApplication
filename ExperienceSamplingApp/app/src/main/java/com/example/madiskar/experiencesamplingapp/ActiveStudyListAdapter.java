@@ -11,17 +11,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -185,12 +179,11 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                     LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(studyRef.getId()), DBHandler.getInstance(mContext), new RunnableResponse() {
                                         @Override
                                         public void processFinish(String output) {
-                                            Log.i("QUITTING STUDY", output);
+                                            //do nothing right now
                                         }
                                     });
                                     ExecutorSupplier.getInstance().forBackgroundTasks().execute(leaveStudyTask);
 
-                                    Log.v("STUDYSID ALLES", String.valueOf(studies.size()));
                                     if (studies.size() == 1) {
                                         studyFragment.noStudies();
                                     }

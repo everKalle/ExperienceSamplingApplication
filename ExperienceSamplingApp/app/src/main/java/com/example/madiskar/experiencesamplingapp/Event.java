@@ -3,9 +3,7 @@ package com.example.madiskar.experiencesamplingapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by Joosep on 22.10.2016.
- */
+
 public class Event implements Parcelable{
     private long id;
     private long studyId;

@@ -1,6 +1,5 @@
 package com.example.madiskar.experiencesamplingapp;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,22 +7,16 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.lang.Math.*;
+
 import java.util.ArrayList;
 
-/**
- * Created by joosep41 on 8.10.2016.
- */
 
 public class BeepFreePeriodListAdapter extends BaseAdapter {
 
@@ -160,13 +153,11 @@ public class BeepFreePeriodListAdapter extends BaseAdapter {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 beepFerePeriods.remove(position);
-                                for (int i = 0; i < beepFerePeriods.size(); i++)
-                                    Log.v("BeepFreePeriod algul - ", String.valueOf(beepFerePeriods.get(i).getId()));
+
                                 for (int i = position; i < beepFerePeriods.size(); i++)
                                     beepFerePeriods.get(i).setId(beepFerePeriods.get(i).getId()-1);
                                 notifyDataSetChanged();
-                                for (int i = 0; i < beepFerePeriods.size(); i++)
-                                    Log.v("BeepFreePeriod prst - ", String.valueOf(beepFerePeriods.get(i).getId()));
+
                                 DBHandler.getInstance(mContext).deleteBeepFreeEntry(position);
                                 Toast.makeText(mContext, R.string.beepfree_removed, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();

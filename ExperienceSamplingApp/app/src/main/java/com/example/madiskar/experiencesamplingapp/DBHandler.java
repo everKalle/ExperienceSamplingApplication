@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 import com.example.madiskar.experiencesamplingapp.ActiveStudyContract.*;
 
 import org.json.JSONArray;
@@ -17,7 +16,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.regex.Pattern;
 
@@ -738,7 +736,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 }
                 if(blockFinishedStudies) {
                     if (endDate.before(Calendar.getInstance())) {
-                        Log.i("Study over, do not add", name);
                         continue;
                     }
                 }

@@ -9,7 +9,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -88,7 +87,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 new RunnableResponse() {
             @Override
             public void processFinish(String output) {
-                Log.i("password change", output);
                 updateButton(true);
                 progressDialog.dismiss();
                 if(output.equals("success")) {
@@ -100,10 +98,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     showToast(getString(R.string.pw_change_fail));
                 } else if(output.equals("nothing")) {
                     showToast(getString(R.string.pw_change_fail));
-                    Log.i("Password change", "faulty query");
                 } else {
                     showToast(getString(R.string.pw_change_fail));
-                    Log.i("Password change", "there was a problem with the query");
                 }
             }
         });
