@@ -11,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteReadOnlyDatabaseException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -180,7 +182,10 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             }
 
             if (anyEvents) {
-                alertDialogBuilder.setMessage(R.string.events_log_out);
+                if(!isNetworkAvailable())
+                    alertDialogBuilder.setMessage(getString(R.string.events_log_out) + ". " + getString(R.string.unsynced_data));
+                else
+                    alertDialogBuilder.setMessage(getString(R.string.events_log_out));
                 alertDialogBuilder.setNegativeButton(getString(R.string.ok),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -242,41 +247,93 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                 alertDialog.show();
             }
             else {
-                SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putInt("LoggedIn", 0);
-                editor.putString("username", "none");
-                editor.putString("token", "none");
-                editor.apply();
-                Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                DBHandler.getInstance(getApplicationContext()).clearTables();
-                try {
-                    for (Study s : studylist) {
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
-                        AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-                        am.cancel(pendingIntent);
-                    }
-                    for (Study s : studylist) {
-                        NotificationService.cancelNotification(this, (int) s.getId());
-                    }
-                } catch (Exception e) {
-                }
+                if (!isNetworkAvailable()) {
+                    alertDialogBuilder.setMessage(getString(R.string.unsynced_data2));
+                    alertDialogBuilder.setNegativeButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putInt("LoggedIn", 0);
+                            editor.putString("username", "none");
+                            editor.putString("token", "none");
+                            editor.apply();
+                            Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                            DBHandler.getInstance(getApplicationContext()).clearTables();
+                            try {
+                                for (Study s : studylist) {
+                                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                                    AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                                    am.cancel(pendingIntent);
+                                }
+                                for (Study s : studylist) {
+                                    NotificationService.cancelNotification(getApplicationContext(), (int) s.getId());
+                                }
+                            } catch (Exception e) {
+                            }
 
-                try {
-                    for (Study s : studylist) {
-                        EventDialogFragment.cancelEvents(this, (int) s.getId());
+                            try {
+                                for (Study s : studylist) {
+                                    EventDialogFragment.cancelEvents(getApplicationContext(), (int) s.getId());
+                                }
+                            } catch (Exception e) {
+                            }
+                            try {
+                                for (Study s : studylist) {
+                                    Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
+                                    ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+                                }
+                            } catch (Exception e) {
+                            }
+                            startActivity(i);
+                            finish();
+                        }
+                    });
+                    alertDialogBuilder.setPositiveButton(getString(R.string.cancel),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                } else {
+                    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putInt("LoggedIn", 0);
+                    editor.putString("username", "none");
+                    editor.putString("token", "none");
+                    editor.apply();
+                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                    DBHandler.getInstance(getApplicationContext()).clearTables();
+                    try {
+                        for (Study s : studylist) {
+                            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
+                            AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+                            am.cancel(pendingIntent);
+                        }
+                        for (Study s : studylist) {
+                            NotificationService.cancelNotification(this, (int) s.getId());
+                        }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
-                }
-                try {
-                    for (Study s : studylist) {
-                        Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
-                        ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+
+                    try {
+                        for (Study s : studylist) {
+                            EventDialogFragment.cancelEvents(this, (int) s.getId());
+                        }
+                    } catch (Exception e) {
                     }
-                }catch (Exception e) {
+                    try {
+                        for (Study s : studylist) {
+                            Intent intent = new Intent(getApplicationContext(), QuestionnaireActivity.class);
+                            ResponseReceiver.cancelExistingAlarm(getApplicationContext(), intent, Integer.valueOf((s.getId() + 1) + "00002"), false);
+                        }
+                    } catch (Exception e) {
+                    }
+                    startActivity(i);
+                    finish();
                 }
-                startActivity(i);
-                finish();
             }
         }
         else if (itemName.equals("Exit")) {
@@ -442,6 +499,13 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             getFragmentManager().popBackStack();
         }
 
+    }
+
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 

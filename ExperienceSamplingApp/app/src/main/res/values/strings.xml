@@ -78,6 +78,8 @@
     <string name="postpone">Postpone</string>
     <string name="submit">Submit</string>
     <string name="help">Help</string>
+    <string name="unsynced_data">You might lose answers or event data that are not yet sent to the server, if you log out while offline.</string>
+    <string name="unsynced_data2">You might lose answers or event data that are not yet sent to the server, if you log out while offline, are you sure you want to log out?</string>
     <string name="help_desc">Get help with this app</string>
     <string name="no_exist">This study no longer exists</string>
     <string name="pass_length">Password must be between 6 and 16 characters</string>
