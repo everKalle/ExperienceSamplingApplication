@@ -23,7 +23,7 @@ class Study_model extends CI_Model {
 					array_push($temp, $question['question-multichoice-'.$j]);
 					unset($question['question-multichoice-'.$j]);
 				}
-				$question['question-multichoices'] = json_encode($temp);
+				$question['question-multichoices'] = json_encode($temp, JSON_UNESCAPED_UNICODE);
 			} 
 				
 			if($this->db->insert('survey_question',$question)) { // insert question into db

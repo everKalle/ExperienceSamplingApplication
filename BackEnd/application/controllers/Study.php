@@ -232,14 +232,14 @@ class Study extends CI_Controller {
  }
 
  function get_public_studies(){
-    $public_studies = $this->study_model->get_all_public_studies();
-    $study_array = array();
-    foreach($public_studies as $study):
-      $study['questions'] = $this->study_model->get_study_questions($study['id']);
-      $study['events'] = $this->study_model->get_study_events($study['id']);
-      $study_array[] = $study;
-    endforeach;
-    $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
+      $public_studies = $this->study_model->get_all_public_studies();
+      $study_array = array();
+      foreach($public_studies as $study):
+        $study['questions'] = $this->study_model->get_study_questions($study['id']);
+        $study['events'] = $this->study_model->get_study_events($study['id']);
+        $study_array[] = $study;
+      endforeach;
+      $this->output->set_content_type('application/json')->set_output(json_encode($study_array, JSON_UNESCAPED_UNICODE));
  }
 
  function get_participant_studies(){
@@ -256,7 +256,7 @@ class Study extends CI_Controller {
           $study['events'] = $this->study_model->get_study_events($study['id']);
           $study_array[] = $study;
         endforeach;
-        $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
+        $this->output->set_content_type('application/json')->set_output(json_encode($study_array, JSON_UNESCAPED_UNICODE));
       }
     } else {
       echo "nothing";
