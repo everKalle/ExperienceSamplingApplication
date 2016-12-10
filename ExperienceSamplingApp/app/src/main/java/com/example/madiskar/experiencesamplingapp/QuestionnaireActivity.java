@@ -128,8 +128,6 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 }
             }
         });
-        Button back = (Button) findViewById(R.id.previousquestionbutton);
-        back.setVisibility(View.INVISIBLE);
         final Context mContext = this;
 
         Button cancel = (Button) findViewById(R.id.cancel_questionnaire_button);

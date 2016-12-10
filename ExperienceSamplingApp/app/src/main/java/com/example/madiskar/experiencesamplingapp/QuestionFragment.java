@@ -11,12 +11,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
- * create an instance of this fragment.
- */
 
 public class QuestionFragment extends Fragment {
 
