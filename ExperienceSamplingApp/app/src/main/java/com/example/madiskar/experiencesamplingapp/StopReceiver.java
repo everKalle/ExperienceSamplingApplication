@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 
 import java.util.ArrayList;
@@ -30,13 +31,13 @@ public class StopReceiver extends BroadcastReceiver {
         long eventId = intent.getLongExtra("eventId", 0);
         long studyId = intent.getLongExtra("studyId", 0);
 
-        EventFragment.removeEvent(eventId);
-
-        ArrayList<Integer> values = EventDialogFragment.studyToNotificationIdMap.get((int) studyId);
-
-        values.remove(new Integer(notificationId));
-        EventDialogFragment.studyToNotificationIdMap.put((int)studyId, values);
-
+        Log.v("startTime", startTime);
+        Log.v("endTime", endTime);
+        Log.v("notificationId",notificationId + "");
+        Log.v("controlNotificationId", controlNotificationId + "");
+        Log.v("eventId", eventId + "");
+        Log.v("studyId", studyId + "");
+        EventFragment.removeEvent(eventId, context);
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);

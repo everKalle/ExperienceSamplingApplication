@@ -118,14 +118,27 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext.getApplicationContext(), (int) study.getId(), new Intent(mContext.getApplicationContext(), ResponseReceiver.class), 0);
                 AlarmManager am = (AlarmManager) mContext.getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 am.cancel(pendingIntent);
+
+                DBHandler dbHandler = DBHandler.getInstance(mContext);
+                ArrayList<Event> activeEvents = new ArrayList<>();
+                for (Study s: dbHandler.getAllStudies()) {
+                    for (Event e: s.getEvents()) {
+                        Calendar startTime = dbHandler.getEventStartTime(e.getId());
+                        if (startTime != null) {
+                            activeEvents.add(e);
+                        }
+                    }
+                }
+
+
                 if(cancelEvents) {
-                    for (Event event : EventDialogFragment.activeEvents) {
+                    for (Event event : activeEvents) {
                         if (event.getStudyId() == study.getId()) {
                             Intent stopIntent = new Intent(mContext.getApplicationContext(), StopReceiver.class);
                             stopIntent.putExtra("start", event.getStartTimeCalendar());
-                            stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("notificationId", ((int) event.getId())*-1);
                             stopIntent.putExtra("studyId", event.getStudyId());
-                            stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("controlNotificationId", ((int) event.getId())*-100);
                             stopIntent.putExtra("eventId", event.getId());
                             mContext.getApplicationContext().sendBroadcast(stopIntent);
                         }

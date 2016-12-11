@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
 import com.example.madiskar.experiencesamplingapp.ActiveStudyContract.*;
 
 import org.json.JSONArray;
@@ -64,6 +66,12 @@ public class DBHandler extends SQLiteOpenHelper {
                     + EventEntry.COLUMN_CONTROLTIME + " INTEGER NOT NULL, "
                     + EventEntry.COLUMN_UNIT + " TEXT NOT NULL, "
                     + "FOREIGN KEY (" + EventEntry.COLUMN_STUDYID + ") REFERENCES " + ActiveStudyEntry.TABLE_NAME + "(" + ActiveStudyEntry._ID + "))";
+    public static final String SQL_CREATE_TABLE_EVENT_TIMES =
+            "CREATE TABLE IF NOT EXISTS " + EventTimeEntry.TABLE_NAME + " ("
+                    + EventTimeEntry._ID + " INTEGER PRIMARY KEY, "
+                    + EventTimeEntry.COLUMN_EVENTID + " INTEGER NOT NULL, "
+                    + EventTimeEntry.COLUMN_START + " TEXT NOT NULL, "
+                    + "FOREIGN KEY (" + EventTimeEntry.COLUMN_EVENTID + ") REFERENCES " + EventEntry.TABLE_NAME + "(" + EventEntry._ID + "))";
     public static final String SQL_CREATE_TABLE_EVENT_RESULTS =
             "CREATE TABLE IF NOT EXISTS " + EventResultsEntry.TABLE_NAME + " ("
                     + EventResultsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -82,8 +90,10 @@ public class DBHandler extends SQLiteOpenHelper {
     public static final String SQL_DELETE_TABLE_QUESTION = "DROP TABLE IF EXISTS " + QuestionEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_ANSWERS = "DROP TABLE IF EXISTS " + AnswerEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_EVENTS = "DROP TABLE IF EXISTS " + EventEntry.TABLE_NAME;
+    public static final String SQL_DELETE_TABLE_EVENT_TIMES = "DROP TABLE IF EXISTS " + EventTimeEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_EVENT_RESULTS = "DROP TABLE IF EXISTS " + EventResultsEntry.TABLE_NAME;
     public static final String SQL_DELETE_TABLE_BEEPFREE_PERIODS = "DROP TABLE IF EXISTS " + BeepFreePeriodEntry.TABLE_NAME;
+
 
     public static synchronized DBHandler getInstance(Context context) {
         if (mInstance == null)
@@ -101,6 +111,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_TABLE_QUESTION);
         db.execSQL(SQL_CREATE_TABLE_ANSWERS);
         db.execSQL(SQL_CREATE_TABLE_EVENTS);
+        db.execSQL(SQL_CREATE_TABLE_EVENT_TIMES);
         db.execSQL(SQL_CREATE_TABLE_EVENT_RESULTS);
         db.execSQL(SQL_CREATE_TABLE_BEEPFREE_PERIODS);
     }
@@ -111,6 +122,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL(SQL_DELETE_TABLE_QUESTION);
         db.execSQL(SQL_DELETE_TABLE_ANSWERS);
         db.execSQL(SQL_DELETE_TABLE_EVENTS);
+        db.execSQL(SQL_DELETE_TABLE_EVENT_TIMES);
         db.execSQL(SQL_DELETE_TABLE_EVENT_RESULTS);
         db.execSQL(SQL_DELETE_TABLE_BEEPFREE_PERIODS);
         onCreate(db);
@@ -125,6 +137,7 @@ public class DBHandler extends SQLiteOpenHelper {
             db.execSQL("DELETE FROM " + QuestionEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + AnswerEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + EventEntry.TABLE_NAME);
+            db.execSQL("DELETE FROM " + EventTimeEntry.TABLE_NAME);
             db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
             db.setTransactionSuccessful();
         } catch(Exception e) {
@@ -166,6 +179,12 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM " + EventResultsEntry.TABLE_NAME);
     }
+
+    public void clearEventTimeTable() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + EventTimeEntry.TABLE_NAME);
+    }
+
 
 
     public boolean isStudyInDb(Study s) {
@@ -475,6 +494,27 @@ public class DBHandler extends SQLiteOpenHelper {
         return beepFerePeriods;
     }
 
+    public Calendar getEventStartTime(long eventId) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cur = db.rawQuery("SELECT * FROM " + EventTimeEntry.TABLE_NAME + " WHERE " + EventTimeEntry.COLUMN_EVENTID + " = " + eventId + " ORDER BY " + EventTimeEntry._ID, null);
+        cur.moveToFirst();
+
+        if (cur.getCount() == 0) {
+            cur.close();
+            return null;
+        }
+        String startTime = "";
+        try{
+            startTime = cur.getString(cur.getColumnIndex(EventTimeEntry.COLUMN_START));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cur.close();
+        }
+        return stringToCalendar(startTime);
+    }
+
     public long editBeepFree(BeepFerePeriod bfp) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -515,6 +555,32 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(EventEntry.COLUMN_CONTROLTIME, event.getControlTime());
         values.put(EventEntry.COLUMN_UNIT, event.getUnit());
         return db.insert(EventEntry.TABLE_NAME, null, values);
+    }
+
+    public long insertEventTime(long eventId, String startTime) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(EventTimeEntry.COLUMN_EVENTID, eventId);
+        values.put(EventTimeEntry.COLUMN_START, startTime);
+        return db.insert(EventTimeEntry.TABLE_NAME, null, values);
+    }
+
+    public boolean deleteEventTimeEntry(long eventId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete(EventTimeEntry.TABLE_NAME, EventTimeEntry.COLUMN_EVENTID + " = ? ", new String[]{Long.toString(eventId)});
+            db.setTransactionSuccessful();
+            Log.v("onnestus", "jess");
+        } catch (Exception e) {
+            Log.v("ebaonn", "lape");
+            e.printStackTrace();
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+        return true;
+
     }
 
     public long insertEventResult(long eventId, String startTime, String endTime) {

@@ -47,6 +47,12 @@ public class ActiveStudyContract {
         public static final String COLUMN_UNIT = "event_unit";
     }
 
+    public static class EventTimeEntry implements BaseColumns {
+        public static final String TABLE_NAME = "event_time_table";
+        public static final String COLUMN_EVENTID = "event_id";
+        public static final String COLUMN_START = "event_start";
+    }
+
     public static class EventResultsEntry implements BaseColumns {
         public static final String TABLE_NAME = "event_results_table";
         public static final String COLUMN_EVENTID = "event_id";

@@ -180,13 +180,25 @@ public class StudyFragment extends ListFragment {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity().getApplicationContext(), (int) study.getId(), new Intent(getActivity().getApplicationContext(), ResponseReceiver.class), 0);
                 AlarmManager am = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 am.cancel(pendingIntent);
-                for (Event event: EventDialogFragment.activeEvents) {
+
+                DBHandler dbHandler = DBHandler.getInstance(getActivity());
+                ArrayList<Event> activeEvents = new ArrayList<>();
+                for (Study s: dbHandler.getAllStudies()) {
+                    for (Event e: s.getEvents()) {
+                        Calendar startTime = dbHandler.getEventStartTime(e.getId());
+                        if (startTime != null) {
+                            activeEvents.add(e);
+                        }
+                    }
+                }
+
+                for (Event event: activeEvents) {
                     if (event.getStudyId() == study.getId()) {
                         Intent stopIntent = new Intent(getActivity().getApplicationContext(), StopReceiver.class);
                         stopIntent.putExtra("start", event.getStartTimeCalendar());
-                        stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                        stopIntent.putExtra("notificationId", ((int) event.getId())*-1);
                         stopIntent.putExtra("studyId", event.getStudyId());
-                        stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                        stopIntent.putExtra("controlNotificationId", ((int) event.getId())*-100);
                         stopIntent.putExtra("eventId", event.getId());
                         getActivity().getApplicationContext().sendBroadcast(stopIntent);
                     }
@@ -208,14 +220,26 @@ public class StudyFragment extends ListFragment {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity().getApplicationContext(), (int) study.getId(), new Intent(getActivity().getApplicationContext(), ResponseReceiver.class), 0);
                 AlarmManager am = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                 am.cancel(pendingIntent);
+
+                DBHandler dbHandler = DBHandler.getInstance(getActivity());
+                ArrayList<Event> activeEvents = new ArrayList<>();
+                for (Study s: dbHandler.getAllStudies()) {
+                    for (Event e: s.getEvents()) {
+                        Calendar startTime = dbHandler.getEventStartTime(e.getId());
+                        if (startTime != null) {
+                            activeEvents.add(e);
+                        }
+                    }
+                }
+
                 if(cancelEvents) {
-                    for (Event event : EventDialogFragment.activeEvents) {
+                    for (Event event : activeEvents) {
                         if (event.getStudyId() == study.getId()) {
                             Intent stopIntent = new Intent(getActivity().getApplicationContext(), StopReceiver.class);
                             stopIntent.putExtra("start", event.getStartTimeCalendar());
-                            stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("notificationId", ((int) event.getId())*-1);
                             stopIntent.putExtra("studyId", event.getStudyId());
-                            stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("controlNotificationId", ((int) event.getId())*-100);
                             stopIntent.putExtra("eventId", event.getId());
                             getActivity().getApplicationContext().sendBroadcast(stopIntent);
                         }

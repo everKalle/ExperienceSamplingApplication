@@ -148,7 +148,12 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putInt(String.valueOf(studyRef.getId()), 0);
                     editor.apply();
-                    if (EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int) studyRef.getId()).size() < 1)
+                    boolean anyEvents = false;
+                    for (Event event: studyRef.getEvents()) {
+                        if (DBHandler.getInstance(mContext).getEventStartTime(event.getId()) != null)
+                            anyEvents = true;
+                    }
+                    if (!anyEvents)
                         alertDialogBuilder.setMessage(mContext.getString(R.string.quit_study) +" \"" + studyRef.getName() + "\"?");
                     else
                         alertDialogBuilder.setMessage(mContext.getString(R.string.quit_event) + "\n \"" + studyRef.getName() + "\"?");

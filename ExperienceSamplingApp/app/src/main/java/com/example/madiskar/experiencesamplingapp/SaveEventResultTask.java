@@ -2,6 +2,8 @@ package com.example.madiskar.experiencesamplingapp;
 
 
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,6 +46,9 @@ public class SaveEventResultTask implements Runnable {
             BufferedReader reader = null;
 
             try {
+                Log.v("event_id", event_id);
+                Log.v("start_time", start_time);
+                Log.v("end_time", end_time);
                 String data = URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(token, "UTF-8");
                 data += "&" + URLEncoder.encode("event_id", "UTF-8") + "=" + URLEncoder.encode(event_id, "UTF-8");
                 data += "&" + URLEncoder.encode("start_time", "UTF-8") + "=" + URLEncoder.encode(start_time, "UTF-8");

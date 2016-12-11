@@ -12,8 +12,10 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -23,10 +25,6 @@ import java.util.Map;
 public class EventDialogFragment extends DialogFragment {
     String selectedItem = null;
     int selectedItemId = 0;
-    public static ArrayList<Event> activeEvents = new ArrayList<>();
-    public static Map<Integer, Integer> uniqueValueMap = new HashMap<>();
-    public static Map<Integer, ArrayList<Integer>> studyToNotificationIdMap = new HashMap<>();
-    public static Map<Integer, Integer> uniqueControlValueMap = new HashMap<>();
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -35,13 +33,22 @@ public class EventDialogFragment extends DialogFragment {
         final Event[] events = (Event[]) args.getParcelableArray("EVENTS");
         final long studyId = args.getLong("studyId");
 
-        if (studyToNotificationIdMap.get((int)studyId) == null)
-            studyToNotificationIdMap.put((int)studyId, new ArrayList<Integer>());
-
         final String[] items = new String[events.length];
         for (int i = 0; i < events.length; i++) {
             items[i] = events[i].getName();
         }
+
+        DBHandler dbHandler = DBHandler.getInstance(getContext());
+        ArrayList<Event> activeEventsClone = new ArrayList<>();
+        for (Study s: dbHandler.getAllStudies()) {
+            for (Event e: s.getEvents()) {
+                Calendar startTime = dbHandler.getEventStartTime(e.getId());
+                if (startTime != null) {
+                    activeEventsClone.add(e);
+                }
+            }
+        }
+        final ArrayList<Event> activeEvents = new ArrayList<>(activeEventsClone);
 
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -65,31 +72,12 @@ public class EventDialogFragment extends DialogFragment {
                         }
 
                         if (selectedItem != null && !alreadyExists) {
-                            int uniqueValue = 10000 + (int) studyId;
-
-                            boolean unique = false;
-                            while (!unique) {
-                                unique = true;
-                                for (Map.Entry<Integer, ArrayList<Integer>> entry : studyToNotificationIdMap.entrySet()) {
-                                    for (int i = 0; i < entry.getValue().size(); i++) {
-                                        if (uniqueValue == entry.getValue().get(i)) {
-                                            unique = false;
-                                            uniqueValue += 1;
-                                        }
-                                    }
-                                }
-                            }
 
                             try {
-                                ArrayList<Integer> values = studyToNotificationIdMap.get((int) studyId);
-                                values.add(uniqueValue);
-                                uniqueValueMap.put((int) events[selectedItemId].getId(), uniqueValue);
-                                studyToNotificationIdMap.put((int) studyId, values);
-
                                 Intent stopIntent = new Intent(getContext(), StopReceiver.class);
 
-                                final int uniqueId = (int) (System.currentTimeMillis() & 0xfffffff);
-                                uniqueControlValueMap.put((int) events[selectedItemId].getId(), uniqueId);
+                                final int uniqueValue = ((int) events[selectedItemId].getId())*-1;
+                                final int uniqueId = (int) (events[selectedItemId].getId())*-100;
 
                                 String calendarString = DBHandler.calendarToString(Calendar.getInstance());
 
@@ -106,7 +94,8 @@ public class EventDialogFragment extends DialogFragment {
                                 events[selectedItemId].setStartTimeMinute(calendar.get(calendar.MINUTE));
                                 events[selectedItemId].setStartTimeInMillis(calendar.getTimeInMillis());
                                 events[selectedItemId].setStartTimeCalendar(calendarString);
-                                activeEvents.add(events[selectedItemId]);
+
+                                DBHandler.getInstance(getContext()).insertEventTime(events[selectedItemId].getId(), events[selectedItemId].getStartTimeCalendar());
 
                                 PendingIntent stopPendingIntent = PendingIntent.getBroadcast(getActivity(), uniqueValue, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -165,23 +154,23 @@ public class EventDialogFragment extends DialogFragment {
 
     public static void cancelEvents(Context ctx, int studyId) {
         try {
-            String ns = Context.NOTIFICATION_SERVICE;
-            NotificationManager nMgr = (NotificationManager) ctx.getSystemService(ns);
-            ArrayList<Integer> notifIdArrayList = studyToNotificationIdMap.get(studyId);
-
-            for (int notifyId : notifIdArrayList) {
-                nMgr.cancel(notifyId);
-            }
-            for (Event event: activeEvents)  {
-                int uniqueId = uniqueControlValueMap.get((int)event.getId());
-                Intent controltimeIntent = new Intent(ctx, ControlTimeReceiver.class);
-                controltimeIntent.putExtra("eventId", event.getId());
-                controltimeIntent.putExtra("controlTime", (int) event.getControlTime());
-                controltimeIntent.putExtra("eventName", event.getName());
-                controltimeIntent.putExtra("notificationId", uniqueId);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, uniqueId, controltimeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                AlarmManager alarmManager = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.cancel(pendingIntent);
+            DBHandler db = DBHandler.getInstance(ctx);
+            Study study = db.getStudy(studyId);
+            NotificationManager nMgr = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            for (Event event : study.getEvents()) {
+                Calendar startTime = db.getEventStartTime(event.getId());
+                if (startTime != null) {
+                    nMgr.cancel((int)(event.getId()*-1));
+                    Intent controltimeIntent = new Intent(ctx, ControlTimeReceiver.class);
+                    controltimeIntent.putExtra("eventId", event.getId());
+                    controltimeIntent.putExtra("controlTime", (int) event.getControlTime());
+                    controltimeIntent.putExtra("eventName", event.getName());
+                    controltimeIntent.putExtra("notificationId", ((int)event.getId())*-100);
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(ctx, ((int)event.getId())*-100, controltimeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    AlarmManager alarmManager = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+                    alarmManager.cancel(pendingIntent);
+                    db.deleteEventTimeEntry(event.getId());
+                }
             }
         } catch (Exception e) {}
     }

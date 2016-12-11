@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -160,16 +161,16 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                     .commit();
         }
         else if (itemName.equals("Log Out")) {
-            DBHandler mydb = DBHandler.getInstance(getApplicationContext());
+            final DBHandler mydb = DBHandler.getInstance(getApplicationContext());
             final ArrayList<Study> studylist = mydb.getAllStudies();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             boolean anyEvents = false;
             for (Study s: studylist) {
-                if (EventDialogFragment.studyToNotificationIdMap.get((int)s.getId()) == null || EventDialogFragment.studyToNotificationIdMap.get((int)s.getId()).size() < 1) {}
-                else
-                    anyEvents = true;
+                for (Event event : s.getEvents()) {
+                    if (DBHandler.getInstance(getApplicationContext()).getEventStartTime(event.getId()) != null)
+                        anyEvents = true;
+                }
             }
-
             if (anyEvents) {
                 if(!isNetworkAvailable())
                     alertDialogBuilder.setMessage(getString(R.string.events_log_out) + ". " + getString(R.string.unsynced_data));
@@ -185,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                 editor.putString("token", "none");
                                 editor.apply();
                                 Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                                DBHandler.getInstance(getApplicationContext()).clearTables();
                                 try {
                                     for (Study s : studylist) {
                                         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) s.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
@@ -220,10 +220,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                                 }catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                try {
-                                    EventDialogFragment.activeEvents.clear();
-                                } catch (Exception e) {}
-                                EventDialogFragment.studyToNotificationIdMap.clear();
+                                DBHandler.getInstance(getApplicationContext()).clearTables();
                                 dialog.dismiss();
                                 startActivity(i);
                                 finish();
@@ -239,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                 alertDialog.show();
             }
             else {
+                Log.v("njetu", "pole");
                 if (!isNetworkAvailable()) {
                     alertDialogBuilder.setMessage(getString(R.string.unsynced_data2));
                     alertDialogBuilder.setNegativeButton(getString(R.string.ok), new DialogInterface.OnClickListener() {

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -34,6 +35,7 @@ public class NotificationService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         try {
             long studyId = intent.getLongExtra("studyId", 0);
+
             processNotification((int)studyId);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
@@ -118,6 +120,7 @@ public class NotificationService extends IntentService {
                         PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
                         PendingIntent postponePendingIntent = PendingIntent.getBroadcast(this, -Integer.valueOf(uniqueValue3), postponeIntent, 0);
 
+
                         Uri ringtone = null;
                         final int previousAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
@@ -196,13 +199,25 @@ public class NotificationService extends IntentService {
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), (int) study.getId(), new Intent(getApplicationContext(), ResponseReceiver.class), 0);
                     AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
                     am.cancel(pendingIntent);
-                    for (Event event : EventDialogFragment.activeEvents) {
+
+                    DBHandler dbHandler = DBHandler.getInstance(mContext);
+                    ArrayList<Event> activeEvents = new ArrayList<>();
+                    for (Study s: dbHandler.getAllStudies()) {
+                        for (Event e: s.getEvents()) {
+                            Calendar startTime = dbHandler.getEventStartTime(e.getId());
+                            if (startTime != null) {
+                                activeEvents.add(e);
+                            }
+                        }
+                    }
+
+                    for (Event event : activeEvents) {
                         if (event.getStudyId() == study.getId()) {
                             Intent stopIntent = new Intent(getApplicationContext(), StopReceiver.class);
                             stopIntent.putExtra("start", event.getStartTimeCalendar());
-                            stopIntent.putExtra("notificationId", EventDialogFragment.uniqueValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("notificationId", ((int) event.getId())*-1);
                             stopIntent.putExtra("studyId", event.getStudyId());
-                            stopIntent.putExtra("controlNotificationId", EventDialogFragment.uniqueControlValueMap.get((int) event.getId()));
+                            stopIntent.putExtra("controlNotificationId", ((int) event.getId())*-100);
                             stopIntent.putExtra("eventId", event.getId());
                             sendBroadcast(stopIntent);
                         }
