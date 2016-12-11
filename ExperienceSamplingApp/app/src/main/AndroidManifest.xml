@@ -81,9 +81,7 @@
             android:configChanges="orientation"
             android:screenOrientation="sensor"
             android:theme="@style/Theme.AppCompat.Dialog" />
-        <activity android:name=".VolumeDialog"
-            android:theme="@style/Theme.AppCompat.Dialog">
-        </activity>
+
     </application>
 
 </manifest>

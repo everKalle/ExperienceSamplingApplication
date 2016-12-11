@@ -5,7 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v7.app.NotificationCompat;
@@ -13,7 +16,6 @@ import android.support.v7.app.NotificationCompat;
 
 public class ControlTimeReceiver extends BroadcastReceiver {
 
-    private final static int MAX_VOLUME = 100;
     private static int index = -2000000;
 
     @Override
@@ -27,35 +29,63 @@ public class ControlTimeReceiver extends BroadcastReceiver {
         SharedPreferences sharedPref = context.getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         int alarmType = Integer.valueOf(settings.getString("alarm_type", ""));
         int alarmTone = Integer.valueOf(settings.getString("alarm_tone",""));
-        int soundVolume = sharedPref.getInt("volume",0);
-        MediaPlayer mediaPlayer;
+
+        final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        int soundVolume = sharedPref.getInt("volume", -1);
+        if (soundVolume == -1) {
+            editor.putInt("volume", audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)/2);
+            editor.apply();
+            soundVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)/2;
+        }
+
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+
+        Uri ringtone = null;
+        final int previousAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
         if (alarmType == 0) {
             if (alarmTone == 0) {
-                mediaPlayer = MediaPlayer.create(context, R.raw.chime_1);
+                ringtone = Uri.parse("android.resource://com.example.madiskar.experiencesamplingapp/raw/chime_1");
+            } else if (alarmTone == 1)
+                ringtone = Uri.parse("android.resource://com.example.madiskar.experiencesamplingapp/raw/chime_2");
+            else {
+                ringtone = Uri.parse("android.resource://com.example.madiskar.experiencesamplingapp/raw/chime_3");
             }
-            else if (alarmTone == 1)
-                mediaPlayer = MediaPlayer.create(context, R.raw.chime_2);
-            else
-                mediaPlayer = MediaPlayer.create(context, R.raw.chime_2);
-            float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
-            mediaPlayer.setVolume(volume, volume);
-            mediaPlayer.start();
-        }
-        else if (alarmType == 1) {
+
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, soundVolume, 0);
+
+            builder.setContentTitle(context.getString(R.string.controltime))
+                    .setOngoing(false)
+                    .setAutoCancel(true)
+                    .setSound(ringtone, AudioManager.STREAM_ALARM)
+                    .setColor(context.getResources().getColor(R.color.colorAccent))
+                    .setContentText(context.getString(R.string.control_event)  + " \"" + eventName + "\" " + context.getString(R.string.passed))
+                    .setSmallIcon(R.drawable.ic_events);
+
+
+        } else if (alarmType == 1) {
+            builder.setContentTitle(context.getString(R.string.controltime))
+                    .setOngoing(false)
+                    .setAutoCancel(true)
+                    .setColor(context.getResources().getColor(R.color.colorAccent))
+                    .setContentText(context.getString(R.string.control_event)  + " \"" + eventName + "\" " + context.getString(R.string.passed))
+                    .setSmallIcon(R.drawable.ic_events);
+
             Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             // Vibrate for 1000 milliseconds
             v.vibrate(1000);
         }
 
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-
-        builder.setContentTitle(context.getString(R.string.controltime))
-                .setOngoing(false)
-                .setAutoCancel(true)
-                .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setContentText(context.getString(R.string.control_event)  + " \"" + eventName + "\" " + context.getString(R.string.passed))
-                .setSmallIcon(R.drawable.ic_events);
+        Handler h = new Handler(Looper.getMainLooper());
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, previousAlarmVolume, 0);
+            }
+        }, 2500);
 
         final NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(index, builder.build());

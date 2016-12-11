@@ -8,7 +8,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -21,15 +22,10 @@ import java.util.Calendar;
 
 public class NotificationService extends IntentService {
 
-    private int NOTIFICATION_ID;
     private int alarmType;
     private int alarmTone;
-    public static final String PREFS_NAME = "preferences";
-    private boolean started = false;
     private SharedPreferences sharedPref;
     private static Context mContext = null;
-    private final static int MAX_VOLUME = 100;
-    private MediaPlayer mediaPlayer;
     public NotificationService() {
         super(NotificationService.class.getName());
     }
@@ -38,8 +34,6 @@ public class NotificationService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         try {
             long studyId = intent.getLongExtra("studyId", 0);
-
-            ArrayList<Study> studies = DBHandler.getInstance(getApplicationContext()).getAllStudies();
             processNotification((int)studyId);
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
@@ -88,11 +82,13 @@ public class NotificationService extends IntentService {
 
             if (!beepFreePeriod(study)) {
 
+                final AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+
                 int soundVolume = sharedPref.getInt("volume", -1);
                 if (soundVolume == -1) {
-                    editor.putInt("volume", 50);
+                    editor.putInt("volume", audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)/2);
                     editor.apply();
-                    soundVolume = 50;
+                    soundVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)/2;
                 }
 
                 if (!Calendar.getInstance().after(study.getEndDate())) {
@@ -100,27 +96,6 @@ public class NotificationService extends IntentService {
                         editor = sharedPref.edit();
                         editor.putInt(String.valueOf(study.getId()), dailyNotCount + 1);
                         editor.apply();
-
-
-                        if (alarmType == 0) {
-
-                            if (alarmTone == 0) {
-                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_1);
-                            } else if (alarmTone == 1)
-                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_2);
-                            else
-                                mediaPlayer = MediaPlayer.create(this, R.raw.chime_3);
-                            if (!started) {
-                                float volume = (float) (1 - (Math.log(MAX_VOLUME - soundVolume) / Math.log(MAX_VOLUME)));
-                                mediaPlayer.setVolume(volume, volume);
-                                mediaPlayer.start();
-                                started = true;
-                            }
-                        } else if (alarmType == 1) {
-                            Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
-                            // Vibrate for 1000 milliseconds
-                            v.vibrate(1000);
-                        }
 
                         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
                         String uniqueValue = (index + 1) + "00000";
@@ -143,16 +118,47 @@ public class NotificationService extends IntentService {
                         PendingIntent refusePendingIntent = PendingIntent.getBroadcast(this, Integer.valueOf(uniqueValue2), refuseIntent, 0);
                         PendingIntent postponePendingIntent = PendingIntent.getBroadcast(this, -Integer.valueOf(uniqueValue3), postponeIntent, 0);
 
-                        builder.setContentTitle(study.getName())
-                                .setPriority(Notification.PRIORITY_MAX)
-                                .setWhen(0)
-                                .setOngoing(true)
-                                .setColor(getResources().getColor(R.color.colorAccent))
-                                .setContentText(getString(R.string.questionnaire))
-                                .setSmallIcon(R.drawable.ic_questionnaire)
-                                .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
-                                .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent)
-                        ;
+                        Uri ringtone = null;
+                        final int previousAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+
+                        if (alarmType == 0) {
+                            if (alarmTone == 0) {
+                                ringtone = Uri.parse("android.resource://com.example.madiskar.experiencesamplingapp/raw/chime_1");
+                            } else if (alarmTone == 1)
+                                ringtone = Uri.parse("android.resource://com.example.madiskar.experiencesamplingapp/raw/chime_2");
+                            else {
+                                ringtone = Uri.parse("android.resource://com.example.madiskar.experiencesamplingapp/raw/chime_3");
+                            }
+
+                            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, soundVolume, 0);
+
+                            builder.setContentTitle(study.getName())
+                                    .setPriority(Notification.PRIORITY_MAX)
+                                    .setWhen(0)
+                                    .setOngoing(true)
+                                    .setColor(getResources().getColor(R.color.colorAccent))
+                                    .setContentText(getString(R.string.questionnaire))
+                                    .setSmallIcon(R.drawable.ic_questionnaire)
+                                    .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
+                                    .setSound(ringtone, AudioManager.STREAM_ALARM)
+                                    .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent);
+
+
+                        } else if (alarmType == 1) {
+                            builder.setContentTitle(study.getName())
+                                    .setPriority(Notification.PRIORITY_MAX)
+                                    .setWhen(0)
+                                    .setOngoing(true)
+                                    .setColor(getResources().getColor(R.color.colorAccent))
+                                    .setContentText(getString(R.string.questionnaire))
+                                    .setSmallIcon(R.drawable.ic_questionnaire)
+                                    .addAction(R.drawable.ic_ok, getString(R.string.ok2), okPendingIntent)
+                                    .addAction(R.drawable.ic_refuse, getString(R.string.refuse), refusePendingIntent);
+
+                            Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+                            // Vibrate for 1000 milliseconds
+                            v.vibrate(1000);
+                        }
 
                         if (study.getPostponable()) {
                             builder.addAction(R.drawable.ic_postpone, getString(R.string.postpone), postponePendingIntent);
@@ -175,6 +181,13 @@ public class NotificationService extends IntentService {
                                 manager.cancel(index);
                             }
                         }, delay);
+
+                        h.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, previousAlarmVolume, 0);
+                            }
+                        }, 2500);
                     }
                 } else {
                     cancelNotification(getApplicationContext(), (int) study.getId());

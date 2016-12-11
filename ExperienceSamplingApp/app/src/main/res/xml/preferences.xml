@@ -6,7 +6,7 @@
         android:summary="The type of alarm played"
         android:entries="@array/alarmTypeEntries"
         android:entryValues="@array/alarmTypeValues"
-        android:defaultValue="0"/>
+        android:defaultValue="1"/>
     <ListPreference
         android:key="alarm_tone"
         android:summary="Tone to be played"
@@ -17,7 +17,7 @@
     <CheckBoxPreference
         android:key="pref_sync"
         android:title="@string/pref_sync"
-        android:defaultValue="false"
+        android:defaultValue="true"
     />
     <Preference android:title="@string/pref_alarm_volume"
         android:key="changeVolume"
