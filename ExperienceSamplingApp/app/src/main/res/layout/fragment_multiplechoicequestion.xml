@@ -28,7 +28,7 @@
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp" />
 
-    <com.example.madiskar.experiencesamplingapp.CheckBoxGroupView
+    <com.example.madiskar.experiencesamplingapp.custom_views.CheckBoxGroupView
         android:id="@+id/checkBoxGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

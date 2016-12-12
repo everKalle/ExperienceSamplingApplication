@@ -16,24 +16,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <service
-            android:name=".NotificationService"
+            android:name=".services.NotificationService"
             android:enabled="true"
             android:exported="false" />
 
-        <receiver android:name=".NetworkChangeReceiver">
+        <receiver android:name=".receivers.NetworkChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".ResponseReceiver" />
+        <receiver android:name=".receivers.ResponseReceiver" />
         <receiver
-            android:name=".BootReceiver"
+            android:name=".receivers.BootReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
@@ -42,31 +42,31 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".StopReceiver" />
+        <receiver android:name=".receivers.StopReceiver" />
         <receiver
-            android:name=".ControlTimeReceiver"
+            android:name=".receivers.ControlTimeReceiver"
             android:process=":remote" />
-        <receiver android:name=".PostponeReceiver" />
-        <receiver android:name=".RefuseReceiver" />
+        <receiver android:name=".receivers.PostponeReceiver" />
+        <receiver android:name=".receivers.RefuseReceiver" />
 
         <activity
-            android:name=".QuestionnaireActivity"
+            android:name=".activities.QuestionnaireActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".RegisterActivity"
+            android:name=".activities.RegisterActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
-            android:name="ChangePasswordActivity"
+            android:name=".activities.ChangePasswordActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -77,7 +77,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".VolumeControlActivity"
+            android:name=".activities.VolumeControlActivity"
             android:configChanges="orientation"
             android:screenOrientation="sensor"
             android:theme="@style/Theme.AppCompat.Dialog" />

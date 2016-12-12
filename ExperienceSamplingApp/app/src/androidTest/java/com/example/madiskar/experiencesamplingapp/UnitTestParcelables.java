@@ -1,22 +1,20 @@
 package com.example.madiskar.experiencesamplingapp;
 
 import android.os.Parcel;
-import android.support.test.filters.SmallTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.InstrumentationTestCase;
+
+import com.example.madiskar.experiencesamplingapp.data_types.Event;
+import com.example.madiskar.experiencesamplingapp.data_types.FreeTextQuestion;
+import com.example.madiskar.experiencesamplingapp.data_types.MultipleChoiceQuestion;
+import com.example.madiskar.experiencesamplingapp.data_types.Question;
+import com.example.madiskar.experiencesamplingapp.data_types.Questionnaire;
+import com.example.madiskar.experiencesamplingapp.data_types.Study;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
-import static java.util.Calendar.MONTH;
 import static org.junit.Assert.*;
 
 /**
