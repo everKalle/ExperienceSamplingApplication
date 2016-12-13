@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.example.madiskar.experiencesamplingapp.data_types.Event;
 import com.example.madiskar.experiencesamplingapp.background_tasks.ExecutorSupplier;
 import com.example.madiskar.experiencesamplingapp.activities.MainActivity;
+import com.example.madiskar.experiencesamplingapp.interfaces.OnStudyTableChangedListener;
 import com.example.madiskar.experiencesamplingapp.services.NotificationService;
 import com.example.madiskar.experiencesamplingapp.activities.QuestionnaireActivity;
 import com.example.madiskar.experiencesamplingapp.R;
@@ -47,6 +48,8 @@ public class StudyFragment extends ListFragment {
     private ProgressBar progress;
     private TextView progressText;
     private SharedPreferences spref;
+    private DBHandler mydb;
+    private boolean fabUpdate = false;
 
 
     @Override
@@ -75,41 +78,56 @@ public class StudyFragment extends ListFragment {
         new AsyncTask<Void, Void, ArrayList<Study>>() {
             @Override
             protected ArrayList<Study> doInBackground(Void... params) {
-                DBHandler mydb = DBHandler.getInstance(getActivity());
+                mydb = DBHandler.getInstance(getActivity());
                 return mydb.getAllStudies();
             }
             @Override
             protected void onPostExecute(final ArrayList<Study> results) {
-                if(from_menu) {
+                if (from_menu) {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             ArrayList<Study> filtered = filterStudies(results);
-                            if(filtered.size() > 0) {
-                                progress.setVisibility(View.GONE);
-                                progressText.setVisibility(View.GONE);
-                                asla = new ActiveStudyListAdapter(getActivity(), filtered, StudyFragment.this);
-                                setListAdapter(asla);
-                            } else {
-                                progress.setVisibility(View.GONE);
-                                progressText.setVisibility(View.GONE);
+                            asla = new ActiveStudyListAdapter(getActivity(), filtered);
+                            progress.setVisibility(View.GONE);
+                            progressText.setVisibility(View.GONE);
+                            setListAdapter(asla);
+                            if (filtered.size() == 0)
                                 noStudies();
-                            }
                         }
                     }, 230); //Time for nav driver to close, for nice animations
                 } else {
                     ArrayList<Study> filtered = filterStudies(results);
-                    if(filtered.size() > 0) {
-                        progress.setVisibility(View.GONE);
-                        progressText.setVisibility(View.GONE);
-                        asla = new ActiveStudyListAdapter(getActivity(), filtered, StudyFragment.this);
-                        setListAdapter(asla);
-                    } else {
-                        progress.setVisibility(View.GONE);
-                        progressText.setVisibility(View.GONE);
+                    asla = new ActiveStudyListAdapter(getActivity(), filtered);
+                    progress.setVisibility(View.GONE);
+                    progressText.setVisibility(View.GONE);
+                    setListAdapter(asla);
+                    if (filtered.size() == 0)
                         noStudies();
-                    }
                 }
+
+                mydb.setOnStudyTableChangedListener(new OnStudyTableChangedListener() {
+                    @Override
+                    public void onTableChanged() {
+                        if (!fabUpdate) {
+                            final ArrayList<Study> studies = mydb.getAllStudies();
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (studies.size() == 0) {
+                                        if (asla.getCount() != 0)
+                                            asla.updateStudies(studies);
+                                        ((TextView) view.findViewById(R.id.no_studies)).setVisibility(View.VISIBLE);
+                                    } else {
+                                        ((TextView) view.findViewById(R.id.no_studies)).setVisibility(View.GONE);
+                                        if (asla.getCount() != studies.size())
+                                            asla.updateStudies(studies);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
         }.execute();
 
@@ -136,6 +154,8 @@ public class StudyFragment extends ListFragment {
                         progressDialog.setMessage(getString(R.string.update_studies));
                         progressDialog.setCanceledOnTouchOutside(false);
                         progressDialog.show();
+
+                        fabUpdate = true;
 
                         SyncStudyDataTask syncStudyDataTask = new SyncStudyDataTask(pref.getString("token", "none"), DBHandler.getInstance(view.getContext()), false, new StudyDataSyncResponse() {
                             @Override
@@ -169,6 +189,8 @@ public class StudyFragment extends ListFragment {
                                     }
                                 } catch (Exception e) {
                                     // probably server connection went bad
+                                } finally {
+                                    fabUpdate = false;
                                 }
                             }
                         });
@@ -288,8 +310,7 @@ public class StudyFragment extends ListFragment {
                     noStudies();
                 if(newList.size() > 0)
                     noStudiesTxt.setVisibility(View.GONE);
-                asla = new ActiveStudyListAdapter(getActivity(), newList, StudyFragment.this);
-                setListAdapter(asla);
+                asla.updateStudies(newList);
             }
         });
     }
@@ -303,6 +324,12 @@ public class StudyFragment extends ListFragment {
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mydb.setOnStudyTableChangedListener(null);
+        super.onDestroyView();
     }
 
 }

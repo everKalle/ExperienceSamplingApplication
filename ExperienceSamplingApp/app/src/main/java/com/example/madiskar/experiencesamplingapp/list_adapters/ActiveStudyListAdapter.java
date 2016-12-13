@@ -39,13 +39,11 @@ import java.util.Calendar;
 public class ActiveStudyListAdapter extends BaseAdapter  {
     private Context mContext;
     private ArrayList<Study> studies;
-    private StudyFragment studyFragment;
     private String token;
 
-    public ActiveStudyListAdapter(Context context, ArrayList<Study> studies, StudyFragment studyFragment) {
+    public ActiveStudyListAdapter(Context context, ArrayList<Study> studies) {
         this.mContext = context;
         this.studies = studies;
-        this.studyFragment =studyFragment;
         SharedPreferences spref = mContext.getApplicationContext().getSharedPreferences("com.example.madiskar.ExperienceSampler", Context.MODE_PRIVATE);
         token = spref.getString("token", "none");
     }
@@ -194,17 +192,16 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
                                         e.printStackTrace();
                                     }
 
-                                    LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(studyRef.getId()), DBHandler.getInstance(mContext), new RunnableResponse() {
+                                    final Long study_id = studyRef.getId();
+                                    LeaveStudyTask leaveStudyTask = new LeaveStudyTask(token, Long.toString(study_id), DBHandler.getInstance(mContext), new RunnableResponse() {
                                         @Override
                                         public void processFinish(String output) {
-                                            //do nothing right now
+                                            if(output.equals("success")) {
+                                                DBHandler.getInstance(mContext).deleteStudyEntry(study_id);
+                                            }
                                         }
                                     });
                                     ExecutorSupplier.getInstance().forBackgroundTasks().execute(leaveStudyTask);
-
-                                    if (studies.size() == 1) {
-                                        studyFragment.noStudies();
-                                    }
 
                                     studies.remove(position);
                                     Toast.makeText(mContext, mContext.getString(R.string.study_left), Toast.LENGTH_SHORT).show();
@@ -226,6 +223,12 @@ public class ActiveStudyListAdapter extends BaseAdapter  {
             }
         });
         return view;
+    }
+
+
+    public void updateStudies(ArrayList<Study> studies) {
+        this.studies = studies;
+        notifyDataSetChanged();
     }
 
 

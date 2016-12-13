@@ -25,12 +25,10 @@ public class ActiveEventListAdapter extends BaseAdapter {
 
     private Activity mActivity;
     private ArrayList<Event> events;
-    private EventFragment eventFragment;
 
-    public ActiveEventListAdapter(Activity activity, ArrayList<Event> events, EventFragment eventFragment) {
+    public ActiveEventListAdapter(Activity activity, ArrayList<Event> events) {
         this.mActivity = activity;
         this.events = events;
-        this.eventFragment = eventFragment;
     }
     @Override
     public int getCount() {
@@ -73,6 +71,7 @@ public class ActiveEventListAdapter extends BaseAdapter {
                 stopIntent.putExtra("studyId", events.get(position).getStudyId());
                 stopIntent.putExtra("controlNotificationId", ((int)events.get(position).getId())*-100);
                 stopIntent.putExtra("eventId", events.get(position).getId());
+                updateEvents(position);
                 mActivity.sendBroadcast(stopIntent);
             }
         });
@@ -80,20 +79,13 @@ public class ActiveEventListAdapter extends BaseAdapter {
     return view;
     }
 
-    public void updateEvents() {
-        DBHandler db = DBHandler.getInstance(mActivity);
-        boolean anyEvents = false;
-        for (Study s: db.getAllStudies()) {
-            for (Event event: s.getEvents()) {
-                Calendar startTime = db.getEventStartTime(event.getId());
-                if (startTime != null) {
-                    anyEvents = true;
-                }
-            }
-        }
+    private void updateEvents(final int position) {
+        events.remove(position);
+        notifyDataSetChanged();
+    }
 
-        if (!anyEvents)
-            eventFragment.noEvents();
+    public void updateEvents(ArrayList<Event> events) {
+        this.events = events;
         notifyDataSetChanged();
     }
 

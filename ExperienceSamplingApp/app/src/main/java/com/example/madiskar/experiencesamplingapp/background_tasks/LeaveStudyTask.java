@@ -67,7 +67,6 @@ public class LeaveStudyTask implements Runnable {
                 sb.append(line);
                 //break;
             }
-            mydb.deleteStudyEntry(Long.parseLong(study_id));
             response.processFinish(sb.toString());
         } catch (Exception e) {
             e.printStackTrace();

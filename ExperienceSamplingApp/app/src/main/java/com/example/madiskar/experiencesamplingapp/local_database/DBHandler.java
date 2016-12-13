@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.madiskar.experiencesamplingapp.interfaces.OnEventTimeTableChanged;
+import com.example.madiskar.experiencesamplingapp.interfaces.OnStudyTableChangedListener;
 import com.example.madiskar.experiencesamplingapp.local_database.ActiveStudyContract.*;
 import com.example.madiskar.experiencesamplingapp.data_types.BeepFerePeriod;
 import com.example.madiskar.experiencesamplingapp.data_types.Event;
@@ -32,6 +34,8 @@ import java.util.regex.Pattern;
 public class DBHandler extends SQLiteOpenHelper {
     private static DBHandler mInstance = null;
 
+    private OnEventTimeTableChanged onEventTimeTableChangedListener;
+    private OnStudyTableChangedListener onStudyTableChangedListener;
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "ActiveStudies.db";
@@ -112,6 +116,13 @@ public class DBHandler extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    public void setOnEventTimeTableChangedListener(OnEventTimeTableChanged listener) {
+        this.onEventTimeTableChangedListener = listener;
+    }
+
+    public void setOnStudyTableChangedListener(OnStudyTableChangedListener listener) {
+        this.onStudyTableChangedListener = listener;
+    }
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_TABLE_STUDY);
@@ -382,6 +393,8 @@ public class DBHandler extends SQLiteOpenHelper {
             for (Event e : study.getEvents())
                 insertEvent(e, study.getId());
             returnValue = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
+            if(onStudyTableChangedListener != null)
+                onStudyTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
         } catch (Exception e){
             e.printStackTrace();
@@ -416,6 +429,8 @@ public class DBHandler extends SQLiteOpenHelper {
             for (Event e : study.getEvents())
                 insertEvent(e, study.getId());
             returnValue = db.update(ActiveStudyEntry.TABLE_NAME, values, ActiveStudyEntry._ID + "=" + study.getId(), null);
+            if(onStudyTableChangedListener != null)
+                onStudyTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
@@ -569,6 +584,8 @@ public class DBHandler extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(EventTimeEntry.COLUMN_EVENTID, eventId);
         values.put(EventTimeEntry.COLUMN_START, startTime);
+        if(onEventTimeTableChangedListener != null)
+            onEventTimeTableChangedListener.onTableChanged();
         return db.insert(EventTimeEntry.TABLE_NAME, null, values);
     }
 
@@ -577,10 +594,10 @@ public class DBHandler extends SQLiteOpenHelper {
         db.beginTransaction();
         try {
             db.delete(EventTimeEntry.TABLE_NAME, EventTimeEntry.COLUMN_EVENTID + " = ? ", new String[]{Long.toString(eventId)});
+            if(onEventTimeTableChangedListener != null)
+                onEventTimeTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
-            Log.v("onnestus", "jess");
         } catch (Exception e) {
-            Log.v("ebaonn", "lape");
             e.printStackTrace();
             return false;
         } finally {
@@ -672,6 +689,8 @@ public class DBHandler extends SQLiteOpenHelper {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
+            if(onStudyTableChangedListener != null)
+                onStudyTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();

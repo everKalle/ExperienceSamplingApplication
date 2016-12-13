@@ -207,25 +207,31 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 DBHandler mydb = DBHandler.getInstance(getApplicationContext());
                                 mydb.clearTables();
-                                JSONArray jsonArray = DBHandler.parseJsonString(output);
-                                ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray, true);
+                                try {
+                                    JSONArray jsonArray = DBHandler.parseJsonString(output);
+                                    ArrayList<Study> studies = DBHandler.jsonArrayToStudyArray(jsonArray, true);
+                                    for (Study s : studies) { // add studies to local db and also set up alarms
+                                        mydb.insertStudy(s);
+                                    }
+                                    for (Study s : studies) {
+                                        ResponseReceiver rR = new ResponseReceiver(s);
+                                        rR.setupAlarm(getApplicationContext(), true);
+                                    }
 
-                                for (Study s : studies) { // add studies to local db and also set up alarms
-                                    mydb.insertStudy(s);
-                                }
-                                for (Study s : studies) {
-                                    ResponseReceiver rR = new ResponseReceiver(s);
-                                    rR.setupAlarm(getApplicationContext(), true);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("token", result);
+                                    editor.putInt("LoggedIn", 1);
+                                    editor.putString("username", emailField.getText().toString());
+                                    editor.apply();
+                                    fetchDataDialog.dismiss();
+                                    startActivity(intent);
+                                    finish();
+                                } catch (Exception e) {
+                                    loginbtn.setEnabled(true);
+                                    fetchDataDialog.dismiss();
+                                    Toast.makeText(getApplicationContext(), getString(R.string.log_fail), Toast.LENGTH_LONG).show();
                                 }
 
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString("token", result);
-                                editor.putInt("LoggedIn", 1);
-                                editor.putString("username", emailField.getText().toString());
-                                editor.apply();
-                                fetchDataDialog.dismiss();
-                                startActivity(intent);
-                                finish();
                             }
                         }
                     });

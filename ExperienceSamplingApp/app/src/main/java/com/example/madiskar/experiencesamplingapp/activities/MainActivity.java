@@ -16,7 +16,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -55,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     public static boolean justStarted = true;
-
     ArrayList<MenuItem> mMenuItems = new ArrayList<>();
 
     @Override
@@ -256,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
                 alertDialog.show();
             }
             else {
-                Log.v("njetu", "pole");
                 if (!isNetworkAvailable()) {
                     alertDialogBuilder.setMessage(getString(R.string.unsynced_data2));
                     alertDialogBuilder.setNegativeButton(getString(R.string.ok), new DialogInterface.OnClickListener() {

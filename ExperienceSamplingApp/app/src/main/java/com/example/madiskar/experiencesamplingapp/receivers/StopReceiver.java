@@ -34,10 +34,11 @@ public class StopReceiver extends BroadcastReceiver {
         long eventId = intent.getLongExtra("eventId", 0);
         long studyId = intent.getLongExtra("studyId", 0);
 
-        EventFragment.removeEvent(eventId, context);
-
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(notificationId);
+
+        DBHandler mydb = DBHandler.getInstance(context);
+        mydb.deleteEventTimeEntry(eventId);
 
         Intent i = new Intent(context, ControlTimeReceiver.class);
         PendingIntent sender = PendingIntent.getBroadcast(context, controlNotificationId, i, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -45,16 +46,13 @@ public class StopReceiver extends BroadcastReceiver {
 
         alarmManager.cancel(sender);
 
-
-        DBHandler mydb = DBHandler.getInstance(context);
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         SaveEventResultTask saveEventResultTask = new SaveEventResultTask(token, Long.toString(eventId), startTime, endTime,
                 (activeNetworkInfo != null && activeNetworkInfo.isConnected()), mydb, new RunnableResponse() {
             @Override
-            public void processFinish(String output) {
-            }
+            public void processFinish(String output) {}
         });
         ExecutorSupplier.getInstance().forBackgroundTasks().execute(saveEventResultTask);
 
