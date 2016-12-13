@@ -15,17 +15,19 @@
     <string-array name="alarmTypeEntries">
         <item>Sound</item>
         <item>Vibration</item>
+        <item>Everything Muted</item>
     </string-array>
 
     <string-array name="alarmTypeValues">
         <item>0</item>
         <item>1</item>
+        <item>2</item>
     </string-array>
 
     <string-array name="alarmToneEntries">
-        <item>Classic</item>
-        <item>Basic 2</item>
-        <item>Atomic</item>
+        <item>Chime 1</item>
+        <item>Chime 2</item>
+        <item>Chime 3</item>
     </string-array>
 
     <string-array name="alarmToneValues">
