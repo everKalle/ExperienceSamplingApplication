@@ -393,13 +393,13 @@ public class DBHandler extends SQLiteOpenHelper {
             for (Event e : study.getEvents())
                 insertEvent(e, study.getId());
             returnValue = db.insert(ActiveStudyEntry.TABLE_NAME, null, values);
-            if(onStudyTableChangedListener != null)
-                onStudyTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
         } catch (Exception e){
             e.printStackTrace();
         } finally {
             db.endTransaction();
+            if(onStudyTableChangedListener != null)
+                onStudyTableChangedListener.onTableChanged();
         }
         return returnValue;
     }
@@ -429,13 +429,13 @@ public class DBHandler extends SQLiteOpenHelper {
             for (Event e : study.getEvents())
                 insertEvent(e, study.getId());
             returnValue = db.update(ActiveStudyEntry.TABLE_NAME, values, ActiveStudyEntry._ID + "=" + study.getId(), null);
-            if(onStudyTableChangedListener != null)
-                onStudyTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             db.endTransaction();
+            if(onStudyTableChangedListener != null)
+                onStudyTableChangedListener.onTableChanged();
         }
         return returnValue;
     }
@@ -689,14 +689,14 @@ public class DBHandler extends SQLiteOpenHelper {
             db.delete(QuestionEntry.TABLE_NAME, QuestionEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(EventEntry.TABLE_NAME, EventEntry.COLUMN_STUDYID + " = ? ", new String[]{Long.toString(studyID)});
             db.delete(ActiveStudyEntry.TABLE_NAME, ActiveStudyEntry._ID + " = ? ", new String[]{Long.toString(studyID)});
-            if(onStudyTableChangedListener != null)
-                onStudyTableChangedListener.onTableChanged();
             db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         } finally {
             db.endTransaction();
+            if(onStudyTableChangedListener != null)
+                onStudyTableChangedListener.onTableChanged();
         }
         return true;
     }

@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,7 @@ public class StudyFragment extends ListFragment {
     private SharedPreferences spref;
     private DBHandler mydb;
     private boolean fabUpdate = false;
+    private boolean filtering = false;
 
 
     @Override
@@ -74,11 +76,11 @@ public class StudyFragment extends ListFragment {
         progress.setVisibility(View.VISIBLE);
         progressText.setVisibility(View.VISIBLE);
         noStudiesTxt.setVisibility(View.GONE);
+        mydb = DBHandler.getInstance(getActivity());
 
         new AsyncTask<Void, Void, ArrayList<Study>>() {
             @Override
             protected ArrayList<Study> doInBackground(Void... params) {
-                mydb = DBHandler.getInstance(getActivity());
                 return mydb.getAllStudies();
             }
             @Override
@@ -87,6 +89,7 @@ public class StudyFragment extends ListFragment {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            filtering = true;
                             ArrayList<Study> filtered = filterStudies(results);
                             asla = new ActiveStudyListAdapter(getActivity(), filtered);
                             progress.setVisibility(View.GONE);
@@ -94,9 +97,11 @@ public class StudyFragment extends ListFragment {
                             setListAdapter(asla);
                             if (filtered.size() == 0)
                                 noStudies();
+                            filtering = false;
                         }
                     }, 230); //Time for nav driver to close, for nice animations
                 } else {
+                    filtering = true;
                     ArrayList<Study> filtered = filterStudies(results);
                     asla = new ActiveStudyListAdapter(getActivity(), filtered);
                     progress.setVisibility(View.GONE);
@@ -104,24 +109,27 @@ public class StudyFragment extends ListFragment {
                     setListAdapter(asla);
                     if (filtered.size() == 0)
                         noStudies();
+                    filtering = false;
                 }
 
                 mydb.setOnStudyTableChangedListener(new OnStudyTableChangedListener() {
                     @Override
                     public void onTableChanged() {
-                        if (!fabUpdate) {
-                            final ArrayList<Study> studies = mydb.getAllStudies();
+                        if (!fabUpdate && !filtering) {
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (studies.size() == 0) {
-                                        if (asla.getCount() != 0)
-                                            asla.updateStudies(studies);
-                                        ((TextView) view.findViewById(R.id.no_studies)).setVisibility(View.VISIBLE);
-                                    } else {
-                                        ((TextView) view.findViewById(R.id.no_studies)).setVisibility(View.GONE);
-                                        if (asla.getCount() != studies.size())
-                                            asla.updateStudies(studies);
+                                    if (!fabUpdate && !filtering) {
+                                        ArrayList<Study> studies_ = mydb.getAllStudies();
+                                        if (studies_.size() == 0) {
+                                            if (asla.getCount() != 0) {
+                                                asla.updateStudies(studies_);
+                                            }
+                                            ((TextView) view.findViewById(R.id.no_studies)).setVisibility(View.VISIBLE);
+                                        } else {
+                                            ((TextView) view.findViewById(R.id.no_studies)).setVisibility(View.GONE);
+                                            asla.updateStudies(studies_);
+                                        }
                                     }
                                 }
                             });
