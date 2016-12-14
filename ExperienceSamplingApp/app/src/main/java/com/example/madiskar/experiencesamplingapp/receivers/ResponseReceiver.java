@@ -21,7 +21,6 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
 
     private Study study;
     private SharedPreferences sharedPref;
-    public static ArrayList<Study> studies = new ArrayList<>();
 
     public ResponseReceiver(Study study) {
         this.study = study;
@@ -55,11 +54,6 @@ public class ResponseReceiver extends WakefulBroadcastReceiver {
             editor.apply();
         }
 
-
-        if (studies.isEmpty()) {
-            DBHandler mydb = DBHandler.getInstance(context);
-            studies = mydb.getAllStudies();
-        }
 
         int interval = study.getMinTimeBetweenNotifications();
         Intent intent = new Intent(context, ResponseReceiver.class);

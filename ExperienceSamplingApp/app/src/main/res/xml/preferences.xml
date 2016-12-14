@@ -24,7 +24,7 @@
         android:summary="@string/change_volume">
         <intent android:action="android.intent.action.VIEW"
             android:targetPackage="com.example.madiskar.experiencesamplingapp"
-            android:targetClass="com.example.madiskar.experiencesamplingapp.VolumeControlActivity"/>
+            android:targetClass="com.example.madiskar.experiencesamplingapp.activities.VolumeControlActivity"/>
     </Preference>
     <Preference
         android:key="change_password"
@@ -33,6 +33,6 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.example.madiskar.experiencesamplingapp"
-            android:targetClass="com.example.madiskar.experiencesamplingapp.ChangePasswordActivity"/>
+            android:targetClass="com.example.madiskar.experiencesamplingapp.activities.ChangePasswordActivity"/>
     </Preference>
 </PreferenceScreen>

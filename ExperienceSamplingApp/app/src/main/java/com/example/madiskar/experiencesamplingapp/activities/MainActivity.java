@@ -77,9 +77,9 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             @Override
             public void onBackStackChanged() {
                 Fragment f = getFragmentManager().findFragmentById(R.id.mainContent);
-                if (f instanceof StudyFragment) { // here we listen for changes in backstack and then rename the title accordingly
+                // here we listen for changes in backstack and then rename the title accordingly
+                if(f != null)
                     setTitle(f.getTag());
-                }
             }
         });
 
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             setTitle(itemName);
             getFragmentManager().beginTransaction()
                     .replace(R.id.mainContent, new SettingsFragment(), "Settings")
-                    .addToBackStack(null)
+                    .addToBackStack("Settings")
                     .commit();
         }
         else if (itemName.equals("Log Out")) {
@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             Fragment fragment = new JoinStudyFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment, "Join Studies")
-                    .addToBackStack(null)
+                    .addToBackStack("Join Studies")
                     .commit();
         }
         else if(itemName.equals("My Events")) {
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements BeepfreePeriodPic
             Fragment fragment = new EventFragment();
             fragmentManager.beginTransaction()
                     .replace(R.id.mainContent, fragment, "My Events")
-                    .addToBackStack(null)
+                    .addToBackStack("My Events")
                     .commit();
         }
     }

@@ -73,8 +73,8 @@ public class JoinStudyFragment extends Fragment {
                     args.putString("keywordsEditText", keywordsEditText.getText().toString());
                     fragment.setArguments(args);
                     fragmentManager.beginTransaction()
-                            .replace(R.id.mainContent, fragment)
-                            .addToBackStack(null)
+                            .replace(R.id.mainContent, fragment, "Join Studies")
+                            .addToBackStack("Join Studies")
                             .commit();
                 } else {
                     Toast.makeText(getActivity(), getString(R.string.no_internet) , Toast.LENGTH_LONG).show();
