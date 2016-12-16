@@ -219,6 +219,10 @@ class Study extends CI_Controller {
     {
       $data['study_details'] = $this->study_model->get_study_data($id, $this->study_model->get_author_id($this->logged_in['username']));
       if ($data['study_details'] != FALSE){
+        $this->study_model->remove_all_participants($id);
+        $this->study_model->remove_all_shares($id);
+        $this->study_model->remove_study_results($id);
+        $this->study_model->remove_event_results($id);
         $this->study_model->remove_questions($id);
         $this->study_model->remove_events($id);
         $this->study_model->remove_study($id);
@@ -232,14 +236,14 @@ class Study extends CI_Controller {
  }
 
  function get_public_studies(){
-    $public_studies = $this->study_model->get_all_public_studies();
-    $study_array = array();
-    foreach($public_studies as $study):
-      $study['questions'] = $this->study_model->get_study_questions($study['id']);
-      $study['events'] = $this->study_model->get_study_events($study['id']);
-      $study_array[] = $study;
-    endforeach;
-    $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
+      $public_studies = $this->study_model->get_all_public_studies();
+      $study_array = array();
+      foreach($public_studies as $study):
+        $study['questions'] = $this->study_model->get_study_questions($study['id']);
+        $study['events'] = $this->study_model->get_study_events($study['id']);
+        $study_array[] = $study;
+      endforeach;
+      $this->output->set_content_type('application/json')->set_output(json_encode($study_array, JSON_UNESCAPED_UNICODE));
  }
 
  function get_participant_studies(){
@@ -256,7 +260,7 @@ class Study extends CI_Controller {
           $study['events'] = $this->study_model->get_study_events($study['id']);
           $study_array[] = $study;
         endforeach;
-        $this->output->set_content_type('application/json')->set_output(json_encode($study_array));
+        $this->output->set_content_type('application/json')->set_output(json_encode($study_array, JSON_UNESCAPED_UNICODE));
       }
     } else {
       echo "nothing";
@@ -492,6 +496,12 @@ class Study extends CI_Controller {
         $data['study_details'] = $this->study_model->get_study_data($id);
         $data['questions'] = $this->study_model->get_study_questions_for_modification($id);
         $data['events'] = $this->study_model->get_study_events_for_modification($id);
+        $data['can_modify_events'] = TRUE;
+
+        $event_results = $this->study_model->get_event_results($id);
+        if (count($event_results) > 0){
+          $data['can_modify_events'] = FALSE;
+        }
 
         $this->load->view('templates/header', $data);
         $this->load->view('study/modify_study_full', $data);
@@ -502,7 +512,10 @@ class Study extends CI_Controller {
         $study_id = $_POST['study-id'];
         $general_study_data = $_POST['gen'];
         $study_questions = $_POST["question"];
-        $study_events = $_POST["event"];
+        $event_results = $this->study_model->get_event_results($id);
+        if (count($event_results) == 0){
+          $study_events = $_POST["event"];
+        }
 
         $general_study_data['study-min-time-between-beeps'] *= 60; // hours to minutes
         $general_study_data['study-duration-time'] *= $this->input->post('study-duration-time-unit'); // convert weeks to minutes
@@ -511,17 +524,21 @@ class Study extends CI_Controller {
         $general_study_data['author'] = $author;
 
         if($id = $this->study_model->update_study($study_id, $general_study_data)) { // save study to db
-        $this->study_model->remove_questions($study_id);
-        $this->study_model->remove_events($study_id);
-        $this->study_model->insert_questions($study_id, $study_questions); // save study questions to db 
-        $this->study_model->insert_events($study_id, $study_events); // ... events to db
-        redirect('/study/view/' . $study_id, 'location');
+          $this->study_model->remove_questions($study_id);
+          if (count($event_results) == 0){
+            $this->study_model->remove_events($study_id);
+          }
+          $this->study_model->insert_questions($study_id, $study_questions); // save study questions to db 
+          if (count($event_results) == 0){
+            $this->study_model->insert_events($study_id, $study_events); // ... events to db
+          }
+          redirect('/study/view/' . $study_id, 'location');
 
-      } else {
+        } else {
 
-      echo $id; // error
+        echo $id; // error
 
-      }
+        }
      }
     } else {
       redirect('/', 'location');

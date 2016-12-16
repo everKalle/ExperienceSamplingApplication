@@ -11,6 +11,7 @@ $lang['study-duration'] = 'Duration for a participant';
 $lang['limited-duration'] = 'Limited duration';
 $lang['duration-must-be-shorter'] = 'Duration for a participant can\'t be longer than the whole length of the study!';
 $lang['create-beeps-per-day'] = 'Beeps per day';
+$lang['create-beeps-per-day-unit'] = 'beeps';
 $lang['beeps-dont-fit'] = 'The number of beeps doesn\'t fit inside the defined time period!';
 $lang['min-time-between-beeps'] = 'Minimum time between beeps';
 $lang['beeps-period'] = 'Beeps occur from';
@@ -45,6 +46,8 @@ $lang['remove-event'] = 'Remove last event';
 $lang['remove-event-confirm'] = 'Remove the last event?';
 $lang['event-name'] = "Event name";
 $lang['event-control-time'] = "Control time";
+$lang['event-cant-modify-1'] = "Event modification disabled.";
+$lang['event-cant-modify-2'] = "The event(s) in this study have results. To enable modification, the results must be deleted.";
 
 $lang['invalid-date'] = "Invalid date";
 $lang['invalid-time'] = "Invalid time";

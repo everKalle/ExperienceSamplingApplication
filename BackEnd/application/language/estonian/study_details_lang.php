@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$lang['study-sharing'] = 'Uuringu on jagatud';
+$lang['study-sharing'] = 'Uuring on jagatud';
 $lang['study-sharing-end'] = 'inimesega';
 $lang['study-shared-with'] = 'Uuring on jagatud järgnevate inimestega:';
 $lang['enter-name'] = 'Sisesta nimi:';
@@ -10,7 +10,7 @@ $lang['share-study'] = 'Jaga uuring';
 
 $lang['remove-user'] = 'Eemalda';
 
-$lang['adding-participants'] = 'Uuringusse osaleb';
+$lang['adding-participants'] = 'Uuringus osaleb';
 $lang['adding-participants-end'] = 'inimest';
 $lang['participants'] = 'Uuringus osalejad:';
 $lang['enter-email'] = 'Sisesta e-maili aadress:';

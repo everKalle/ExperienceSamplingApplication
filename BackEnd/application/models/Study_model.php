@@ -23,7 +23,7 @@ class Study_model extends CI_Model {
 					array_push($temp, $question['question-multichoice-'.$j]);
 					unset($question['question-multichoice-'.$j]);
 				}
-				$question['question-multichoices'] = json_encode($temp);
+				$question['question-multichoices'] = json_encode($temp, JSON_UNESCAPED_UNICODE);
 			} 
 				
 			if($this->db->insert('survey_question',$question)) { // insert question into db
@@ -96,6 +96,29 @@ class Study_model extends CI_Model {
 				return $this->db->error_message();
 			}
 		}
+		return true;
+	}
+
+	function remove_all_participants($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('partipant_to_study');
+		return true;
+	}
+
+	function remove_all_shares($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('user_survey_access');
+		return true;
+	}
+
+	function remove_study_results($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('survey_answers');
+		return true;
+	}
+
+	function remove_event_results($study_id) {
+		$query = $this->db->query("DELETE FROM `event_results` WHERE EXISTS (SELECT * FROM survey_custom_event WHERE survey_custom_event.id = event_results.event_id AND survey_custom_event.survey_id = " . addslashes($study_id) . ")");
 		return true;
 	}
 
