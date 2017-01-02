@@ -1,4 +1,5 @@
 <hr>
+<?php if ($can_modify_events) { ?>
 <div class="panel panel-success">
   <div class="panel-heading">
   	<?php echo $this->lang->line('events'); ?>
@@ -44,6 +45,18 @@
     var eventCount = <?php echo $i; ?>;
   </script>
 </div>
+<?php } else { ?>
+<div class="panel panel-success">
+  <div class="panel-heading">
+    <?php echo $this->lang->line('events'); ?>
+  </div>
+  <div class="panel-body">
+    <div class="alert alert-danger" role="alert">
+      <strong><?php echo $this->lang->line('event-cant-modify-1'); ?></strong> - <?php echo $this->lang->line('event-cant-modify-2'); ?>
+    </div>
+  </div>
+</div>
+<?php } ?>
 
 <input class="btn btn-lg btn-primary" type="submit" name="submit" id="submit-button" value="<?php echo $this->lang->line('save-modifications'); ?>"/>
 

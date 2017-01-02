@@ -99,6 +99,29 @@ class Study_model extends CI_Model {
 		return true;
 	}
 
+	function remove_all_participants($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('partipant_to_study');
+		return true;
+	}
+
+	function remove_all_shares($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('user_survey_access');
+		return true;
+	}
+
+	function remove_study_results($study_id) {
+		$this->db->where('survey_id',$study_id);
+		$this->db->delete('survey_answers');
+		return true;
+	}
+
+	function remove_event_results($study_id) {
+		$query = $this->db->query("DELETE FROM `event_results` WHERE EXISTS (SELECT * FROM survey_custom_event WHERE survey_custom_event.id = event_results.event_id AND survey_custom_event.survey_id = " . addslashes($study_id) . ")");
+		return true;
+	}
+
 	function remove_questions($study_id) {
 		$this->db->where('survey_id',$study_id);
 		$this->db->delete('survey_question');

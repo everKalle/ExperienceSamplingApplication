@@ -63,6 +63,17 @@ $lang['delete-confirm-text'] = 'Are you sure you wish to delete the study';
 $lang['delete-confirm-irreversible'] = 'This action is permanent!';
 $lang['cancel-deletion'] = 'Cancel';
 
+$lang['delete-answers-button'] = 'Delete questionnaire answers';
+$lang['delete-event-results-button'] = 'Delete event results';
+
+$lang['delete-answers-modal-title'] = 'Please confirm the deletion of questionnaire answers';
+$lang['delete-answers-confirm-text-begin'] = 'Are you sure you wish to delete the questionnaire answers of the study';
+$lang['delete-answers-confirm-text-end'] = '';
+
+$lang['delete-event-results-modal-title'] = 'Please confirm the deletion of event results';
+$lang['delete-event-results-confirm-text-begin'] = 'Are you sure you wish to delete the event results of the study';
+$lang['delete-event-results-confirm-text-end'] = '';
+
 $lang['minutes'] = 'minutes';
 $lang['days'] = 'days';
 $lang['hours'] = 'hours';

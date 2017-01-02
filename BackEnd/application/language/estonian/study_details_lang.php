@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$lang['study-sharing'] = 'Uuringu on jagatud';
+$lang['study-sharing'] = 'Uuring on jagatud';
 $lang['study-sharing-end'] = 'inimesega';
 $lang['study-shared-with'] = 'Uuring on jagatud järgnevate inimestega:';
 $lang['enter-name'] = 'Sisesta nimi:';
@@ -10,7 +10,7 @@ $lang['share-study'] = 'Jaga uuring';
 
 $lang['remove-user'] = 'Eemalda';
 
-$lang['adding-participants'] = 'Uuringusse osaleb';
+$lang['adding-participants'] = 'Uuringus osaleb';
 $lang['adding-participants-end'] = 'inimest';
 $lang['participants'] = 'Uuringus osalejad:';
 $lang['enter-email'] = 'Sisesta e-maili aadress:';
@@ -62,6 +62,17 @@ $lang['delete-confirm-modal-title'] = 'Palun kinnitata uuringu kustutamine';
 $lang['delete-confirm-text'] = 'Kas oled kindel, et soovid kustutada uuringu';
 $lang['delete-confirm-irreversible'] = 'Seda tegevust ei saa tagasi võtta!';
 $lang['cancel-deletion'] = 'Tühista';
+
+$lang['delete-answers-button'] = 'Kustuta küsimustiku vastused';
+$lang['delete-event-results-button'] = 'Kustuta sündmuste tulemused';
+
+$lang['delete-answers-modal-title'] = 'Palun kinnitada küsimustiku vastuste kustutamine';
+$lang['delete-answers-confirm-text-begin'] = 'Kas oled kindel, et soovid kustutada uuringu';
+$lang['delete-answers-confirm-text-end'] = ' küsimustiku vastused';
+
+$lang['delete-event-results-modal-title'] = 'Palun kinnitada sündmuste tulemuste kustutamine';
+$lang['delete-event-results-confirm-text-begin'] = 'Kas oled kindel, et soovid kustutada uuringu';
+$lang['delete-event-results-confirm-text-end'] = ' sündmuste tulemused';
 
 $lang['minutes'] = 'minutit';
 $lang['days'] = 'päeva';

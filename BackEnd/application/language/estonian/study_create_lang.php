@@ -11,6 +11,7 @@ $lang['study-duration'] = 'Kestvus';
 $lang['limited-duration'] = 'Piiratud kestvus';
 $lang['duration-must-be-shorter'] = 'Kestvus ühe kasutaja jaoks on pikem kui kogu uuringu kestvus!';
 $lang['create-beeps-per-day'] = 'Piiksude arv päevas';
+$lang['create-beeps-per-day-unit'] = 'tk';
 $lang['beeps-dont-fit'] = 'Piiksude arv ei mahu piiksude perioodi sisse ära!';
 $lang['min-time-between-beeps'] = 'Minimaalne aeg piiksude vahel';
 $lang['beeps-period'] = 'Piiksud toimuvad ajavahemikul';
@@ -45,6 +46,8 @@ $lang['remove-event'] = 'Eemalda viimane sündmus';
 $lang['remove-event-confirm'] = 'Kustuta viimane sündmus?';
 $lang['event-name'] = "Sündmuse nimi";
 $lang['event-control-time'] = "Kontrollaeg";
+$lang['event-cant-modify-1'] = "Sündmuste muutmine keelatud.";
+$lang['event-cant-modify-2'] = "Antud uuringu sündmus(t)ele on saabunud tulemusi. Sündmuste muutmiseks on vaja kustutada tulemused.";
 
 $lang['invalid-date'] = "Vigane kuupäev";
 $lang['invalid-time'] = "Vigane kellaaeg";

@@ -50,7 +50,7 @@
       <div class="form-group" id="study-beep-amt-group">
         <label class="control-label col-sm-3" for="study-beeps-per-day"><?php echo $this->lang->line('create-beeps-per-day'); ?>:</label>
         <div class="col-sm-7 form-inline">
-          <input class="form-control input-sm" type="number" id="study-beeps-per-day" name="gen[study-beeps-per-day]" size="5" min="1" placeholder="0" value="<?php echo $study_details['study-beeps-per-day']; ?>" required/> tk
+          <input class="form-control input-sm" type="number" id="study-beeps-per-day" name="gen[study-beeps-per-day]" size="5" min="1" placeholder="0" value="<?php echo $study_details['study-beeps-per-day']; ?>" required/> <?php echo $this->lang->line('create-beeps-per-day-unit'); ?>
           <span style="display: none;" id="study-beep-amt-help" class="help-block"><?php echo $this->lang->line('beeps-dont-fit'); ?></span>
         </div>
       </div>
