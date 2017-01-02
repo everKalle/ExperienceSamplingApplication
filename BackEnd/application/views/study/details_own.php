@@ -177,6 +177,11 @@ function removeParticipant(id){
     <?php if (count($events) > 0) { ?>
     <p><a href="<?php echo site_url('study/event_results/'.$study_details['id']); ?>"><?php echo $this->lang->line('events-csv'); ?></a></p>
     <?php } ?>
+    <p><button data-toggle="modal" data-target="#deleteAnswersModal" class="btn btn-danger btn-sm"><?php echo $this->lang->line('delete-answers-button'); ?></button>
+    <?php if (count($events) > 0) { ?>
+    <button data-toggle="modal" data-target="#deleteEventResultsModal" class="btn btn-danger btn-sm"><?php echo $this->lang->line('delete-event-results-button'); ?></button>
+    <?php } ?>
+    </p>
   </div>
 </div>
 
@@ -264,11 +269,53 @@ function removeAdmin(id){
         <h4 class="modal-title"><?php echo $this->lang->line('delete-confirm-modal-title'); ?></h4>
       </div>
       <div class="modal-body">
-        <p><?php echo $this->lang->line('delete-confirm-text'); ?> "<?php echo $study_details['study-title']; ?>"</p>
+        <p><?php echo $this->lang->line('delete-confirm-text'); ?> "<?php echo $study_details['study-title']; ?>"?</p>
         <p class="small text-danger"><?php echo $this->lang->line('delete-confirm-irreversible'); ?></p>
       </div>
       <div class="modal-footer">
         <a href="<?php echo site_url('study/delete/'.$study_details['id']); ?>" class="btn btn-danger"><?php echo $this->lang->line('delete-study'); ?></a>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('cancel-deletion'); ?></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="deleteAnswersModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><?php echo $this->lang->line('delete-answers-modal-title'); ?></h4>
+      </div>
+      <div class="modal-body">
+        <p><?php echo $this->lang->line('delete-answers-confirm-text-begin'); ?> "<?php echo $study_details['study-title']; ?>"<?php echo $this->lang->line('delete-answers-confirm-text-end'); ?>?</p>
+        <p class="small text-danger"><?php echo $this->lang->line('delete-confirm-irreversible'); ?></p>
+      </div>
+      <div class="modal-footer">
+        <a href="<?php echo site_url('study/delete_study_results/'.$study_details['id']); ?>" class="btn btn-danger"><?php echo $this->lang->line('delete-study'); ?></a>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('cancel-deletion'); ?></button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="deleteEventResultsModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><?php echo $this->lang->line('delete-event-results-modal-title'); ?></h4>
+      </div>
+      <div class="modal-body">
+        <p><?php echo $this->lang->line('delete-event-results-confirm-text-begin'); ?> "<?php echo $study_details['study-title']; ?>"<?php echo $this->lang->line('delete-event-results-confirm-text-end'); ?>?</p>
+        <p class="small text-danger"><?php echo $this->lang->line('delete-confirm-irreversible'); ?></p>
+      </div>
+      <div class="modal-footer">
+        <a href="<?php echo site_url('study/delete_event_results/'.$study_details['id']); ?>" class="btn btn-danger"><?php echo $this->lang->line('delete-study'); ?></a>
         <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo $this->lang->line('cancel-deletion'); ?></button>
       </div>
     </div>

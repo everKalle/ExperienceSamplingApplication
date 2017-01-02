@@ -63,6 +63,17 @@ $lang['delete-confirm-text'] = 'Kas oled kindel, et soovid kustutada uuringu';
 $lang['delete-confirm-irreversible'] = 'Seda tegevust ei saa tagasi võtta!';
 $lang['cancel-deletion'] = 'Tühista';
 
+$lang['delete-answers-button'] = 'Kustuta küsimustiku vastused';
+$lang['delete-event-results-button'] = 'Kustuta sündmuste tulemused';
+
+$lang['delete-answers-modal-title'] = 'Palun kinnitada küsimustiku vastuste kustutamine';
+$lang['delete-answers-confirm-text-begin'] = 'Kas oled kindel, et soovid kustutada uuringu';
+$lang['delete-answers-confirm-text-end'] = ' küsimustiku vastused';
+
+$lang['delete-event-results-modal-title'] = 'Palun kinnitada sündmuste tulemuste kustutamine';
+$lang['delete-event-results-confirm-text-begin'] = 'Kas oled kindel, et soovid kustutada uuringu';
+$lang['delete-event-results-confirm-text-end'] = ' sündmuste tulemused';
+
 $lang['minutes'] = 'minutit';
 $lang['days'] = 'päeva';
 $lang['hours'] = 'tundi';

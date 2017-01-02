@@ -235,6 +235,38 @@ class Study extends CI_Controller {
     }
  }
 
+ function delete_study_results($id)
+ {
+    if($this->logged_in)
+    {
+      $data['study_details'] = $this->study_model->get_study_data($id, $this->study_model->get_author_id($this->logged_in['username']));
+      if ($data['study_details'] != FALSE){
+        $this->study_model->remove_study_results($id);
+        redirect('/study/view/' . $id, 'location');
+      }
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
+
+ function delete_event_results($id)
+ {
+    if($this->logged_in)
+    {
+      $data['study_details'] = $this->study_model->get_study_data($id, $this->study_model->get_author_id($this->logged_in['username']));
+      if ($data['study_details'] != FALSE){
+        $this->study_model->remove_event_results($id);
+        redirect('/study/view/' . $id, 'location');
+      }
+    }
+    else
+    {
+      $this->login_required();
+    }
+ }
+
  function get_public_studies(){
       $public_studies = $this->study_model->get_all_public_studies();
       $study_array = array();
